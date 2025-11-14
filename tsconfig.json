@@ -32,6 +32,7 @@
     "removeComments": false,
     "downlevelIteration": false,
     "incremental": true,
+    "tsBuildInfoFile": "./dist/tsconfig.tsbuildinfo",
 
     /* Type Checking */
     "strict": true,

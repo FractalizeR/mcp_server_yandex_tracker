@@ -49,3 +49,6 @@ debug/
 # Логи
 logs/
 *.log.gz
+
+# TypeScript incremental compilation cache
+*.tsbuildinfo

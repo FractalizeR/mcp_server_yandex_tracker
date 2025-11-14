@@ -5,6 +5,8 @@
     "noEmit": true,  /* Только проверка типов, без генерации файлов */
     "types": ["node", "vitest/globals"],  /* Глобальные типы для тестов */
     "rootDir": ".",   /* Переопределяем rootDir для включения tests/ и vitest.config.ts */
+    "incremental": true,  /* Включаем incremental для ускорения typecheck:tests */
+    "tsBuildInfoFile": "./dist/tsconfig.tests.tsbuildinfo",
     "paths": {
       "@composition-root/*": ["./src/composition-root/*"],
       "@infrastructure/*": ["./src/infrastructure/*"],
