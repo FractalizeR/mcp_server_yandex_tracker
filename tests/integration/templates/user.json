@@ -1,5 +1,5 @@
 {
-  "self": "https://api.tracker.yandex.net/v2/users/1130000000000001",
+  "self": "https://api.tracker.yandex.net/v3/users/1130000000000001",
   "uid": 1130000000000001,
   "login": "testuser",
   "trackerUid": 1130000000000001,

@@ -30,28 +30,28 @@ tests/integration/
 ### 1. Получи JSON из реального API
 
 ```bash
-# Например, для комментария
+# Например, для пользователя
 curl -H "Authorization: OAuth $TOKEN" \
-  https://api.tracker.yandex.net/v3/issues/TEST-1/comments/1 \
-  > tests/integration/templates/comment.json
+  https://api.tracker.yandex.net/v3/users/1130000000000001 \
+  > tests/integration/templates/user.json
 ```
 
 ### 2. Создай генератор (1 строка!)
 
 ```typescript
 // tests/integration/helpers/template-based-generator.ts
-export const generateComment = testFixtureFactory.create('comment');
+export const generateUser = testFixtureFactory.create('user');
 ```
 
 ### 3. Готово! Используй в тестах
 
 ```typescript
-import { generateComment } from './template-based-generator.js';
+import { generateUser } from '@integration/helpers/template-based-generator.js';
 
-const comment = generateComment({
+const user = generateUser({
   overrides: {
-    text: 'Custom comment text',
-    createdBy: { id: 'specific-user-id' },
+    login: 'test-user',
+    display: 'Test User',
   },
 });
 ```
@@ -62,7 +62,7 @@ const comment = generateComment({
 
 | Тип поля | Примеры ключей | Правило |
 |----------|----------------|---------|
-| MongoDB ObjectId | `id: "6253ebaffab26d0e966ab4fd"` | → случайный ObjectId (24 hex символа) |
+| MongoDB ObjectId | `id: "6253ebaffab26d0e966ab4fd"` | → случайный ObjectId (24 alphanumeric символа) |
 | Passport UID | `passportUid: 4130000038722754` | → случайное число 1000000000-9999999999 |
 | Cloud UID | `cloudUid: "ajemm8a2d8lr8n3no467"` | → `${random(4)}${random(16)}` |
 | Email | `email: "user@example.com"` | → `test.user{N}@example.com` |
