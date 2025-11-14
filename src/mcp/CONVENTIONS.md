@@ -115,6 +115,17 @@ src/mcp/tools/api/issues/get/
 
 ```typescript
 export class NewTool extends BaseTool {
+  /**
+   * Статические метаданные (ОБЯЗАТЕЛЬНО для Tool Search)
+   */
+  static override readonly METADATA = {
+    name: 'yandex_tracker_new_operation',
+    description: 'Краткое описание операции',
+    category: ToolCategory.ISSUES,
+    tags: ['tag1', 'tag2', 'operation-type'],
+    isHelper: false, // false для API tools, true для helpers
+  } as const;
+
   private readonly definition = new NewDefinition();
 
   getDefinition(): ToolDefinition {
@@ -139,7 +150,8 @@ export class NewTool extends BaseTool {
       const processed = BatchResultProcessor.process(
         results,
         fields
-          ? (item: T): Partial<T> => ResponseFieldFilter.filter<T>(item, fields)
+          ? (issue: IssueWithUnknownFields): Partial<IssueWithUnknownFields> =>
+              ResponseFieldFilter.filter<IssueWithUnknownFields>(issue, fields)
           : undefined
       );
 
@@ -189,15 +201,16 @@ export class NewTool extends BaseTool {
   - [ ] Используй helper-методы: `buildStringParam()`, `buildArrayParam()`, etc.
   - [ ] Детальное описание для ИИ агента (примеры, ограничения)
 - [ ] **{action}.tool.ts** — наследует `BaseTool`
+  - [ ] ✅ **ОБЯЗАТЕЛЬНО:** `static override readonly METADATA` с метаданными для Tool Search
   - [ ] ✅ Валидация: `this.validateParams(params, Schema)`
   - [ ] ✅ Batch-обработка: `BatchResultProcessor.process()`
   - [ ] ✅ Логирование: `ResultLogger.logOperationStart()` и `.logBatchResults()`
   - [ ] ✅ Фильтрация: `ResponseFieldFilter.filter()` (если применимо)
   - [ ] ❌ НЕ дублируй логику валидации, обработки, логирования
 - [ ] **index.ts** — экспорт `{ NewTool, NewDefinition, NewParamsSchema }`
-- [ ] **DI регистрация:**
-  - [ ] `src/composition-root/types.ts` → `TYPES.NewTool: Symbol.for('NewTool')`
-  - [ ] `src/composition-root/container.ts` → bind в `bindTools()`
+- [ ] **АВТОМАТИЧЕСКАЯ РЕГИСТРАЦИЯ:**
+  - [ ] Добавь класс в `src/composition-root/definitions/tool-definitions.ts`
+  - [ ] ВСЁ! (DI регистрация, TYPES, ToolRegistry — автоматически)
 - [ ] **Тесты:** `tests/unit/mcp/tools/api/{feature}/{action}/{action}.tool.test.ts`
   - [ ] Успешный сценарий
   - [ ] Валидация параметров (неправильные данные)
@@ -265,6 +278,33 @@ async getIssues(keys: string[]): Promise<BatchResult<IssueWithUnknownFields>> { 
 - Tool params ДОЛЖНЫ иметь `fields?: string[]`
 - Перед возвратом ОБЯЗАТЕЛЬНО фильтруй через `ResponseFieldFilter`
 - Экономия токенов: 80-90%
+
+---
+
+### 5. Статические метаданные обязательны
+
+✅ **Правильно:**
+```typescript
+export class GetIssuesTool extends BaseTool {
+  static override readonly METADATA = {
+    name: 'yandex_tracker_get_issues',
+    description: 'Получить задачи по ключам',
+    category: ToolCategory.ISSUES,
+    tags: ['issue', 'get', 'batch'],
+    isHelper: false,
+  } as const;
+}
+```
+
+❌ **Неправильно:**
+```typescript
+export class GetIssuesTool extends BaseTool {
+  // ❌ Отсутствует METADATA
+}
+```
+
+**Почему:** METADATA используется для compile-time индексирования (Tool Search System).
+Без этого инструмент не будет найден через SearchToolsTool.
 
 ---
 

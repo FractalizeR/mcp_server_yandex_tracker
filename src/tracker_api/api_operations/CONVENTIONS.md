@@ -34,9 +34,13 @@ src/tracker_api/api_operations/{feature}/
 
 **Что предоставляет:**
 - `httpClient: HttpClient` — для HTTP запросов
+- `retryHandler: RetryHandler` — для retry логики (уже встроен в HttpClient)
+- `cacheManager: CacheManager` — для кеширования
 - `logger: Logger` — для логирования
-- `cache: Cache<T>` — для кеширования (NoOpCache по умолчанию)
-- `parallelExecutor: ParallelExecutor` — для параллельных запросов
+- `withCache<T>(cacheKey, fn)` — helper метод для кеширования результата
+
+**Примечание:** `ParallelExecutor` создаётся в конкретных batch-операциях,
+не передаётся через BaseOperation.
 
 **Наследуй BaseOperation для всех операций:**
 ```typescript
@@ -91,15 +95,17 @@ async execute(issueKeys: string[]): Promise<BatchResult<IssueWithUnknownFields>>
   // - Выполняет параллельно (до maxConcurrentRequests)
   // - Возвращает BatchResult с fulfilled/rejected
 
-  return this.parallelExecutor.execute(
-    issueKeys,
-    async (key: string) => {
-      const cacheKey = EntityCacheKey.create(EntityType.Issue, key);
-      return this.cache.getOrFetch(cacheKey, async () => {
+  const operations = issueKeys.map((key) => ({
+    key,
+    fn: async () => {
+      const cacheKey = EntityCacheKey.createKey(EntityType.Issue, key);
+      return this.withCache(cacheKey, async () => {
         return this.httpClient.get<IssueWithUnknownFields>(`/v3/issues/${key}`);
       });
-    }
-  );
+    },
+  }));
+
+  return this.parallelExecutor.executeParallel(operations, 'getIssues');
 }
 ```
 
@@ -114,8 +120,8 @@ async execute(issueKeys: string[]): Promise<BatchResult<IssueWithUnknownFields>>
 ```typescript
 import { EntityCacheKey, EntityType } from '@infrastructure/cache/entity-cache-key.js';
 
-const cacheKey = EntityCacheKey.create(EntityType.Issue, issueKey);
-const issue = await this.cache.getOrFetch(cacheKey, async () => {
+const cacheKey = EntityCacheKey.createKey(EntityType.Issue, issueKey);
+const issue = await this.withCache(cacheKey, async () => {
   return this.httpClient.get<IssueWithUnknownFields>(`/v3/issues/${issueKey}`);
 });
 ```
@@ -149,9 +155,9 @@ const issue = await this.cache.getOrFetch(cacheKey, async () => {
 - [ ] **Facade метод:**
   - [ ] Создать публичный метод в `YandexTrackerFacade`
   - [ ] Делегировать вызов в Operation
-- [ ] **DI регистрация:**
-  - [ ] `src/composition-root/types.ts` → `TYPES.NewOperation`
-  - [ ] `src/composition-root/container.ts` → bind в `bindOperations()`
+- [ ] **АВТОМАТИЧЕСКАЯ РЕГИСТРАЦИЯ:**
+  - [ ] Добавь класс в `src/composition-root/definitions/operation-definitions.ts`
+  - [ ] ВСЁ! (DI регистрация, TYPES — автоматически)
 - [ ] **Тесты:**
   - [ ] `tests/unit/tracker_api/api_operations/{feature}/{name}.operation.test.ts`
   - [ ] Успешный сценарий
@@ -232,12 +238,17 @@ export class GetIssuesOperation extends BaseOperation {
 
     this.logger.info(`Получение ${issueKeys.length} задач`);
 
-    return this.parallelExecutor.execute(issueKeys, async (key: string) => {
-      const cacheKey = EntityCacheKey.create(EntityType.Issue, key);
-      return this.cache.getOrFetch(cacheKey, async () => {
-        return this.httpClient.get<IssueWithUnknownFields>(`/v3/issues/${key}`);
-      });
-    });
+    const operations = issueKeys.map((key) => ({
+      key,
+      fn: async () => {
+        const cacheKey = EntityCacheKey.createKey(EntityType.Issue, key);
+        return this.withCache(cacheKey, async () => {
+          return this.httpClient.get<IssueWithUnknownFields>(`/v3/issues/${key}`);
+        });
+      },
+    }));
+
+    return this.parallelExecutor.executeParallel(operations, 'getIssues');
   }
 }
 ```

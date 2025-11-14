@@ -43,7 +43,7 @@ src/tracker_api/dto/issue/
 /**
  * Параметры для создания задачи
  */
-export interface CreateIssueDTO {
+export interface CreateIssueDto {
   /** Очередь (обязательно) */
   queue: string;
 
@@ -77,7 +77,7 @@ export interface CreateIssueDTO {
  * Параметры для обновления задачи
  * Все поля опциональны (partial update)
  */
-export interface UpdateIssueDTO {
+export interface UpdateIssueDto {
   /** Название задачи */
   summary?: string;
 
@@ -116,7 +116,7 @@ export interface UpdateIssueDTO {
   - [ ] Реэкспортировать в `dto/index.ts`
 - [ ] **Использование в Operations:**
   ```typescript
-  async execute(params: CreateIssueDTO): Promise<IssueWithUnknownFields> {
+  async execute(params: CreateIssueDto): Promise<IssueWithUnknownFields> {
     return this.httpClient.post<Issue>('/v3/issues', params);
   }
   ```
@@ -134,7 +134,7 @@ export interface UpdateIssueDTO {
 ✅ **Правильно:**
 ```typescript
 // Operation принимает DTO
-async createIssue(params: CreateIssueDTO): Promise<IssueWithUnknownFields> {
+async createIssue(params: CreateIssueDto): Promise<IssueWithUnknownFields> {
   return this.httpClient.post<Issue>('/v3/issues', params);
 }
 

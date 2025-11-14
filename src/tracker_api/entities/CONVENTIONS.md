@@ -32,26 +32,29 @@ src/tracker_api/entities/
  * Задача в Яндекс.Трекере (только известные поля из API v3)
  */
 export interface Issue {
-  /** Уникальный ключ задачи (QUEUE-123) */
-  key: string;
+  /** Идентификатор задачи (всегда присутствует) */
+  readonly id: string;
+
+  /** Уникальный ключ задачи (QUEUE-123) (всегда присутствует) */
+  readonly key: string;
 
   /** Краткое описание */
-  summary: string;
+  readonly summary: string;
 
   /** Очередь задачи */
-  queue: Queue;
+  readonly queue: Queue;
 
   /** Текущий статус */
-  status: Status;
+  readonly status: Status;
 
   /** Автор задачи */
-  createdBy: User;
+  readonly createdBy: User;
 
   /** Дата создания (ISO 8601) */
-  createdAt: string;
+  readonly createdAt: string;
 
   /** Дата последнего обновления (ISO 8601) */
-  updatedAt: string;
+  readonly updatedAt: string;
 
   // ... другие known поля
 }
@@ -92,8 +95,10 @@ export type WithUnknownFields<T> = T & {
 
 - [ ] Создать файл `src/tracker_api/entities/{name}.entity.ts`
 - [ ] **Определить интерфейс:**
+  - [ ] **Добавить обязательное поле `id` первым полем**
   - [ ] Только **known поля** из документации API
   - [ ] JSDoc комментарии для каждого поля
+  - [ ] **Использовать модификатор `readonly` для всех полей**
   - [ ] Использовать существующие entities для связей (User, Queue, Status)
   - [ ] Даты в формате string (ISO 8601)
 - [ ] **Создать WithUnknownFields тип:**
@@ -119,9 +124,10 @@ export type WithUnknownFields<T> = T & {
 ✅ **Правильно:**
 ```typescript
 export interface Issue {
-  key: string;
-  summary: string;
-  status: Status;
+  readonly id: string;
+  readonly key: string;
+  readonly summary: string;
+  readonly status: Status;
   // Только известные поля из API
 }
 ```
@@ -155,7 +161,30 @@ export interface Issue { ... }
 
 ---
 
-### 3. Используй WithUnknownFields для API данных
+### 3. Все поля должны быть readonly
+
+✅ **Правильно:**
+```typescript
+export interface Issue {
+  readonly id: string;
+  readonly key: string;
+  readonly summary: string;
+}
+```
+
+❌ **Неправильно:**
+```typescript
+export interface Issue {
+  id: string;      // ❌ Не readonly
+  key: string;     // ❌ Не readonly
+}
+```
+
+**Почему:** Entities — immutable типы данных из API, изменение полей не имеет смысла.
+
+---
+
+### 4. Используй WithUnknownFields для API данных
 
 ✅ **Правильно (в Operations):**
 ```typescript
@@ -171,7 +200,7 @@ async execute(): Promise<Issue> { ... } // Теряем unknown поля
 
 ---
 
-### 4. Вложенные entities
+### 5. Вложенные entities
 
 Для связанных объектов используй существующие entities:
 

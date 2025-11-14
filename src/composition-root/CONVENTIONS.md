@@ -19,9 +19,14 @@
 
 ```
 src/composition-root/
+├── definitions/        # Декларативная регистрация (автоматическая)
+│   ├── index.ts
+│   ├── tool-definitions.ts
+│   └── operation-definitions.ts
 ├── types.ts            # Symbol-based DI токены (TYPES)
 ├── container.ts        # Конфигурация DI контейнера
-└── index.ts            # Публичный API (экспорт контейнера)
+├── index.ts            # Публичный API
+└── CONVENTIONS.md
 ```
 
 ---
@@ -32,26 +37,32 @@ src/composition-root/
 
 ```typescript
 export const TYPES = {
-  // Infrastructure
-  Config: Symbol.for('Config'),
-  HttpClient: Symbol.for('HttpClient'),
+  // === Config & Infrastructure ===
+  ServerConfig: Symbol.for('ServerConfig'),
   Logger: Symbol.for('Logger'),
-  Cache: Symbol.for('Cache'),
-  ParallelExecutor: Symbol.for('ParallelExecutor'),
 
-  // Operations
-  GetIssuesOperation: Symbol.for('GetIssuesOperation'),
-  PingOperation: Symbol.for('PingOperation'),
+  // === HTTP Layer ===
+  HttpClient: Symbol.for('HttpClient'),
+  RetryStrategy: Symbol.for('RetryStrategy'),
+  RetryHandler: Symbol.for('RetryHandler'),
 
-  // Facade
+  // === Cache Layer ===
+  CacheManager: Symbol.for('CacheManager'),
+
+  // === Yandex Tracker Facade ===
   YandexTrackerFacade: Symbol.for('YandexTrackerFacade'),
 
-  // MCP Tools
-  GetIssuesTool: Symbol.for('GetIssuesTool'),
-  PingTool: Symbol.for('PingTool'),
-
-  // MCP
+  // === Tool Registry ===
   ToolRegistry: Symbol.for('ToolRegistry'),
+
+  // === Search Engine ===
+  ToolSearchEngine: Symbol.for('ToolSearchEngine'),
+
+  // === Operations (автоматически сгенерированы) ===
+  ...OPERATION_SYMBOLS,
+
+  // === Tools (автоматически сгенерированы) ===
+  ...TOOL_SYMBOLS,
 } as const;
 ```
 
@@ -63,6 +74,50 @@ container.bind(HttpClient).toSelf();
 // ✅ ПРАВИЛЬНО
 container.bind<HttpClient>(TYPES.HttpClient).toDynamicValue(() => { ... });
 ```
+
+---
+
+## 🤖 definitions/ — Автоматическая регистрация
+
+**Проблема:** При добавлении нового Tool/Operation приходится:
+1. Создать класс
+2. Добавить символ в `types.ts`
+3. Зарегистрировать в `container.ts`
+4. Добавить в `ToolRegistry` (для tools)
+
+**Решение:** Декларативный подход через `definitions/`.
+
+### Структура
+
+```
+definitions/
+├── index.ts                   # Реэкспорт
+├── tool-definitions.ts        # Массив всех Tool классов
+└── operation-definitions.ts   # Массив всех Operation классов
+```
+
+### Как это работает
+
+**1. Добавляешь класс в definitions:**
+
+```typescript
+// definitions/tool-definitions.ts
+export const TOOL_CLASSES = [
+  PingTool,
+  GetIssuesTool,
+  NewTool,  // ← ДОБАВИЛ ОДНУ СТРОКУ
+] as const;
+```
+
+**2. ВСЁ ОСТАЛЬНОЕ АВТОМАТИЧЕСКИ:**
+
+- **types.ts:** Символы генерируются из `TOOL_CLASSES.map(ToolClass.name)`
+- **container.ts:** Loop по `TOOL_CLASSES` регистрирует все tools
+- **ToolRegistry:** Извлекает все tools из контейнера через `TOOL_CLASSES`
+
+**Результат:** 1 строка вместо ~30 строк boilerplate кода.
+
+**Эталон:** `src/composition-root/container.ts:189-199` (bindTools)
 
 ---
 
