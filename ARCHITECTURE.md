@@ -71,8 +71,10 @@ handlers/
 
 - **`mcp/`** — Application layer (MCP сервер)
   - `tools/` — MCP инструменты
-    - `base-tool.ts` — базовый класс
-    - `*.tool.ts` — конкретные инструменты (ping, get-issues, etc.)
+    - `base/` — базовые классы (BaseTool)
+    - `api/` — API tools (работа с Яндекс.Трекер API)
+    - `helpers/` — Helper tools (утилиты, поиск, демо)
+    - `common/` — переиспользуемые утилиты и схемы
   - `search/` — Tool Search System (compile-time индексирование + runtime поиск)
     - `tool-search-engine.ts` — движок поиска с LRU кешем
     - `strategies/` — 5 стратегий поиска (Name, Description, Category, Fuzzy, WeightedCombined)
@@ -259,6 +261,7 @@ async execute(key: string, data: UpdateIssueDto): Promise<IssueWithUnknownFields
 **Файлы:**
 - `src/composition-root/types.ts` — Symbol-based токены для всех зависимостей
 - `src/composition-root/container.ts` — конфигурация InversifyJS контейнера
+- `src/composition-root/definitions/` — декларативные определения tools и operations
 - `src/composition-root/index.ts` — публичный API (TYPES, createContainer)
 
 ### Symbol-based tokens (TYPES)
@@ -456,10 +459,11 @@ results.forEach((result) => {
 - Форматирование результата для Claude
 - Фильтрация полей через `ResponseFieldFilter`
 
-**Базовый класс:** `src/mcp/tools/base-tool.ts`
-- Методы валидации: `validateRequired()`, `validateIssueKey()`, etc.
+**Базовый класс:** `src/mcp/tools/base/base-tool.ts`
+- Валидация параметров через Zod: `validateParams<T>(params, schema)`
+- Форматирование результатов: `formatSuccess(data)`, `formatError(message, error)`
 
-**Конкретные tools:** `ping.tool.ts`, `get-issues.tool.ts`, etc.
+**Конкретные tools:** см. `src/mcp/tools/api/` и `src/mcp/tools/helpers/`
 
 **Tool Registry:** `src/mcp/tool-registry.ts`
 - Регистрация всех tools
@@ -492,7 +496,7 @@ results.forEach((result) => {
 **Retry стратегия:** `tests/unit/infrastructure/http/retry/exponential-backoff.strategy.test.ts`
 **HTTP клиент:** `tests/unit/infrastructure/http/client/http-client.test.ts`
 **Операции:** `tests/unit/tracker_api/api_operations/**/*.test.ts`
-**Tools:** `tests/unit/mcp/tools/*.test.ts`
+**Tools:** `tests/unit/mcp/tools/api/**/*.test.ts`, `tests/unit/mcp/tools/helpers/**/*.test.ts`
 
 ---
 
@@ -500,29 +504,49 @@ results.forEach((result) => {
 
 ### Добавление новой операции API
 
-1. Создать файл `src/tracker_api/api_operations/{feature}/{name}.operation.ts`
+1. Создать файл `src/tracker_api/api_operations/{feature}/{name}.operation.ts` или `{feature}/{action}/{name}.operation.ts`
 2. Наследоваться от `BaseOperation`
 3. Реализовать метод `execute(...)`
-4. Экспортировать в `api_operations/{feature}/index.ts`
+4. Экспортировать в `api_operations/{feature}/index.ts` или `{feature}/{action}/index.ts`
 5. Добавить метод в `YandexTrackerFacade` (`src/tracker_api/facade/`)
-6. Зарегистрировать в `src/composition-root/container.ts` (bindOperations)
-7. Добавить токен в `src/composition-root/types.ts`
-8. Написать тесты в `tests/unit/tracker_api/api_operations/{feature}/{name}.operation.test.ts`
+6. **Автоматическая регистрация:** добавить класс в `src/composition-root/definitions/operation-definitions.ts`
+7. Написать тесты (зеркалируя структуру `src/`)
+8. `npm run validate`
 
 **Чек-лист:** см. CLAUDE.md (секция "Добавление Operation")
 
 ### Добавление нового MCP инструмента
 
-1. Создать файл `src/mcp/tools/{name}.tool.ts`
-2. Наследоваться от `BaseTool`
-3. Реализовать `getDefinition()` + `execute()`
-4. Использовать `ResponseFieldFilter.filter()` перед возвратом
-5. Экспортировать в `src/mcp/tools/index.ts`
-6. Зарегистрировать в `src/composition-root/container.ts` (bindTools)
-7. Добавить токен в `src/composition-root/types.ts`
-8. Написать тесты в `tests/unit/mcp/tools/{name}.tool.test.ts`
+**1. Создать feature-based структуру:**
 
-**Чек-лист:** см. CLAUDE.md (секция "Добавление Tool")
+Для API Tool:
+```
+src/mcp/tools/api/{feature}/{action}/
+├── {action}-{feature}.schema.ts
+├── {action}-{feature}.definition.ts
+├── {action}-{feature}.tool.ts
+└── index.ts
+```
+
+Для Helper Tool:
+```
+src/mcp/tools/helpers/{feature}/
+├── {feature}.schema.ts (опционально)
+├── {feature}.definition.ts
+├── {feature}.tool.ts
+└── index.ts
+```
+
+**2. Автоматическая регистрация:**
+- Добавить класс в `src/composition-root/definitions/tool-definitions.ts`
+- DI контейнер автоматически зарегистрирует tool
+
+**3. Валидация:**
+```bash
+npm run validate
+```
+
+**Подробнее:** см. `src/mcp/CONVENTIONS.md`
 
 ---
 
