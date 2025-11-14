@@ -3,11 +3,11 @@
  */
 
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
-import { BaseOperation } from '../../../../src/domain/operations/base-operation';
-import type { HttpClient } from '../../../../src/infrastructure/http/client/http-client';
-import type { RetryHandler } from '../../../../src/infrastructure/http/retry/retry-handler';
-import type { CacheManager } from '../../../../src/infrastructure/cache/cache-manager.interface';
-import type { Logger } from '../../../../src/infrastructure/logger';
+import { BaseOperation } from '../../../../src/domain/operations/base-operation.js';
+import type { HttpClient } from '../../../../src/infrastructure/http/client/http-client.js';
+import type { RetryHandler } from '../../../../src/infrastructure/http/retry/retry-handler.js';
+import type { CacheManager } from '../../../../src/infrastructure/cache/cache-manager.interface.js';
+import type { Logger } from '../../../../src/infrastructure/logger.js';
 
 /**
  * Конкретная реализация BaseOperation для тестирования

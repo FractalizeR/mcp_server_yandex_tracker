@@ -3,10 +3,10 @@
  */
 
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
-import { GetIssuesTool } from '../../../../src/mcp/tools/get-issues.tool';
-import type { YandexTrackerFacade } from '../../../../src/domain/facade/yandex-tracker.facade';
-import type { Logger } from '../../../../src/infrastructure/logger';
-import type { Issue } from '../../../../src/domain/entities/issue.entity';
+import { GetIssuesTool } from '../../../../src/mcp/tools/get-issues.tool.js';
+import type { YandexTrackerFacade } from '../../../../src/domain/facade/yandex-tracker.facade.js';
+import type { Logger } from '../../../../src/infrastructure/logger.js';
+import type { Issue } from '../../../../src/domain/entities/issue.entity.js';
 
 describe('GetIssuesTool', () => {
   let mockTrackerFacade: YandexTrackerFacade;

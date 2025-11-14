@@ -3,10 +3,10 @@
  */
 
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
-import { RetryHandler } from '../../../../src/infrastructure/http/retry/retry-handler';
-import type { RetryStrategy } from '../../../../src/infrastructure/http/retry/retry-strategy.interface';
-import type { Logger } from '../../../../src/infrastructure/logger';
-import type { ApiError } from '../../../../../src/types';
+import { RetryHandler } from '../../../../src/infrastructure/http/retry/retry-handler.js';
+import type { RetryStrategy } from '../../../../src/infrastructure/http/retry/retry-strategy.interface.js';
+import type { Logger } from '../../../../src/infrastructure/logger.js';
+import type { ApiError } from '../../../../../src/types.js';
 
 /**
  * Создание мок стратегии

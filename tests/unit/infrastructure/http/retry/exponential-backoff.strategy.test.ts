@@ -3,8 +3,8 @@
  */
 
 import { describe, it, expect } from '@jest/globals';
-import { ExponentialBackoffStrategy } from '../../../../src/infrastructure/http/retry/exponential-backoff.strategy';
-import type { ApiError } from '../../../../../src/types';
+import { ExponentialBackoffStrategy } from '../../../../src/infrastructure/http/retry/exponential-backoff.strategy.js';
+import type { ApiError } from '../../../../../src/types.js';
 
 describe('ExponentialBackoffStrategy', () => {
   describe('constructor', () => {

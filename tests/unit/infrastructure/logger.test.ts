@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
-import { Logger } from '../../../../src/infrastructure/logger';
+import { Logger } from '../../../../src/infrastructure/logger.js';
 
 describe('Logger', () => {
   let consoleErrorSpy: jest.SpiedFunction<typeof console.error>;

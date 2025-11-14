@@ -3,12 +3,12 @@
  */
 
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
-import { GetIssuesOperation } from '../../../../src/domain/operations/issue/get-issues.operation';
-import type { HttpClient } from '../../../../src/infrastructure/http/client/http-client';
-import type { RetryHandler } from '../../../../src/infrastructure/http/retry/retry-handler';
-import type { CacheManager } from '../../../../src/infrastructure/cache/cache-manager.interface';
-import type { Logger } from '../../../../src/infrastructure/logger';
-import type { Issue } from '../../../../src/domain/entities/issue.entity';
+import { GetIssuesOperation } from '../../../../src/domain/operations/issue/get-issues.operation.js';
+import type { HttpClient } from '../../../../src/infrastructure/http/client/http-client.js';
+import type { RetryHandler } from '../../../../src/infrastructure/http/retry/retry-handler.js';
+import type { CacheManager } from '../../../../src/infrastructure/cache/cache-manager.interface.js';
+import type { Logger } from '../../../../src/infrastructure/logger.js';
+import type { Issue } from '../../../../src/domain/entities/issue.entity.js';
 
 describe('GetIssuesOperation', () => {
   let operation: GetIssuesOperation;

@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect } from '@jest/globals';
-import { EntityCacheKey, EntityType } from '../../../../src/domain/utils/entity-cache-key';
+import { EntityCacheKey, EntityType } from '../../../../src/domain/utils/entity-cache-key.js';
 
 describe('EntityCacheKey', () => {
   describe('createKey', () => {

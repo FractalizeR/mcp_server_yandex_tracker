@@ -1,1 +1,1 @@
-export { YandexTrackerFacade } from './yandex-tracker.facade';
+export { YandexTrackerFacade } from './yandex-tracker.facade.js';

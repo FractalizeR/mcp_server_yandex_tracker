@@ -4,8 +4,8 @@
 
 import { describe, it, expect } from '@jest/globals';
 import type { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
-import { ErrorMapper } from '../../../../src/infrastructure/http/error/error-mapper';
-import type { ApiError } from '../../../../../src/types';
+import { ErrorMapper } from '../../../../src/infrastructure/http/error/error-mapper.js';
+import type { ApiError } from '../../../../../src/types.js';
 
 /**
  * Вспомогательная функция для создания мок AxiosError

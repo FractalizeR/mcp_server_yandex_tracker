@@ -3,9 +3,9 @@
  */
 
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
-import { ParallelExecutor } from '../../../../src/infrastructure/async/parallel-executor';
-import type { Logger } from '../../../../src/infrastructure/logger';
-import type { ApiError } from '../../../../src/types';
+import { ParallelExecutor } from '../../../../src/infrastructure/async/parallel-executor.js';
+import type { Logger } from '../../../../src/infrastructure/logger.js';
+import type { ApiError } from '../../../../src/types.js';
 
 /**
  * Создаёт мок логгера для тестов

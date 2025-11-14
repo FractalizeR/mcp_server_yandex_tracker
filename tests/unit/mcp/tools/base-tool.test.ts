@@ -3,11 +3,11 @@
  */
 
 import { describe, it, expect, jest } from '@jest/globals';
-import { BaseTool } from '../../../../src/mcp/tools/base-tool';
-import type { ToolDefinition } from '../../../../src/mcp/tools/base-tool';
-import type { ToolCallParams, ToolResult } from '../../../../src/types';
-import type { YandexTrackerFacade } from '../../../../src/domain/facade/yandex-tracker.facade';
-import type { Logger } from '../../../../src/infrastructure/logger';
+import { BaseTool } from '../../../../src/mcp/tools/base-tool.js';
+import type { ToolDefinition } from '../../../../src/mcp/tools/base-tool.js';
+import type { ToolCallParams, ToolResult } from '../../../../src/types.js';
+import type { YandexTrackerFacade } from '../../../../src/domain/facade/yandex-tracker.facade.js';
+import type { Logger } from '../../../../src/infrastructure/logger.js';
 
 /**
  * Тестовая реализация BaseTool для проверки protected методов

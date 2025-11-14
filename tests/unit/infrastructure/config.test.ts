@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
-import { loadConfig } from '../../../../src/infrastructure/config';
+import { loadConfig } from '../../../../src/infrastructure/config.js';
 
 describe('loadConfig', () => {
   const originalEnv = process.env;

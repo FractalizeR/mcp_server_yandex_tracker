@@ -3,10 +3,10 @@
  */
 
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
-import { HttpClient } from '../../../../src/infrastructure/http/client/http-client';
-import type { HttpConfig } from '../../../../src/infrastructure/http/client/http-config.interface';
-import type { Logger } from '../../../../src/infrastructure/logger';
-import type { RetryStrategy } from '../../../../src/infrastructure/http/retry/retry-strategy.interface';
+import { HttpClient } from '../../../../src/infrastructure/http/client/http-client.js';
+import type { HttpConfig } from '../../../../src/infrastructure/http/client/http-config.interface.js';
+import type { Logger } from '../../../../src/infrastructure/logger.js';
+import type { RetryStrategy } from '../../../../src/infrastructure/http/retry/retry-strategy.interface.js';
 
 /**
  * Создаёт мок логгера

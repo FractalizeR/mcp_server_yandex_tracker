@@ -15,18 +15,10 @@
     "declarationMap": true,
     "sourceMap": true,
     "removeComments": false,
-    "importHelpers": false,
-    "downlevelIteration": true,
+    "downlevelIteration": false,
 
     /* Type Checking */
     "strict": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "strictBindCallApply": true,
-    "strictPropertyInitialization": true,
-    "noImplicitThis": true,
-    "alwaysStrict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
@@ -37,7 +29,6 @@
 
     /* Completeness */
     "skipLibCheck": true,
-    "skipDefaultLibCheck": true,
 
     /* Interop Constraints */
     "esModuleInterop": true,
@@ -46,7 +37,10 @@
     "isolatedModules": true,
 
     /* Advanced */
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+
+    /* Node environment */
+    "types": ["node"]
   },
   "include": [
     "src/**/*"

@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect } from '@jest/globals';
-import { NoOpCache } from '../../../../src/infrastructure/cache/no-op-cache';
+import { NoOpCache } from '../../../../src/infrastructure/cache/no-op-cache.js';
 
 describe('NoOpCache', () => {
   let cache: NoOpCache;
