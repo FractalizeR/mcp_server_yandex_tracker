@@ -13,7 +13,6 @@ import { TYPES } from '@composition-root/types.js';
 
 // HTTP Layer
 import { HttpClient } from '@infrastructure/http/client/http-client.js';
-import { RetryHandler } from '@infrastructure/http/retry/retry-handler.js';
 import type { RetryStrategy } from '@infrastructure/http/retry/retry-strategy.interface.js';
 import { ExponentialBackoffStrategy } from '@infrastructure/http/retry/exponential-backoff.strategy.js';
 
@@ -81,18 +80,10 @@ function bindHttpLayer(container: Container): void {
         token: configInstance.token,
         ...(configInstance.orgId && { orgId: configInstance.orgId }),
         ...(configInstance.cloudOrgId && { cloudOrgId: configInstance.cloudOrgId }),
-        maxBatchSize: configInstance.maxBatchSize,
-        maxConcurrentRequests: configInstance.maxConcurrentRequests,
       },
       loggerInstance,
       retryStrategy
     );
-  });
-
-  container.bind<RetryHandler>(TYPES.RetryHandler).toDynamicValue(() => {
-    const retryStrategy = container.get<RetryStrategy>(TYPES.RetryStrategy);
-    const loggerInstance = container.get<Logger>(TYPES.Logger);
-    return new RetryHandler(retryStrategy, loggerInstance);
   });
 }
 
@@ -117,17 +108,10 @@ function bindOperations(container: Container): void {
 
     container.bind(symbol).toDynamicValue(() => {
       const httpClient = container.get<HttpClient>(TYPES.HttpClient);
-      const retryHandler = container.get<RetryHandler>(TYPES.RetryHandler);
       const cacheManager = container.get<CacheManager>(TYPES.CacheManager);
       const loggerInstance = container.get<Logger>(TYPES.Logger);
       const configInstance = container.get<ServerConfig>(TYPES.ServerConfig);
-      return new OperationClass(
-        httpClient,
-        retryHandler,
-        cacheManager,
-        loggerInstance,
-        configInstance
-      );
+      return new OperationClass(httpClient, cacheManager, loggerInstance, configInstance);
     });
   }
 }

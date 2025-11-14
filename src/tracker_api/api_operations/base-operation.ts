@@ -11,14 +11,12 @@
  */
 
 import type { HttpClient } from '@infrastructure/http/client/http-client.js';
-import type { RetryHandler } from '@infrastructure/http/retry/retry-handler.js';
 import type { CacheManager } from '@infrastructure/cache/cache-manager.interface.js';
 import type { Logger } from '@infrastructure/logging/index.js';
 
 export abstract class BaseOperation {
   constructor(
     protected readonly httpClient: HttpClient,
-    protected readonly retryHandler: RetryHandler,
     protected readonly cacheManager: CacheManager,
     protected readonly logger: Logger
   ) {}

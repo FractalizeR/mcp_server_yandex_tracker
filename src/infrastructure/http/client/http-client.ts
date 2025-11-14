@@ -21,22 +21,15 @@ import type { QueryParams } from '@types';
 import { ErrorMapper } from '@infrastructure/http/error/index.js';
 import { RetryHandler } from '@infrastructure/http/retry/index.js';
 import type { RetryStrategy } from '@infrastructure/http/retry/index.js';
-import { ParallelExecutor } from '@infrastructure/async/index.js';
-import type { BatchResult } from '@types';
 
 export class HttpClient {
   private readonly client: AxiosInstance;
   private readonly logger: Logger;
   private readonly retryHandler: RetryHandler;
-  private readonly parallelExecutor: ParallelExecutor;
 
   constructor(config: HttpConfig, logger: Logger, retryStrategy: RetryStrategy) {
     this.logger = logger;
     this.retryHandler = new RetryHandler(retryStrategy, logger);
-    this.parallelExecutor = new ParallelExecutor(logger, {
-      maxBatchSize: config.maxBatchSize,
-      maxConcurrentRequests: config.maxConcurrentRequests,
-    });
 
     // Формируем базовые заголовки
     const headers: Record<string, string> = {
@@ -142,147 +135,5 @@ export class HttpClient {
       const response = await this.client.delete<T>(path);
       return response.data;
     });
-  }
-
-  // ============================================================================
-  // Пакетные методы (с параллельным выполнением и retry на уровне запроса)
-  // ============================================================================
-
-  /**
-   * Выполняет множественные GET запросы параллельно
-   * Каждый запрос независимо ретраится согласно стратегии
-   *
-   * @param paths - массив путей к ресурсам
-   * @param params - опциональные query параметры (общие для всех запросов)
-   * @returns массив результатов (unified BatchResult формат)
-   *
-   * @example
-   * // Получение нескольких задач параллельно
-   * const result = await httpClient.getBatch([
-   *   '/v3/issues/QUEUE-1',
-   *   '/v3/issues/QUEUE-2',
-   *   '/v3/issues/QUEUE-3'
-   * ]);
-   *
-   * // Проверка успешности (используя статические методы ParallelExecutor)
-   * if (ParallelExecutor.isAllSuccess(result)) {
-   *   const issues = ParallelExecutor.getSuccessfulResults(result);
-   * } else {
-   *   const errors = ParallelExecutor.getErrors(result);
-   * }
-   */
-  async getBatch<T>(paths: string[], params?: QueryParams): Promise<BatchResult<string, T>> {
-    const operations = paths.map((path) => ({
-      key: path,
-      fn: this.createRetryableGetOperation<T>(path, params),
-    }));
-
-    return this.parallelExecutor.executeParallel(operations, 'GET batch');
-  }
-
-  /**
-   * Выполняет множественные POST запросы параллельно
-   * Каждый запрос независимо ретраится согласно стратегии
-   *
-   * @param requests - массив объектов {path, data}
-   * @returns агрегированный результат всех запросов
-   *
-   * @example
-   * const result = await httpClient.postBatch([
-   *   { path: '/v3/issues', data: { queue: 'PROJ', summary: 'Issue 1' } },
-   *   { path: '/v3/issues', data: { queue: 'PROJ', summary: 'Issue 2' } }
-   * ]);
-   */
-  async postBatch<T = unknown>(
-    requests: Array<{ path: string; data?: unknown }>
-  ): Promise<BatchResult<string, T>> {
-    const operations = requests.map((req) => ({
-      key: req.path,
-      fn: this.createRetryablePostOperation<T>(req.path, req.data),
-    }));
-
-    return this.parallelExecutor.executeParallel(operations, 'POST batch');
-  }
-
-  /**
-   * Выполняет множественные PATCH запросы параллельно
-   * Каждый запрос независимо ретраится согласно стратегии
-   *
-   * @param requests - массив объектов {path, data}
-   * @returns агрегированный результат всех запросов
-   *
-   * @example
-   * const result = await httpClient.patchBatch([
-   *   { path: '/v3/issues/QUEUE-1', data: { summary: 'Updated 1' } },
-   *   { path: '/v3/issues/QUEUE-2', data: { summary: 'Updated 2' } }
-   * ]);
-   */
-  async patchBatch<T = unknown>(
-    requests: Array<{ path: string; data?: unknown }>
-  ): Promise<BatchResult<string, T>> {
-    const operations = requests.map((req) => ({
-      key: req.path,
-      fn: this.createRetryablePatchOperation<T>(req.path, req.data),
-    }));
-
-    return this.parallelExecutor.executeParallel(operations, 'PATCH batch');
-  }
-
-  /**
-   * Выполняет множественные DELETE запросы параллельно
-   * Каждый запрос независимо ретраится согласно стратегии
-   *
-   * @param paths - массив путей к ресурсам
-   * @returns агрегированный результат всех запросов
-   *
-   * @example
-   * const result = await httpClient.deleteBatch([
-   *   '/v3/issues/QUEUE-1',
-   *   '/v3/issues/QUEUE-2'
-   * ]);
-   */
-  async deleteBatch<T = unknown>(paths: string[]): Promise<BatchResult<string, T>> {
-    const operations = paths.map((path) => ({
-      key: path,
-      fn: this.createRetryableDeleteOperation<T>(path),
-    }));
-
-    return this.parallelExecutor.executeParallel(operations, 'DELETE batch');
-  }
-
-  // ============================================================================
-  // Приватные helper-методы для создания "ленивых" операций с retry логикой
-  // ============================================================================
-
-  /**
-   * Создает "ленивую" GET операцию с retry логикой
-   * @private
-   */
-  private createRetryableGetOperation<T>(path: string, params?: QueryParams): () => Promise<T> {
-    return () => this.retryHandler.executeWithRetry(() => this.get<T>(path, params));
-  }
-
-  /**
-   * Создает "ленивую" POST операцию с retry логикой
-   * @private
-   */
-  private createRetryablePostOperation<T>(path: string, data?: unknown): () => Promise<T> {
-    return () => this.retryHandler.executeWithRetry(() => this.post<T>(path, data));
-  }
-
-  /**
-   * Создает "ленивую" PATCH операцию с retry логикой
-   * @private
-   */
-  private createRetryablePatchOperation<T>(path: string, data?: unknown): () => Promise<T> {
-    return () => this.retryHandler.executeWithRetry(() => this.patch<T>(path, data));
-  }
-
-  /**
-   * Создает "ленивую" DELETE операцию с retry логикой
-   * @private
-   */
-  private createRetryableDeleteOperation<T>(path: string): () => Promise<T> {
-    return () => this.retryHandler.executeWithRetry(() => this.delete<T>(path));
   }
 }

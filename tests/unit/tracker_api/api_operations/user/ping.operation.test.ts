@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { PingOperation } from '@tracker_api/api_operations/user/ping.operation.js';
 import type { HttpClient } from '@infrastructure/http/client/http-client.js';
-import type { RetryHandler } from '@infrastructure/http/retry/retry-handler.js';
 import type { CacheManager } from '@infrastructure/cache/cache-manager.interface.js';
 import type { Logger } from '@infrastructure/logging/index.js';
 import type { User } from '@tracker_api/entities/user.entity.js';
@@ -11,7 +10,6 @@ import { HttpStatusCode } from '@types';
 describe('PingOperation', () => {
   let operation: PingOperation;
   let mockHttpClient: HttpClient;
-  let mockRetryHandler: RetryHandler;
   let mockCacheManager: CacheManager;
   let mockLogger: Logger;
   let mockConfig: ServerConfig;
@@ -25,11 +23,6 @@ describe('PingOperation', () => {
       patch: vi.fn(),
       delete: vi.fn(),
     } as unknown as HttpClient;
-
-    // Mock RetryHandler
-    mockRetryHandler = {
-      executeWithRetry: vi.fn(async (fn) => await fn()),
-    } as unknown as RetryHandler;
 
     // Mock CacheManager - по умолчанию возвращает undefined (нет кеша)
     mockCacheManager = {
@@ -63,13 +56,7 @@ describe('PingOperation', () => {
       logMaxFiles: 20,
     } as ServerConfig;
 
-    operation = new PingOperation(
-      mockHttpClient,
-      mockRetryHandler,
-      mockCacheManager,
-      mockLogger,
-      mockConfig
-    );
+    operation = new PingOperation(mockHttpClient, mockCacheManager, mockLogger, mockConfig);
   });
 
   afterEach(() => {

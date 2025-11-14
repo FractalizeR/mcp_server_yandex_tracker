@@ -2,7 +2,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Logger } from '@infrastructure/logging/index.js';
 import type { CacheManager } from '@infrastructure/cache/cache-manager.interface.js';
 import type { HttpClient } from '@infrastructure/http/client/http-client.js';
-import type { RetryHandler } from '@infrastructure/http/retry/retry-handler.js';
 import { ParallelExecutor } from '@infrastructure/async/parallel-executor.js';
 import type { ServerConfig } from '@types';
 import type { IssueWithUnknownFields } from '@tracker_api/entities/index.js';
@@ -12,7 +11,6 @@ import { GetIssuesOperation } from '@tracker_api/api_operations/issue/get-issues
 describe('GetIssuesOperation', () => {
   let operation: GetIssuesOperation;
   let mockHttpClient: HttpClient;
-  let mockRetryHandler: RetryHandler;
   let mockCacheManager: CacheManager;
   let mockLogger: Logger;
   let mockConfig: ServerConfig;
@@ -20,7 +18,6 @@ describe('GetIssuesOperation', () => {
 
   beforeEach(() => {
     mockHttpClient = {} as HttpClient;
-    mockRetryHandler = {} as RetryHandler;
     mockCacheManager = {
       get: vi.fn(),
       set: vi.fn(),
@@ -38,13 +35,7 @@ describe('GetIssuesOperation', () => {
       orgId: 'test-org',
     } as ServerConfig;
 
-    operation = new GetIssuesOperation(
-      mockHttpClient,
-      mockRetryHandler,
-      mockCacheManager,
-      mockLogger,
-      mockConfig
-    );
+    operation = new GetIssuesOperation(mockHttpClient, mockCacheManager, mockLogger, mockConfig);
 
     // Мокируем parallelExecutor через приватное поле
     mockParallelExecutor = {

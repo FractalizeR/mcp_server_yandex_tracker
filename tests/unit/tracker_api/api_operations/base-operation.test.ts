@@ -6,7 +6,6 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import type { Mock } from 'vitest';
 import { BaseOperation } from '@tracker_api/api_operations/base-operation.js';
 import type { HttpClient } from '@infrastructure/http/client/http-client.js';
-import type { RetryHandler } from '@infrastructure/http/retry/retry-handler.js';
 import type { CacheManager } from '@infrastructure/cache/cache-manager.interface.js';
 import type { Logger } from '@infrastructure/logging/index.js';
 
@@ -26,12 +25,6 @@ function createMockHttpClient(): HttpClient {
     patch: vi.fn(),
     delete: vi.fn(),
   } as unknown as HttpClient;
-}
-
-function createMockRetryHandler(): RetryHandler {
-  return {
-    executeWithRetry: vi.fn(<T>(fn: () => Promise<T>) => fn()),
-  } as unknown as RetryHandler;
 }
 
 function createMockCache(): CacheManager {
@@ -55,18 +48,16 @@ function createMockLogger(): Logger {
 
 describe('BaseOperation', () => {
   let mockHttpClient: HttpClient;
-  let mockRetryHandler: RetryHandler;
   let mockCache: CacheManager;
   let mockLogger: Logger;
   let operation: TestOperation;
 
   beforeEach(() => {
     mockHttpClient = createMockHttpClient();
-    mockRetryHandler = createMockRetryHandler();
     mockCache = createMockCache();
     mockLogger = createMockLogger();
 
-    operation = new TestOperation(mockHttpClient, mockRetryHandler, mockCache, mockLogger);
+    operation = new TestOperation(mockHttpClient, mockCache, mockLogger);
 
     vi.clearAllMocks();
   });

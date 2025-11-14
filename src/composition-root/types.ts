@@ -38,7 +38,6 @@ export const TYPES = {
   // === HTTP Layer ===
   HttpClient: Symbol.for('HttpClient'),
   RetryStrategy: Symbol.for('RetryStrategy'),
-  RetryHandler: Symbol.for('RetryHandler'),
 
   // === Cache Layer ===
   CacheManager: Symbol.for('CacheManager'),

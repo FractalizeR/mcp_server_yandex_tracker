@@ -19,10 +19,4 @@ export interface HttpConfig {
 
   /** ID организации (Yandex Cloud Organization) */
   cloudOrgId?: string;
-
-  /** Максимальное количество элементов в batch-запросе (бизнес-лимит) */
-  maxBatchSize: number;
-
-  /** Максимальное количество одновременных HTTP-запросов (технический лимит) */
-  maxConcurrentRequests: number;
 }

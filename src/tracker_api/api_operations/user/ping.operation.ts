@@ -23,12 +23,11 @@ export interface PingResult {
 export class PingOperation extends BaseOperation {
   constructor(
     httpClient: ConstructorParameters<typeof BaseOperation>[0],
-    retryHandler: ConstructorParameters<typeof BaseOperation>[1],
-    cacheManager: ConstructorParameters<typeof BaseOperation>[2],
-    logger: ConstructorParameters<typeof BaseOperation>[3],
+    cacheManager: ConstructorParameters<typeof BaseOperation>[1],
+    logger: ConstructorParameters<typeof BaseOperation>[2],
     _config: ServerConfig // Принимаем для единообразия DI, но не используем
   ) {
-    super(httpClient, retryHandler, cacheManager, logger);
+    super(httpClient, cacheManager, logger);
   }
   /**
    * Выполняет проверку подключения к API
