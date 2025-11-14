@@ -64,21 +64,20 @@ handlers/
   - `logger.ts` — Логирование
   - `config.ts` — Конфигурация из env
 
-- **`domain/`** — Доменная логика (специфика Яндекс.Трекера)
+- **`tracker_api/`** — Доменная логика (специфика Яндекс.Трекера)
   - `entities/` — доменные типы (Issue, User)
   - `operations/` — API операции (Feature-by-Folder + SRP)
     - `base-operation.ts` — базовый класс
     - `user/` — работа с пользователями
     - `issue/` — batch-операции с задачами
   - `facade/` — YandexTrackerFacade для удобного API
-  - `utils/` — доменные утилиты
-    - `entity-cache-key.ts` — генератор ключей кеша для entities
-    - `response-field-filter.ts` — фильтрация полей ответа
 
 - **`mcp/`** — Application layer (MCP сервер)
   - `tools/` — MCP инструменты
     - `base-tool.ts` — базовый класс
     - `*.tool.ts` — конкретные инструменты (ping, get-issues, etc.)
+  - `utils/` — MCP утилиты
+    - `response-field-filter.ts` — фильтрация полей ответа (экономия токенов)
   - `tool-registry.ts` — регистрация и маршрутизация tools
 
 **Тесты:** `tests/unit/` зеркалирует структуру `src/`
@@ -110,6 +109,72 @@ handlers/
 - `RetryHandler` не знает про HTTP
 - `CacheManager` не знает про API
 - Композируется в `Operation` через DI
+
+---
+
+## 📦 Entities и DTO: Forward Compatibility Pattern
+
+### Проблема
+
+При эволюции API Яндекс.Трекер добавляет новые поля. Без специальной обработки они теряются при передаче через TypeScript слои.
+
+### Решение: Разделение типов по направлению потока данных
+
+**Структура:**
+```
+src/tracker_api/
+├── entities/              # Чтение (с unknown полями)
+│   ├── types.ts          # WithUnknownFields<T>
+│   ├── issue.entity.ts   # Issue + IssueWithUnknownFields
+│   └── queue.entity.ts   # Queue + QueueWithUnknownFields
+├── dto/                  # Запись (только known поля)
+│   └── issue/
+│       ├── create-issue.dto.ts
+│       └── update-issue.dto.ts
+```
+
+### Входящие данные (от API): *WithUnknownFields
+
+**Определение:** `src/tracker_api/entities/types.ts`
+
+**Использование в entities:**
+```typescript
+// issue.entity.ts
+export interface Issue { /* known fields */ }
+export type IssueWithUnknownFields = WithUnknownFields<Issue>;
+```
+
+**Использование в operations:**
+```typescript
+async execute(keys: string[]): Promise<IssueWithUnknownFields[]> {
+  return this.httpClient.get<IssueWithUnknownFields>(`/v3/issues`);
+}
+```
+
+### Исходящие данные (в API): строгие DTO
+
+**Определение:** `src/tracker_api/dto/issue/update-issue.dto.ts`
+
+**Особенности:**
+- Только known поля
+- Для input DTO можно добавить `[key: string]: unknown` для кастомных полей Трекера
+- NO index signature для output (type-safe)
+
+**Использование в operations:**
+```typescript
+async execute(key: string, data: UpdateIssueDto): Promise<IssueWithUnknownFields> {
+  // TypeScript не даст передать лишние поля в data
+  return this.httpClient.patch<IssueWithUnknownFields>(`/v3/issues/${key}`, data);
+}
+```
+
+### Ограничения
+
+- Unknown поля сохраняются только на **верхнем уровне** объекта
+- Для вложенных объектов (`queue.newField`) unknown поля **НЕ** типизированы, но сохраняются при JSON.stringify
+- При необходимости deep support — использовать `DeepPartial<T>` (пока не требуется)
+
+**Детали:** см. `src/tracker_api/entities/types.ts`, CLAUDE.md (чек-листы Entity/DTO)
 
 ---
 
@@ -271,7 +336,7 @@ results.forEach((result) => {
 **Реализации:**
 - `no-op-cache.ts` — Null Object (заглушка)
 
-**Генератор ключей:** `src/domain/utils/entity-cache-key.ts`
+**Генератор ключей:** `src/infrastructure/cache/entity-cache-key.ts`
 - Создание ключей вида `<EntityType>:<ID>`
 - Извлечение entity key из API пути
 - Специфичен для доменных сущностей (Issue, User)
@@ -282,10 +347,10 @@ results.forEach((result) => {
 
 #### Operations
 
-**Базовый класс:** `src/domain/operations/base-operation.ts`
+**Базовый класс:** `src/tracker_api/operations/base-operation.ts`
 - Методы `withCache()`, `withRetry()` для композиции инфраструктуры
 
-**Конкретные операции:** см. `src/domain/operations/`
+**Конкретные операции:** см. `src/tracker_api/operations/`
 - `user/ping.operation.ts` — проверка подключения
 - `issue/get-issues.operation.ts` — batch-получение задач
 - `issue/create-issues.operation.ts` — batch-создание задач
@@ -295,7 +360,7 @@ results.forEach((result) => {
 #### YandexTrackerFacade
 
 **Паттерн:** Facade Pattern
-**Файл:** `src/domain/facade/yandex-tracker.facade.ts`
+**Файл:** `src/tracker_api/facade/yandex-tracker.facade.ts`
 
 **Ответственность:**
 - Инициализация всех операций
@@ -352,7 +417,7 @@ results.forEach((result) => {
 
 **Retry стратегия:** `tests/unit/infrastructure/http/retry/exponential-backoff.strategy.test.ts`
 **HTTP клиент:** `tests/unit/infrastructure/http/client/http-client.test.ts`
-**Операции:** `tests/unit/domain/operations/**/*.test.ts`
+**Операции:** `tests/unit/tracker_api/operations/**/*.test.ts`
 **Tools:** `tests/unit/mcp/tools/*.test.ts`
 
 ---
@@ -361,14 +426,14 @@ results.forEach((result) => {
 
 ### Добавление новой операции API
 
-1. Создать файл `src/domain/operations/{feature}/{name}.operation.ts`
+1. Создать файл `src/tracker_api/operations/{feature}/{name}.operation.ts`
 2. Наследоваться от `BaseOperation`
 3. Реализовать метод `execute(...)`
 4. Экспортировать в `operations/{feature}/index.ts`
-5. Добавить метод в `YandexTrackerFacade` (`src/domain/facade/`)
+5. Добавить метод в `YandexTrackerFacade` (`src/tracker_api/facade/`)
 6. Зарегистрировать в `src/infrastructure/di/container.ts` (bindOperations)
 7. Добавить токен в `src/infrastructure/di/types.ts`
-8. Написать тесты в `tests/unit/domain/operations/{feature}/{name}.operation.test.ts`
+8. Написать тесты в `tests/unit/tracker_api/operations/{feature}/{name}.operation.test.ts`
 
 **Чек-лист:** см. CLAUDE.md (секция "Добавление Operation")
 

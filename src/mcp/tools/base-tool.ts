@@ -7,7 +7,7 @@
  * - Определения инструментов отделены от реализации
  */
 
-import type { YandexTrackerFacade } from '@domain/facade/yandex-tracker.facade.js';
+import type { YandexTrackerFacade } from '@tracker_api/facade/yandex-tracker.facade.js';
 import type { Logger } from '@infrastructure/logger.js';
 import type { ToolCallParams, ToolResult } from '@types';
 

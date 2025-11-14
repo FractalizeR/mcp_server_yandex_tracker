@@ -12,7 +12,7 @@
     "baseUrl": ".",
     "paths": {
       "@infrastructure/*": ["./src/infrastructure/*"],
-      "@domain/*": ["./src/domain/*"],
+      "@tracker_api/*": ["./src/tracker_api/*"],
       "@mcp/*": ["./src/mcp/*"],
       "@types": ["./src/types.ts"]
     },

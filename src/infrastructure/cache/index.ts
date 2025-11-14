@@ -10,3 +10,4 @@
 
 export type { CacheManager } from './cache-manager.interface.js';
 export { NoOpCache } from '@infrastructure/cache/no-op-cache.js';
+export { EntityCacheKey, EntityType } from './entity-cache-key.js';

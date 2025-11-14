@@ -94,7 +94,7 @@ function process(data: string): ProcessedData { }
 
 - Один класс = один файл = одна ответственность
 - Tool: `src/mcp/tools/{name}.tool.ts`
-- Operation: `src/domain/operations/{feature}/{name}.operation.ts`
+- Operation: `src/tracker_api/operations/{feature}/{name}.operation.ts`
 - ❌ НЕ объединяй логику разных операций в один файл
 
 ### 3. Dependency Injection (InversifyJS)
@@ -164,15 +164,31 @@ return this.formatSuccess({ issues: filtered });
 
 ### Добавление Operation
 
-- [ ] `src/domain/operations/{feature}/{name}.operation.ts`
+- [ ] `src/tracker_api/operations/{feature}/{name}.operation.ts`
 - [ ] Наследует `BaseOperation`
 - [ ] Метод `execute()` реализован
 - [ ] Экспорт в `operations/{feature}/index.ts`
-- [ ] Метод в `YandexTrackerFacade` (`src/domain/facade/`)
+- [ ] Метод в `YandexTrackerFacade` (`src/tracker_api/facade/`)
 - [ ] Регистрация в `src/infrastructure/di/container.ts` (bindOperations)
 - [ ] Регистрация в `src/infrastructure/di/types.ts`
-- [ ] `tests/unit/domain/operations/{feature}/{name}.operation.test.ts`
+- [ ] `tests/unit/tracker_api/operations/{feature}/{name}.operation.test.ts`
 - [ ] `npm run validate` — проходит
+
+### Добавление Entity
+
+- [ ] Создать `src/tracker_api/entities/{name}.entity.ts` с базовым типом (только known поля)
+- [ ] Добавить `export type {Name}WithUnknownFields = WithUnknownFields<{Name}>`
+- [ ] Импортировать `WithUnknownFields` из `./types.js`
+- [ ] Экспортировать оба типа в `entities/index.ts`
+- [ ] Тесты (если есть бизнес-логика)
+
+### Добавление DTO
+
+- [ ] Создать `src/tracker_api/dto/{feature}/{name}.dto.ts` (только known поля)
+- [ ] Для input DTO — можно добавить `[key: string]: unknown` для кастомных полей
+- [ ] Экспортировать в `dto/{feature}/index.ts` и `dto/index.ts`
+- [ ] Использовать в operations для input параметров
+- [ ] Operations возвращают `*WithUnknownFields`, принимают DTO
 
 ### Перед коммитом
 
@@ -189,18 +205,18 @@ return this.formatSuccess({ issues: filtered });
 src/
 ├── infrastructure/       # Инфраструктурный слой (переиспользуемый)
 │   ├── http/            # HTTP клиент + retry + error mapping
-│   ├── cache/           # Кеширование (NoOpCache)
+│   ├── cache/           # Кеширование (NoOpCache, EntityCacheKey)
 │   ├── di/              # DI контейнер (InversifyJS)
 │   ├── async/           # Параллелизация (ParallelExecutor)
 │   ├── logger.ts        # Логирование
 │   └── config.ts        # Конфигурация из env
-├── domain/              # Доменная логика (Яндекс.Трекер)
+├── tracker_api/         # Слой работы с Яндекс.Трекер API
 │   ├── entities/        # Issue, User
 │   ├── operations/      # API v3 операции (issue/, user/)
-│   ├── facade/          # YandexTrackerFacade
-│   └── utils/           # EntityCacheKey, ResponseFieldFilter
+│   └── facade/          # YandexTrackerFacade
 ├── mcp/                 # Application layer (MCP сервер)
 │   ├── tools/           # MCP tools (один файл = один tool)
+│   ├── utils/           # ResponseFieldFilter
 │   └── tool-registry.ts # Регистрация tools
 ├── types.ts             # Общие типы (ServerConfig, ApiError, etc.)
 └── index.ts             # Entry point

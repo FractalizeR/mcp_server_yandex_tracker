@@ -4,16 +4,16 @@
 
 import {describe, it, expect, beforeEach, vi} from 'vitest';
 import { GetIssuesTool } from '@mcp/tools/get-issues.tool.js';
-import type { YandexTrackerFacade } from '@domain/facade/yandex-tracker.facade.js';
+import type { YandexTrackerFacade } from '@tracker_api/facade/yandex-tracker.facade.js';
 import type { Logger } from '@infrastructure/logger.js';
-import type { Issue } from '@domain/entities/issue.entity.js';
+import type { IssueWithUnknownFields } from '@tracker_api/entities/index.js';
 
 describe('GetIssuesTool', () => {
   let mockTrackerFacade: YandexTrackerFacade;
   let mockLogger: Logger;
   let tool: GetIssuesTool;
 
-  const mockIssue1: Issue = {
+  const mockIssue1: IssueWithUnknownFields = {
     id: '1',
     key: 'QUEUE-123',
     summary: 'Test Issue 1',
@@ -45,7 +45,7 @@ describe('GetIssuesTool', () => {
     updatedAt: '2025-01-02T12:00:00Z',
   };
 
-  const mockIssue2: Issue = {
+  const mockIssue2: IssueWithUnknownFields = {
     id: '2',
     key: 'QUEUE-456',
     summary: 'Test Issue 2',
@@ -199,7 +199,7 @@ describe('GetIssuesTool', () => {
             total: number;
             successful: number;
             failed: number;
-            issues: Array<{ issueKey: string; issue: Issue }>;
+            issues: Array<{ issueKey: string; issue: IssueWithUnknownFields }>;
             errors: Array<{ issueKey: string; error: string }>;
             fieldsReturned: string;
           };
@@ -234,7 +234,7 @@ describe('GetIssuesTool', () => {
             total: number;
             successful: number;
             failed: number;
-            issues: Array<{ issueKey: string; issue: Issue }>;
+            issues: Array<{ issueKey: string; issue: IssueWithUnknownFields }>;
             errors: Array<{ issueKey: string; error: string }>;
           };
         };
@@ -263,7 +263,7 @@ describe('GetIssuesTool', () => {
         const parsed = JSON.parse(result.content[0]?.text || '{}') as {
           success: boolean;
           data: {
-            issues: Array<{ issueKey: string; issue: Partial<Issue> }>;
+            issues: Array<{ issueKey: string; issue: Partial<IssueWithUnknownFields> }>;
             fieldsReturned: string[];
           };
         };
@@ -294,7 +294,7 @@ describe('GetIssuesTool', () => {
         const parsed = JSON.parse(result.content[0]?.text || '{}') as {
           success: boolean;
           data: {
-            issues: Array<{ issueKey: string; issue: Partial<Issue> }>;
+            issues: Array<{ issueKey: string; issue: Partial<IssueWithUnknownFields> }>;
             fieldsReturned: string[];
           };
         };
@@ -372,7 +372,7 @@ describe('GetIssuesTool', () => {
             total: number;
             successful: number;
             failed: number;
-            issues: Array<{ issueKey: string; issue: Issue }>;
+            issues: Array<{ issueKey: string; issue: IssueWithUnknownFields }>;
             errors: Array<{ issueKey: string; error: string }>;
           };
         };

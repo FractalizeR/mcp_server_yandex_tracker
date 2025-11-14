@@ -5,7 +5,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@infrastructure': resolve(__dirname, './src/infrastructure'),
-      '@domain': resolve(__dirname, './src/domain'),
+      '@tracker_api': resolve(__dirname, './src/tracker_api'),
       '@mcp': resolve(__dirname, './src/mcp'),
       '@types': resolve(__dirname, './src/types.ts'),
     },

@@ -22,14 +22,14 @@ import type { CacheManager } from '@infrastructure/cache/cache-manager.interface
 import { NoOpCache } from '@infrastructure/cache/no-op-cache.js';
 
 // Yandex Tracker Operations
-import { PingOperation } from '@domain/operations/user/ping.operation.js';
-import { GetIssuesOperation } from '@domain/operations/issue/get-issues.operation.js';
-import { CreateIssuesOperation } from '@domain/operations/issue/create-issues.operation.js';
-import { UpdateIssuesOperation } from '@domain/operations/issue/update-issues.operation.js';
-import { DeleteIssuesOperation } from '@domain/operations/issue/delete-issues.operation.js';
+import { PingOperation } from '@tracker_api/operations/user/ping.operation.js';
+import { GetIssuesOperation } from '@tracker_api/operations/issue/get-issues.operation.js';
+import { CreateIssuesOperation } from '@tracker_api/operations/issue/create-issues.operation.js';
+import { UpdateIssuesOperation } from '@tracker_api/operations/issue/update-issues.operation.js';
+import { DeleteIssuesOperation } from '@tracker_api/operations/issue/delete-issues.operation.js';
 
 // Yandex Tracker Facade
-import { YandexTrackerFacade } from '@domain/facade/yandex-tracker.facade.js';
+import { YandexTrackerFacade } from '@tracker_api/facade/yandex-tracker.facade.js';
 
 // Tools
 import { PingTool } from '@mcp/tools/ping.tool.js';

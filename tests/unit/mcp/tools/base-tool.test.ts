@@ -6,7 +6,7 @@ import {describe, it, expect, vi} from 'vitest';
 import { BaseTool } from '@mcp/tools/base-tool.js';
 import type { ToolDefinition } from '@mcp/tools/base-tool.js';
 import type { ToolCallParams, ToolResult } from '@types';
-import type { YandexTrackerFacade } from '@domain/facade/yandex-tracker.facade.js';
+import type { YandexTrackerFacade } from '@tracker_api/facade/yandex-tracker.facade.js';
 import type { Logger } from '@infrastructure/logger.js';
 
 /**

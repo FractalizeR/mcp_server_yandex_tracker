@@ -1,8 +1,8 @@
 import { BaseTool } from '@mcp/tools/base-tool.js';
 import type { ToolDefinition } from '@mcp/tools/base-tool.js';
 import type { ToolCallParams, ToolResult } from '@types';
-import { ResponseFieldFilter } from '@domain/utils/index.js';
-import type { Issue } from '@domain/entities/issue.entity.js';
+import { ResponseFieldFilter } from '@mcp/utils/index.js';
+import type { IssueWithUnknownFields } from '@tracker_api/entities/index.js';
 
 /**
  * Инструмент для получения информации о задачах
@@ -124,10 +124,10 @@ export class GetIssuesTool extends BaseTool {
     results: Awaited<ReturnType<typeof this.trackerFacade.getIssues>>,
     fields?: string[]
   ): {
-    successful: Array<{ issueKey: string; issue: Partial<Issue> }>;
+    successful: Array<{ issueKey: string; issue: Partial<IssueWithUnknownFields> }>;
     failed: Array<{ issueKey: string; error: string }>;
   } {
-    const successful: Array<{ issueKey: string; issue: Partial<Issue> }> = [];
+    const successful: Array<{ issueKey: string; issue: Partial<IssueWithUnknownFields> }> = [];
     const failed: Array<{ issueKey: string; error: string }> = [];
 
     for (const result of results) {
@@ -141,9 +141,9 @@ export class GetIssuesTool extends BaseTool {
           continue;
         }
 
-        const issue: Issue = result.value;
-        const filteredIssue: Partial<Issue> = fields
-          ? (ResponseFieldFilter.filter<Issue>(issue, fields) as Partial<Issue>)
+        const issue: IssueWithUnknownFields = result.value;
+        const filteredIssue: Partial<IssueWithUnknownFields> = fields
+          ? (ResponseFieldFilter.filter<IssueWithUnknownFields>(issue, fields) as Partial<IssueWithUnknownFields>)
           : issue;
 
         successful.push({
@@ -172,7 +172,7 @@ export class GetIssuesTool extends BaseTool {
   private logResults(
     issueKeys: string[],
     processedResults: {
-      successful: Array<{ issueKey: string; issue: Partial<Issue> }>;
+      successful: Array<{ issueKey: string; issue: Partial<IssueWithUnknownFields> }>;
       failed: Array<{ issueKey: string; error: string }>;
     },
     fields?: string[]

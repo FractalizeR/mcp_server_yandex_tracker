@@ -11,7 +11,7 @@
  * - Закрыт для модификации (основная логика не меняется)
  */
 
-import type { YandexTrackerFacade } from '@domain/facade/index.js';
+import type { YandexTrackerFacade } from '@tracker_api/facade/index.js';
 import type { Logger } from '@infrastructure/logger.js';
 import type { ToolCallParams, ToolResult } from '@types';
 import type { BaseTool, ToolDefinition } from '@mcp/tools/base-tool.js';
