@@ -6,6 +6,7 @@ import type { Logger } from '@infrastructure/logging/index.js';
 import type { ToolCallParams } from '@types';
 import type { PingResult } from '@tracker_api/operations/user/ping.operation.js';
 import type { BatchIssueResult } from '@tracker_api/operations/issue/get-issues.operation.js';
+import type { IssueWithUnknownFields } from '@tracker_api/entities/index.js';
 import { PingTool } from '@mcp/tools/ping.tool.js';
 import { GetIssuesTool } from '@mcp/tools/api/issues/get/index.js';
 import { DemoTool } from '@mcp/tools/helpers/demo/index.js';
@@ -138,6 +139,8 @@ describe('ToolRegistry', () => {
       const mockResults: BatchIssueResult[] = [
         {
           status: 'fulfilled',
+          key: 'TEST-1',
+          index: 0,
           value: {
             self: 'https://api.tracker.yandex.net/v3/issues/TEST-1',
             id: '1',
@@ -147,7 +150,10 @@ describe('ToolRegistry', () => {
             statusStartTime: '2023-01-01T00:00:00.000+0000',
             updatedAt: '2023-01-01T00:00:00.000+0000',
             createdAt: '2023-01-01T00:00:00.000+0000',
-          },
+            queue: { id: '1', key: 'Q', name: 'Queue' },
+            status: { id: '1', key: 'open', display: 'Open' },
+            createdBy: { uid: 'user1', display: 'User', login: 'user1', isActive: true },
+          } as IssueWithUnknownFields,
         },
       ];
 

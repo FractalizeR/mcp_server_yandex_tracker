@@ -22,7 +22,7 @@ import { ErrorMapper } from '@infrastructure/http/error';
 import { RetryHandler } from '@infrastructure/http/retry';
 import type { RetryStrategy } from '@infrastructure/http/retry';
 import { ParallelExecutor } from '@infrastructure/async';
-import type { BatchResult } from '@infrastructure/async';
+import type { BatchResult } from '@types';
 
 export class HttpClient {
   private readonly client: AxiosInstance;
@@ -154,7 +154,7 @@ export class HttpClient {
    *
    * @param paths - массив путей к ресурсам
    * @param params - опциональные query параметры (общие для всех запросов)
-   * @returns агрегированный результат всех запросов
+   * @returns массив результатов (unified BatchResult формат)
    *
    * @example
    * // Получение нескольких задач параллельно
@@ -171,8 +171,11 @@ export class HttpClient {
    *   const errors = ParallelExecutor.getErrors(result);
    * }
    */
-  async getBatch<T>(paths: string[], params?: QueryParams): Promise<BatchResult<T>> {
-    const operations = paths.map((path) => this.createRetryableGetOperation<T>(path, params));
+  async getBatch<T>(paths: string[], params?: QueryParams): Promise<BatchResult<string, T>> {
+    const operations = paths.map((path) => ({
+      key: path,
+      fn: this.createRetryableGetOperation<T>(path, params),
+    }));
 
     return this.parallelExecutor.executeParallel(operations, 'GET batch');
   }
@@ -192,10 +195,11 @@ export class HttpClient {
    */
   async postBatch<T = unknown>(
     requests: Array<{ path: string; data?: unknown }>
-  ): Promise<BatchResult<T>> {
-    const operations = requests.map((req) =>
-      this.createRetryablePostOperation<T>(req.path, req.data)
-    );
+  ): Promise<BatchResult<string, T>> {
+    const operations = requests.map((req) => ({
+      key: req.path,
+      fn: this.createRetryablePostOperation<T>(req.path, req.data),
+    }));
 
     return this.parallelExecutor.executeParallel(operations, 'POST batch');
   }
@@ -215,10 +219,11 @@ export class HttpClient {
    */
   async patchBatch<T = unknown>(
     requests: Array<{ path: string; data?: unknown }>
-  ): Promise<BatchResult<T>> {
-    const operations = requests.map((req) =>
-      this.createRetryablePatchOperation<T>(req.path, req.data)
-    );
+  ): Promise<BatchResult<string, T>> {
+    const operations = requests.map((req) => ({
+      key: req.path,
+      fn: this.createRetryablePatchOperation<T>(req.path, req.data),
+    }));
 
     return this.parallelExecutor.executeParallel(operations, 'PATCH batch');
   }
@@ -236,8 +241,11 @@ export class HttpClient {
    *   '/v3/issues/QUEUE-2'
    * ]);
    */
-  async deleteBatch<T = unknown>(paths: string[]): Promise<BatchResult<T>> {
-    const operations = paths.map((path) => this.createRetryableDeleteOperation<T>(path));
+  async deleteBatch<T = unknown>(paths: string[]): Promise<BatchResult<string, T>> {
+    const operations = paths.map((path) => ({
+      key: path,
+      fn: this.createRetryableDeleteOperation<T>(path),
+    }));
 
     return this.parallelExecutor.executeParallel(operations, 'DELETE batch');
   }

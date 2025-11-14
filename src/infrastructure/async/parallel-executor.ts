@@ -19,43 +19,7 @@
 
 import pLimit from 'p-limit';
 import type { Logger } from '@infrastructure/logging/index.js';
-import type { ApiError } from '@types';
-
-/**
- * Результат выполнения одной операции (Discriminated Union)
- *
- * ВАЖНО: Использование discriminated union гарантирует типобезопасность:
- * - Невозможно создать невалидное состояние (success=true + error)
- * - TypeScript автоматически делает type narrowing
- * - Меньше проверок на undefined в коде
- */
-export type OperationResult<T> =
-  | {
-      /** Статус операции: успех */
-      readonly status: 'success';
-      /** Данные результата */
-      readonly data: T;
-      /** Индекс в исходном массиве для сопоставления */
-      readonly index: number;
-    }
-  | {
-      /** Статус операции: ошибка */
-      readonly status: 'error';
-      /** Ошибка выполнения */
-      readonly error: ApiError;
-      /** Индекс в исходном массиве для сопоставления */
-      readonly index: number;
-    };
-
-/**
- * Результат выполнения пакета операций
- */
-export interface BatchResult<T> {
-  readonly results: ReadonlyArray<OperationResult<T>>;
-  readonly successCount: number;
-  readonly errorCount: number;
-  readonly totalCount: number;
-}
+import type { BatchResult, FulfilledResult, RejectedResult } from '@types';
 
 /**
  * Конфигурация ParallelExecutor
@@ -91,19 +55,22 @@ export class ParallelExecutor {
   /**
    * Выполняет массив операций параллельно с ограничением concurrency
    *
-   * @param operations - массив асинхронных функций для выполнения
+   * @param operations - массив объектов { key, fn } для выполнения
    * @param operationName - имя операции для логирования (например, "get issue")
-   * @returns агрегированный результат выполнения всех операций
+   * @returns массив результатов (unified BatchResult формат)
    * @throws {Error} если количество операций превышает maxBatchSize
    *
    * @example
-   * const operations = keys.map(key => () => httpClient.get(`/v3/issues/${key}`));
+   * const operations = keys.map(key => ({
+   *   key,
+   *   fn: () => httpClient.get(`/v3/issues/${key}`)
+   * }));
    * const result = await executor.executeParallel(operations, 'get issue');
    */
-  async executeParallel<T>(
-    operations: Array<() => Promise<T>>,
+  async executeParallel<TKey, TValue>(
+    operations: Array<{ key: TKey; fn: () => Promise<TValue> }>,
     operationName: string = 'operation'
-  ): Promise<BatchResult<T>> {
+  ): Promise<BatchResult<TKey, TValue>> {
     const totalCount = operations.length;
 
     // Валидация лимита batch-размера
@@ -120,21 +87,15 @@ export class ParallelExecutor {
     );
 
     const startTime = Date.now();
-    const settledResults = await this.executeWithConcurrencyLimit(operations);
+    const settledResults = await this.executeWithConcurrencyLimit(operations.map((op) => op.fn));
     const duration = Date.now() - startTime;
 
-    const results = this.mapSettledResults(settledResults);
-    const stats = this.calculateStats(results, totalCount);
+    const results = this.mapSettledResults(settledResults, operations);
 
-    this.logCompletion(stats, duration, operationName);
+    this.logCompletion(results, duration, operationName);
     this.logFailures(results, operationName);
 
-    return {
-      results,
-      successCount: stats.successCount,
-      errorCount: stats.errorCount,
-      totalCount,
-    };
+    return results;
   }
 
   /**
@@ -163,61 +124,72 @@ export class ParallelExecutor {
   }
 
   /**
-   * Преобразует PromiseSettledResult в наш формат OperationResult
+   * Преобразует PromiseSettledResult в unified BatchResult формат
    */
-  private mapSettledResults<T>(settledResults: PromiseSettledResult<T>[]): OperationResult<T>[] {
-    return settledResults.map((result, index): OperationResult<T> => {
-      if (result.status === 'fulfilled') {
-        return {
-          status: 'success',
-          data: result.value,
-          index,
-        };
-      } else {
-        return {
-          status: 'error',
-          error: result.reason as ApiError,
-          index,
-        };
+  private mapSettledResults<TKey, TValue>(
+    settledResults: PromiseSettledResult<TValue>[],
+    operations: Array<{ key: TKey; fn: () => Promise<TValue> }>
+  ): BatchResult<TKey, TValue> {
+    return settledResults.map(
+      (result, index): FulfilledResult<TKey, TValue> | RejectedResult<TKey> => {
+        // operations[index] exists because settledResults.length === operations.length
+        const operation = operations[index];
+        if (!operation) {
+          throw new Error(`Missing operation at index ${index}`);
+        }
+        const key = operation.key;
+
+        if (result.status === 'fulfilled') {
+          return {
+            status: 'fulfilled',
+            key,
+            value: result.value,
+            index,
+          };
+        } else {
+          return {
+            status: 'rejected',
+            key,
+            reason:
+              result.reason instanceof Error ? result.reason : new Error(String(result.reason)),
+            index,
+          };
+        }
       }
-    });
-  }
-
-  /**
-   * Подсчитывает статистику выполнения операций
-   */
-  private calculateStats<T>(
-    results: OperationResult<T>[],
-    totalCount: number
-  ): { successCount: number; errorCount: number; totalCount: number } {
-    const successCount = results.filter((r) => r.status === 'success').length;
-    const errorCount = results.filter((r) => r.status === 'error').length;
-
-    return { successCount, errorCount, totalCount };
+    );
   }
 
   /**
    * Логирует завершение выполнения операций
    */
-  private logCompletion(
-    stats: { successCount: number; errorCount: number; totalCount: number },
+  private logCompletion<TKey, TValue>(
+    results: BatchResult<TKey, TValue>,
     duration: number,
     _operationName: string
   ): void {
+    const successCount = results.filter((r) => r.status === 'fulfilled').length;
+    const errorCount = results.filter((r) => r.status === 'rejected').length;
+    const totalCount = results.length;
+
     this.logger.info(
       `Завершено параллельное выполнение за ${duration}ms. ` +
-        `Успешно: ${stats.successCount}/${stats.totalCount}, ` +
-        `Ошибок: ${stats.errorCount}/${stats.totalCount}`
+        `Успешно: ${successCount}/${totalCount}, ` +
+        `Ошибок: ${errorCount}/${totalCount}`
     );
   }
 
   /**
    * Логирует неудачные операции
    */
-  private logFailures<T>(results: OperationResult<T>[], operationName: string): void {
+  private logFailures<TKey, TValue>(
+    results: BatchResult<TKey, TValue>,
+    operationName: string
+  ): void {
     results.forEach((result, idx) => {
-      if (result.status === 'error') {
-        this.logger.warn(`Операция #${idx} (${operationName}) не удалась: ${result.error.message}`);
+      if (result.status === 'rejected') {
+        this.logger.warn(
+          `Операция #${idx} (${operationName}, key=${String(result.key)}) не удалась: ${result.reason.message}`
+        );
       }
     });
   }
@@ -228,7 +200,7 @@ export class ParallelExecutor {
    * @param inputs - массив входных данных
    * @param operationFactory - фабрика, создающая операцию для каждого входа
    * @param operationName - имя операции для логирования
-   * @returns агрегированный результат
+   * @returns массив результатов (unified BatchResult формат)
    *
    * @example
    * const result = await executor.executeMapped(
@@ -237,58 +209,65 @@ export class ParallelExecutor {
    *   'get issue'
    * );
    */
-  async executeMapped<TInput, TOutput>(
+  async executeMapped<TKey extends TInput, TInput, TValue>(
     inputs: TInput[],
-    operationFactory: (input: TInput) => () => Promise<TOutput>,
+    operationFactory: (input: TInput) => () => Promise<TValue>,
     operationName: string = 'operation'
-  ): Promise<BatchResult<TOutput>> {
-    const operations = inputs.map(operationFactory);
+  ): Promise<BatchResult<TKey, TValue>> {
+    const operations = inputs.map((input) => ({
+      key: input as TKey,
+      fn: operationFactory(input),
+    }));
     return this.executeParallel(operations, operationName);
   }
 
   /**
    * Проверяет, все ли операции завершились успешно
    *
-   * @param result - результат выполнения пакета
+   * @param results - массив результатов выполнения
    * @returns true, если все операции успешны
    */
-  static isAllSuccess<T>(result: BatchResult<T>): boolean {
-    return result.errorCount === 0;
+  static isAllSuccess<TKey, TValue>(results: BatchResult<TKey, TValue>): boolean {
+    return results.every((r) => r.status === 'fulfilled');
   }
 
   /**
    * Проверяет, есть ли хотя бы одна ошибка
    *
-   * @param result - результат выполнения пакета
+   * @param results - массив результатов выполнения
    * @returns true, если есть ошибки
    */
-  static hasErrors<T>(result: BatchResult<T>): boolean {
-    return result.errorCount > 0;
+  static hasErrors<TKey, TValue>(results: BatchResult<TKey, TValue>): boolean {
+    return results.some((r) => r.status === 'rejected');
   }
 
   /**
    * Получает только успешные результаты
    *
-   * @param result - результат выполнения пакета
+   * @param results - массив результатов выполнения
    * @returns массив данных успешных операций
    */
-  static getSuccessfulResults<T>(result: BatchResult<T>): T[] {
-    return result.results
+  static getSuccessfulResults<TKey, TValue>(results: BatchResult<TKey, TValue>): TValue[] {
+    return results
       .filter(
-        (r): r is Extract<OperationResult<T>, { status: 'success' }> => r.status === 'success'
+        (r): r is Extract<BatchResult<TKey, TValue>[number], { status: 'fulfilled' }> =>
+          r.status === 'fulfilled'
       )
-      .map((r) => r.data);
+      .map((r) => r.value);
   }
 
   /**
    * Получает только ошибки
    *
-   * @param result - результат выполнения пакета
+   * @param results - массив результатов выполнения
    * @returns массив ошибок неудачных операций
    */
-  static getErrors<T>(result: BatchResult<T>): ApiError[] {
-    return result.results
-      .filter((r): r is Extract<OperationResult<T>, { status: 'error' }> => r.status === 'error')
-      .map((r) => r.error);
+  static getErrors<TKey, TValue>(results: BatchResult<TKey, TValue>): Error[] {
+    return results
+      .filter(
+        (r): r is Extract<BatchResult<TKey, TValue>[number], { status: 'rejected' }> =>
+          r.status === 'rejected'
+      )
+      .map((r) => r.reason);
   }
 }

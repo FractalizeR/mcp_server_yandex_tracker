@@ -80,7 +80,7 @@ export class GetIssuesTool extends BaseTool {
         successful: processedResults.successful.length,
         failed: processedResults.failed.length,
         issues: processedResults.successful.map((item) => ({
-          issueKey: item.issueKey,
+          issueKey: item.key, // ← ОБНОВЛЕНО: unified формат (key вместо issueKey)
           issue: item.data,
         })),
         errors: processedResults.failed,

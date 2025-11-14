@@ -59,11 +59,11 @@ describe('ResultLogger', () => {
         failedCount: 0,
         fieldsCount: 5,
       };
-      const results: ProcessedBatchResult<{ key: string; summary: string }> = {
+      const results: ProcessedBatchResult<string, { key: string; summary: string }> = {
         successful: [
-          { issueKey: 'PROJ-1', data: { key: 'PROJ-1', summary: 'Task 1' } },
-          { issueKey: 'PROJ-2', data: { key: 'PROJ-2', summary: 'Task 2' } },
-          { issueKey: 'PROJ-3', data: { key: 'PROJ-3', summary: 'Task 3' } },
+          { key: 'PROJ-1', data: { key: 'PROJ-1', summary: 'Task 1' } },
+          { key: 'PROJ-2', data: { key: 'PROJ-2', summary: 'Task 2' } },
+          { key: 'PROJ-3', data: { key: 'PROJ-3', summary: 'Task 3' } },
         ],
         failed: [],
       };
@@ -86,11 +86,11 @@ describe('ResultLogger', () => {
         failedCount: 2,
         fieldsCount: 5,
       };
-      const results: ProcessedBatchResult<{ key: string }> = {
+      const results: ProcessedBatchResult<string, { key: string }> = {
         successful: [],
         failed: [
-          { issueKey: 'PROJ-1', error: 'Not found' },
-          { issueKey: 'PROJ-2', error: 'Access denied' },
+          { key: 'PROJ-1', error: 'Not found' },
+          { key: 'PROJ-2', error: 'Access denied' },
         ],
       };
 
@@ -121,10 +121,10 @@ describe('ResultLogger', () => {
         failedCount: 0,
         fieldsCount: 3,
       };
-      const results: ProcessedBatchResult<{ key: string }> = {
+      const results: ProcessedBatchResult<string, { key: string }> = {
         successful: [
-          { issueKey: 'PROJ-1', data: { key: 'PROJ-1' } }, // ~19 bytes
-          { issueKey: 'PROJ-2', data: { key: 'PROJ-2' } }, // ~19 bytes
+          { key: 'PROJ-1', data: { key: 'PROJ-1' } }, // ~19 bytes
+          { key: 'PROJ-2', data: { key: 'PROJ-2' } }, // ~19 bytes
         ],
         failed: [],
       };

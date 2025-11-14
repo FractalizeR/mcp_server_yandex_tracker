@@ -143,23 +143,57 @@ export interface ToolResult {
 
 /**
  * Успешный результат batch-операции
+ *
+ * Generic параметры:
+ * - TKey: тип ключа сущности (string для issueKey, number для ID, etc.)
+ * - TValue: тип данных результата
+ *
+ * @example
+ * // Для операций с задачами
+ * type IssueResult = FulfilledResult<string, IssueWithUnknownFields>;
+ * // key = issueKey (QUEUE-123)
+ * // value = Issue data
  */
-export interface FulfilledResult<T> {
+export interface FulfilledResult<TKey, TValue> {
+  /** Статус: успешное выполнение */
   status: 'fulfilled';
-  issueKey: string;
-  value: T;
+  /** Ключ сущности (например, issueKey, queueKey) */
+  key: TKey;
+  /** Данные результата */
+  value: TValue;
+  /** Индекс в исходном массиве для сопоставления */
+  index: number;
 }
 
 /**
  * Неудачный результат batch-операции
+ *
+ * @example
+ * // Для операций с задачами
+ * type IssueError = RejectedResult<string>;
+ * // key = issueKey (QUEUE-123)
  */
-export interface RejectedResult {
+export interface RejectedResult<TKey> {
+  /** Статус: ошибка выполнения */
   status: 'rejected';
-  issueKey: string;
+  /** Ключ сущности (например, issueKey, queueKey) */
+  key: TKey;
+  /** Причина ошибки */
   reason: Error;
+  /** Индекс в исходном массиве для сопоставления */
+  index: number;
 }
 
 /**
  * Результат batch-операции (массив успешных и неудачных результатов)
+ *
+ * Unified формат для всех batch-операций:
+ * - Infrastructure (ParallelExecutor, HttpClient)
+ * - Operations (GetIssuesOperation, etc.)
+ * - MCP Tools (BatchResultProcessor)
+ *
+ * @example
+ * // Type alias для операций с задачами
+ * type BatchIssueResult = BatchResult<string, IssueWithUnknownFields>;
  */
-export type BatchResult<T> = Array<FulfilledResult<T> | RejectedResult>;
+export type BatchResult<TKey, TValue> = Array<FulfilledResult<TKey, TValue> | RejectedResult<TKey>>;

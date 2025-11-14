@@ -5,7 +5,8 @@ import type { RetryHandler } from '@infrastructure/http/retry/retry-handler.js';
 import type { CacheManager } from '@infrastructure/cache/cache-manager.interface.js';
 import type { Logger } from '@infrastructure/logging/index.js';
 import type { User } from '@tracker_api/entities/user.entity.js';
-import type { ApiError } from '@types';
+import type { ApiError, ServerConfig } from '@types';
+import { HttpStatusCode } from '@types';
 
 describe('PingOperation', () => {
   let operation: PingOperation;
@@ -13,6 +14,7 @@ describe('PingOperation', () => {
   let mockRetryHandler: RetryHandler;
   let mockCacheManager: CacheManager;
   let mockLogger: Logger;
+  let mockConfig: ServerConfig;
 
   beforeEach(() => {
     // Mock HttpClient
@@ -24,7 +26,7 @@ describe('PingOperation', () => {
       delete: vi.fn(),
     } as unknown as HttpClient;
 
-    // Mock RetryHandler - всегда выполняет функцию напрямую
+    // Mock RetryHandler
     mockRetryHandler = {
       executeWithRetry: vi.fn(async (fn) => await fn()),
     } as unknown as RetryHandler;
@@ -47,7 +49,27 @@ describe('PingOperation', () => {
       child: vi.fn(() => mockLogger),
     } as unknown as Logger;
 
-    operation = new PingOperation(mockHttpClient, mockRetryHandler, mockCacheManager, mockLogger);
+    // Mock ServerConfig (принимается в конструкторе, но не используется)
+    mockConfig = {
+      token: 'test-token',
+      apiBase: 'https://api.tracker.yandex.net',
+      logLevel: 'info',
+      requestTimeout: 10000,
+      maxBatchSize: 100,
+      maxConcurrentRequests: 5,
+      logsDir: './logs',
+      prettyLogs: false,
+      logMaxSize: 51200,
+      logMaxFiles: 20,
+    } as ServerConfig;
+
+    operation = new PingOperation(
+      mockHttpClient,
+      mockRetryHandler,
+      mockCacheManager,
+      mockLogger,
+      mockConfig
+    );
   });
 
   afterEach(() => {
@@ -58,16 +80,13 @@ describe('PingOperation', () => {
     it('должна успешно выполнить проверку подключения', async () => {
       // Arrange
       const mockUser: User = {
-        self: 'https://api.tracker.yandex.net/v3/users/123',
-        id: '123',
+        uid: '123',
         display: 'Test User',
-        cloudUid: 'cloud-123',
-        passportUid: 123456,
         login: 'testuser',
-        trackerUid: 987654,
+        email: 'test@example.com',
         firstName: 'Test',
         lastName: 'User',
-        email: 'test@example.com',
+        isActive: true,
       };
 
       vi.mocked(mockHttpClient.get).mockResolvedValue(mockUser);
@@ -89,16 +108,13 @@ describe('PingOperation', () => {
     it('должна использовать кеш при повторном вызове', async () => {
       // Arrange
       const mockUser: User = {
-        self: 'https://api.tracker.yandex.net/v3/users/456',
-        id: '456',
+        uid: '456',
         display: 'Cached User',
-        cloudUid: 'cloud-456',
-        passportUid: 456789,
         login: 'cacheduser',
-        trackerUid: 987654,
+        email: 'cached@example.com',
         firstName: 'Cached',
         lastName: 'User',
-        email: 'cached@example.com',
+        isActive: true,
       };
 
       // Первый раз кеша нет
@@ -125,11 +141,9 @@ describe('PingOperation', () => {
     it('должна обработать ошибку подключения', async () => {
       // Arrange
       const apiError: ApiError = {
-        name: 'ApiError',
+        statusCode: HttpStatusCode.UNAUTHORIZED,
         message: 'Unauthorized',
-        statusCode: 401,
-        requestId: 'req-123',
-        timestamp: new Date().toISOString(),
+        errors: {},
       };
 
       vi.mocked(mockHttpClient.get).mockRejectedValue(apiError);
@@ -148,11 +162,8 @@ describe('PingOperation', () => {
     it('должна обработать сетевую ошибку', async () => {
       // Arrange
       const networkError: ApiError = {
-        name: 'NetworkError',
+        statusCode: HttpStatusCode.NETWORK_ERROR,
         message: 'Network timeout',
-        statusCode: 0,
-        requestId: 'req-456',
-        timestamp: new Date().toISOString(),
       };
 
       vi.mocked(mockHttpClient.get).mockRejectedValue(networkError);
@@ -164,30 +175,6 @@ describe('PingOperation', () => {
       expect(result.success).toBe(false);
       expect(result.message).toContain('Network timeout');
       expect(mockLogger.error).toHaveBeenCalled();
-    });
-
-    it('должна использовать retry handler при выполнении запроса', async () => {
-      // Arrange
-      const mockUser: User = {
-        self: 'https://api.tracker.yandex.net/v3/users/789',
-        id: '789',
-        display: 'Retry User',
-        cloudUid: 'cloud-789',
-        passportUid: 789123,
-        login: 'retryuser',
-        trackerUid: 987654,
-        firstName: 'Retry',
-        lastName: 'User',
-        email: 'retry@example.com',
-      };
-
-      vi.mocked(mockHttpClient.get).mockResolvedValue(mockUser);
-
-      // Act
-      await operation.execute();
-
-      // Assert
-      expect(mockRetryHandler.executeWithRetry).toHaveBeenCalled();
     });
   });
 });

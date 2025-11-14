@@ -20,15 +20,14 @@ function createMockLogger(): Logger {
 }
 
 /**
- * Создаёт мок ApiError
+ * Создаёт мок ApiError (наследуется от Error для правильной обработки в ParallelExecutor)
  */
-function createMockApiError(message: string, statusCode: number = 500): ApiError {
-  return {
-    message,
-    statusCode,
-    isRetryable: false,
-    timestamp: new Date(),
-  } as ApiError;
+function createMockApiError(message: string, _statusCode: number = 500): Error & ApiError {
+  const error = new Error(message) as Error & ApiError;
+  // error.statusCode = statusCode;
+  // error.isRetryable = false;
+  // error.timestamp = new Date();
+  return error;
 }
 
 describe('ParallelExecutor', () => {
@@ -47,75 +46,86 @@ describe('ParallelExecutor', () => {
     it('должен успешно выполнить все операции', async () => {
       // Arrange
       const operations = [
-        async (): Promise<string> => 'result1',
-        async (): Promise<string> => 'result2',
-        async (): Promise<string> => 'result3',
+        { key: 'key1', fn: async (): Promise<string> => 'result1' },
+        { key: 'key2', fn: async (): Promise<string> => 'result2' },
+        { key: 'key3', fn: async (): Promise<string> => 'result3' },
       ];
 
       // Act
       const result = await executor.executeParallel(operations, 'test operation');
 
       // Assert
-      expect(result.totalCount).toBe(3);
-      expect(result.successCount).toBe(3);
-      expect(result.errorCount).toBe(0);
-      expect(result.results).toHaveLength(3);
+      expect(result).toHaveLength(3);
+      const fulfilledResults = result.filter((r) => r.status === 'fulfilled');
+      expect(fulfilledResults).toHaveLength(3);
 
       // Проверяем успешные результаты
-      expect(result.results[0]?.status).toBe('success');
-      if (result.results[0]?.status === 'success') {
-        expect(result.results[0].data).toBe('result1');
+      expect(result[0]?.status).toBe('fulfilled');
+      if (result[0]?.status === 'fulfilled') {
+        expect(result[0].key).toBe('key1');
+        expect(result[0].value).toBe('result1');
+        expect(result[0].index).toBe(0);
       }
-      expect(result.results[0]?.index).toBe(0);
 
-      expect(result.results[1]?.status).toBe('success');
-      if (result.results[1]?.status === 'success') {
-        expect(result.results[1].data).toBe('result2');
+      expect(result[1]?.status).toBe('fulfilled');
+      if (result[1]?.status === 'fulfilled') {
+        expect(result[1].key).toBe('key2');
+        expect(result[1].value).toBe('result2');
+        expect(result[1].index).toBe(1);
       }
-      expect(result.results[1]?.index).toBe(1);
 
-      expect(result.results[2]?.status).toBe('success');
-      if (result.results[2]?.status === 'success') {
-        expect(result.results[2].data).toBe('result3');
+      expect(result[2]?.status).toBe('fulfilled');
+      if (result[2]?.status === 'fulfilled') {
+        expect(result[2].key).toBe('key3');
+        expect(result[2].value).toBe('result3');
+        expect(result[2].index).toBe(2);
       }
-      expect(result.results[2]?.index).toBe(2);
     });
 
     it('должен обработать частичные неудачи', async () => {
       // Arrange
       const error = createMockApiError('Test error', 500);
       const operations = [
-        async (): Promise<string> => 'result1',
-        async (): Promise<string> => {
-          throw error;
+        { key: 'key1', fn: async (): Promise<string> => 'result1' },
+        {
+          key: 'key2',
+          fn: async (): Promise<string> => {
+            throw error;
+          },
         },
-        async (): Promise<string> => 'result3',
+        { key: 'key3', fn: async (): Promise<string> => 'result3' },
       ];
 
       // Act
       const result = await executor.executeParallel(operations, 'test operation');
 
       // Assert
-      expect(result.totalCount).toBe(3);
-      expect(result.successCount).toBe(2);
-      expect(result.errorCount).toBe(1);
+      expect(result).toHaveLength(3);
+      const fulfilledResults = result.filter((r) => r.status === 'fulfilled');
+      const rejectedResults = result.filter((r) => r.status === 'rejected');
+      expect(fulfilledResults).toHaveLength(2);
+      expect(rejectedResults).toHaveLength(1);
 
       // Успешные операции
-      expect(result.results[0]?.status).toBe('success');
-      if (result.results[0]?.status === 'success') {
-        expect(result.results[0].data).toBe('result1');
+      expect(result[0]?.status).toBe('fulfilled');
+      if (result[0]?.status === 'fulfilled') {
+        expect(result[0].value).toBe('result1');
+        expect(result[0].key).toBe('key1');
       }
 
       // Неудачная операция
-      expect(result.results[1]?.status).toBe('error');
-      if (result.results[1]?.status === 'error') {
-        expect(result.results[1].error).toBe(error);
+      expect(result[1]?.status).toBe('rejected');
+      if (result[1]?.status === 'rejected') {
+        expect(result[1].reason.message).toBe('Test error');
+        expect(result[1].key).toBe('key2');
+        expect(result[1].index).toBe(1);
       }
 
       // Снова успешная
-      expect(result.results[2]?.status).toBe('success');
-      if (result.results[2]?.status === 'success') {
-        expect(result.results[2].data).toBe('result3');
+      expect(result[2]?.status).toBe('fulfilled');
+      if (result[2]?.status === 'fulfilled') {
+        expect(result[2].value).toBe('result3');
+        expect(result[2].key).toBe('key3');
       }
     });
 
@@ -124,11 +134,17 @@ describe('ParallelExecutor', () => {
       const error1 = createMockApiError('Error 1', 500);
       const error2 = createMockApiError('Error 2', 404);
       const operations = [
-        async (): Promise<string> => {
-          throw error1;
+        {
+          key: 'key1',
+          fn: async (): Promise<string> => {
+            throw error1;
+          },
         },
-        async (): Promise<string> => {
-          throw error2;
+        {
+          key: 'key2',
+          fn: async (): Promise<string> => {
+            throw error2;
+          },
         },
       ];
 
@@ -136,38 +152,37 @@ describe('ParallelExecutor', () => {
       const result = await executor.executeParallel(operations, 'test operation');
 
       // Assert
-      expect(result.totalCount).toBe(2);
-      expect(result.successCount).toBe(0);
-      expect(result.errorCount).toBe(2);
+      expect(result).toHaveLength(2);
+      const rejectedResults = result.filter((r) => r.status === 'rejected');
+      expect(rejectedResults).toHaveLength(2);
 
-      expect(result.results[0]?.status).toBe('error');
-      if (result.results[0]?.status === 'error') {
-        expect(result.results[0].error).toBe(error1);
+      expect(result[0]?.status).toBe('rejected');
+      if (result[0]?.status === 'rejected') {
+        expect(result[0].reason.message).toBe('Error 1');
+        expect(result[0].key).toBe('key1');
       }
 
-      expect(result.results[1]?.status).toBe('error');
-      if (result.results[1]?.status === 'error') {
-        expect(result.results[1].error).toBe(error2);
+      expect(result[1]?.status).toBe('rejected');
+      if (result[1]?.status === 'rejected') {
+        expect(result[1].reason.message).toBe('Error 2');
+        expect(result[1].key).toBe('key2');
       }
     });
 
     it('должен обрабатывать пустой массив операций', async () => {
       // Arrange
-      const operations: Array<() => Promise<string>> = [];
+      const operations: Array<{ key: string; fn: () => Promise<string> }> = [];
 
       // Act
       const result = await executor.executeParallel(operations, 'test operation');
 
       // Assert
-      expect(result.totalCount).toBe(0);
-      expect(result.successCount).toBe(0);
-      expect(result.errorCount).toBe(0);
-      expect(result.results).toHaveLength(0);
+      expect(result).toHaveLength(0);
     });
 
     it('должен логировать начало и окончание выполнения', async () => {
       // Arrange
-      const operations = [async (): Promise<string> => 'result1'];
+      const operations = [{ key: 'key1', fn: async (): Promise<string> => 'result1' }];
 
       // Act
       await executor.executeParallel(operations, 'test operation');
@@ -187,8 +202,11 @@ describe('ParallelExecutor', () => {
       // Arrange
       const error = createMockApiError('Test error', 500);
       const operations = [
-        async (): Promise<string> => {
-          throw error;
+        {
+          key: 'test-key',
+          fn: async (): Promise<string> => {
+            throw error;
+          },
         },
       ];
 
@@ -197,7 +215,7 @@ describe('ParallelExecutor', () => {
 
       // Assert
       expect(logger.warn).toHaveBeenCalledWith(
-        'Операция #0 (test operation) не удалась: Test error'
+        'Операция #0 (test operation, key=test-key) не удалась: Test error'
       );
     });
   });
@@ -212,18 +230,21 @@ describe('ParallelExecutor', () => {
       const result = await executor.executeMapped(inputs, operationFactory, 'mapped operation');
 
       // Assert
-      expect(result.totalCount).toBe(3);
-      expect(result.successCount).toBe(3);
-      expect(result.errorCount).toBe(0);
+      expect(result).toHaveLength(3);
+      const fulfilledResults = result.filter((r) => r.status === 'fulfilled');
+      expect(fulfilledResults).toHaveLength(3);
 
-      if (result.results[0]?.status === 'success') {
-        expect(result.results[0].data).toBe('result-key1');
+      if (result[0]?.status === 'fulfilled') {
+        expect(result[0].value).toBe('result-key1');
+        expect(result[0].key).toBe('key1');
       }
-      if (result.results[1]?.status === 'success') {
-        expect(result.results[1].data).toBe('result-key2');
+      if (result[1]?.status === 'fulfilled') {
+        expect(result[1].value).toBe('result-key2');
+        expect(result[1].key).toBe('key2');
       }
-      if (result.results[2]?.status === 'success') {
-        expect(result.results[2].data).toBe('result-key3');
+      if (result[2]?.status === 'fulfilled') {
+        expect(result[2].value).toBe('result-key3');
+        expect(result[2].key).toBe('key3');
       }
     });
 
@@ -243,18 +264,20 @@ describe('ParallelExecutor', () => {
       const result = await executor.executeMapped(inputs, operationFactory, 'mapped operation');
 
       // Assert
-      expect(result.totalCount).toBe(2);
-      expect(result.successCount).toBe(1);
-      expect(result.errorCount).toBe(1);
+      expect(result).toHaveLength(2);
+      const fulfilledResults = result.filter((r) => r.status === 'fulfilled');
+      const rejectedResults = result.filter((r) => r.status === 'rejected');
+      expect(fulfilledResults).toHaveLength(1);
+      expect(rejectedResults).toHaveLength(1);
 
-      expect(result.results[0]?.status).toBe('success');
-      if (result.results[0]?.status === 'success') {
-        expect(result.results[0].data).toBe('result-key1');
+      expect(result[0]?.status).toBe('fulfilled');
+      if (result[0]?.status === 'fulfilled') {
+        expect(result[0].value).toBe('result-key1');
       }
 
-      expect(result.results[1]?.status).toBe('error');
-      if (result.results[1]?.status === 'error') {
-        expect(result.results[1].error).toBe(error);
+      expect(result[1]?.status).toBe('rejected');
+      if (result[1]?.status === 'rejected') {
+        expect(result[1].reason.message).toBe('Mapping error');
       }
     });
   });
@@ -263,8 +286,8 @@ describe('ParallelExecutor', () => {
     it('должен вернуть true, если все операции успешны', async () => {
       // Arrange
       const operations = [
-        async (): Promise<string> => 'result1',
-        async (): Promise<string> => 'result2',
+        { key: 'key1', fn: async (): Promise<string> => 'result1' },
+        { key: 'key2', fn: async (): Promise<string> => 'result2' },
       ];
       const result = await executor.executeParallel(operations);
 
@@ -276,9 +299,12 @@ describe('ParallelExecutor', () => {
       // Arrange
       const error = createMockApiError('Error', 500);
       const operations = [
-        async (): Promise<string> => 'result1',
-        async (): Promise<string> => {
-          throw error;
+        { key: 'key1', fn: async (): Promise<string> => 'result1' },
+        {
+          key: 'key2',
+          fn: async (): Promise<string> => {
+            throw error;
+          },
         },
       ];
       const result = await executor.executeParallel(operations);
@@ -292,8 +318,8 @@ describe('ParallelExecutor', () => {
     it('должен вернуть false, если все операции успешны', async () => {
       // Arrange
       const operations = [
-        async (): Promise<string> => 'result1',
-        async (): Promise<string> => 'result2',
+        { key: 'key1', fn: async (): Promise<string> => 'result1' },
+        { key: 'key2', fn: async (): Promise<string> => 'result2' },
       ];
       const result = await executor.executeParallel(operations);
 
@@ -305,9 +331,12 @@ describe('ParallelExecutor', () => {
       // Arrange
       const error = createMockApiError('Error', 500);
       const operations = [
-        async (): Promise<string> => 'result1',
-        async (): Promise<string> => {
-          throw error;
+        { key: 'key1', fn: async (): Promise<string> => 'result1' },
+        {
+          key: 'key2',
+          fn: async (): Promise<string> => {
+            throw error;
+          },
         },
       ];
       const result = await executor.executeParallel(operations);
@@ -322,11 +351,14 @@ describe('ParallelExecutor', () => {
       // Arrange
       const error = createMockApiError('Error', 500);
       const operations = [
-        async (): Promise<string> => 'result1',
-        async (): Promise<string> => {
-          throw error;
+        { key: 'key1', fn: async (): Promise<string> => 'result1' },
+        {
+          key: 'key2',
+          fn: async (): Promise<string> => {
+            throw error;
+          },
         },
-        async (): Promise<string> => 'result3',
+        { key: 'key3', fn: async (): Promise<string> => 'result3' },
       ];
       const result = await executor.executeParallel(operations);
 
@@ -342,8 +374,11 @@ describe('ParallelExecutor', () => {
       // Arrange
       const error = createMockApiError('Error', 500);
       const operations = [
-        async (): Promise<string> => {
-          throw error;
+        {
+          key: 'key1',
+          fn: async (): Promise<string> => {
+            throw error;
+          },
         },
       ];
       const result = await executor.executeParallel(operations);
@@ -362,12 +397,18 @@ describe('ParallelExecutor', () => {
       const error1 = createMockApiError('Error 1', 500);
       const error2 = createMockApiError('Error 2', 404);
       const operations = [
-        async (): Promise<string> => 'result1',
-        async (): Promise<string> => {
-          throw error1;
+        { key: 'key1', fn: async (): Promise<string> => 'result1' },
+        {
+          key: 'key2',
+          fn: async (): Promise<string> => {
+            throw error1;
+          },
         },
-        async (): Promise<string> => {
-          throw error2;
+        {
+          key: 'key3',
+          fn: async (): Promise<string> => {
+            throw error2;
+          },
         },
       ];
       const result = await executor.executeParallel(operations);
@@ -377,12 +418,13 @@ describe('ParallelExecutor', () => {
 
       // Assert
       expect(errors).toHaveLength(2);
-      expect(errors).toEqual([error1, error2]);
+      expect(errors[0]?.message).toBe('Error 1');
+      expect(errors[1]?.message).toBe('Error 2');
     });
 
     it('должен вернуть пустой массив, если нет ошибок', async () => {
       // Arrange
-      const operations = [async (): Promise<string> => 'result1'];
+      const operations = [{ key: 'key1', fn: async (): Promise<string> => 'result1' }];
       const result = await executor.executeParallel(operations);
 
       // Act
@@ -396,10 +438,10 @@ describe('ParallelExecutor', () => {
   describe('валидация maxBatchSize', () => {
     it('должен выбросить ошибку, если количество операций превышает maxBatchSize', async () => {
       // Arrange
-      const operations = Array.from(
-        { length: 101 },
-        (_, i) => async (): Promise<string> => `result${i}`
-      );
+      const operations = Array.from({ length: 101 }, (_, i) => ({
+        key: `key${i}`,
+        fn: async (): Promise<string> => `result${i}`,
+      }));
 
       // Act & Assert
       await expect(executor.executeParallel(operations, 'test operation')).rejects.toThrow(
@@ -409,18 +451,18 @@ describe('ParallelExecutor', () => {
 
     it('должен успешно выполнить операции, если их количество равно maxBatchSize', async () => {
       // Arrange
-      const operations = Array.from(
-        { length: 100 },
-        (_, i) => async (): Promise<string> => `result${i}`
-      );
+      const operations = Array.from({ length: 100 }, (_, i) => ({
+        key: `key${i}`,
+        fn: async (): Promise<string> => `result${i}`,
+      }));
 
       // Act
       const result = await executor.executeParallel(operations, 'test operation');
 
       // Assert
-      expect(result.totalCount).toBe(100);
-      expect(result.successCount).toBe(100);
-      expect(result.errorCount).toBe(0);
+      expect(result).toHaveLength(100);
+      const fulfilledResults = result.filter((r) => r.status === 'fulfilled');
+      expect(fulfilledResults).toHaveLength(100);
     });
   });
 
@@ -436,13 +478,16 @@ describe('ParallelExecutor', () => {
       let activeCount = 0;
       let maxObservedConcurrent = 0;
 
-      const operations = Array.from({ length: 10 }, () => async (): Promise<string> => {
-        activeCount++;
-        maxObservedConcurrent = Math.max(maxObservedConcurrent, activeCount);
-        await new Promise((resolve) => setTimeout(resolve, 10));
-        activeCount--;
-        return 'result';
-      });
+      const operations = Array.from({ length: 10 }, (_, i) => ({
+        key: `key${i}`,
+        fn: async (): Promise<string> => {
+          activeCount++;
+          maxObservedConcurrent = Math.max(maxObservedConcurrent, activeCount);
+          await new Promise((resolve) => setTimeout(resolve, 10));
+          activeCount--;
+          return 'result';
+        },
+      }));
 
       // Act
       const result = await executorWithSmallLimit.executeParallel(
@@ -451,7 +496,8 @@ describe('ParallelExecutor', () => {
       );
 
       // Assert
-      expect(result.successCount).toBe(10);
+      const fulfilledResults = result.filter((r) => r.status === 'fulfilled');
+      expect(fulfilledResults).toHaveLength(10);
       expect(maxObservedConcurrent).toBeLessThanOrEqual(maxConcurrent);
       expect(maxObservedConcurrent).toBeGreaterThan(0);
     });
@@ -459,16 +505,20 @@ describe('ParallelExecutor', () => {
     it('должен выполнять операции в правильном порядке (результаты соответствуют входным данным)', async () => {
       // Arrange
       const inputs = [1, 2, 3, 4, 5];
-      const operations = inputs.map((num) => async (): Promise<number> => {
-        await new Promise((resolve) => setTimeout(resolve, Math.random() * 10));
-        return num * 2;
-      });
+      const operations = inputs.map((num) => ({
+        key: num,
+        fn: async (): Promise<number> => {
+          await new Promise((resolve) => setTimeout(resolve, Math.random() * 10));
+          return num * 2;
+        },
+      }));
 
       // Act
       const result = await executor.executeParallel(operations, 'ordered operations');
 
       // Assert
-      expect(result.successCount).toBe(5);
+      const fulfilledResults = result.filter((r) => r.status === 'fulfilled');
+      expect(fulfilledResults).toHaveLength(5);
       const successResults = ParallelExecutor.getSuccessfulResults(result);
       expect(successResults).toEqual([2, 4, 6, 8, 10]); // Порядок сохранён
     });
@@ -481,17 +531,26 @@ describe('ParallelExecutor', () => {
         new Promise((resolve) => setTimeout(resolve, ms));
 
       const operations = [
-        async (): Promise<string> => {
-          await delay(10);
-          return 'slow1';
+        {
+          key: 'slow1',
+          fn: async (): Promise<string> => {
+            await delay(10);
+            return 'slow1';
+          },
         },
-        async (): Promise<string> => {
-          await delay(5);
-          return 'fast';
+        {
+          key: 'fast',
+          fn: async (): Promise<string> => {
+            await delay(5);
+            return 'fast';
+          },
         },
-        async (): Promise<string> => {
-          await delay(10);
-          return 'slow2';
+        {
+          key: 'slow2',
+          fn: async (): Promise<string> => {
+            await delay(10);
+            return 'slow2';
+          },
         },
       ];
 
@@ -502,18 +561,19 @@ describe('ParallelExecutor', () => {
       const duration = Date.now() - startTime;
 
       // Assert
-      expect(result.successCount).toBe(3);
+      const fulfilledResults = result.filter((r) => r.status === 'fulfilled');
+      expect(fulfilledResults).toHaveLength(3);
       // Параллельное выполнение должно занять ~10ms, а не 25ms (последовательно)
       expect(duration).toBeLessThan(50); // Даём запас на медленные CI
 
-      if (result.results[0]?.status === 'success') {
-        expect(result.results[0].data).toBe('slow1');
+      if (result[0]?.status === 'fulfilled') {
+        expect(result[0].value).toBe('slow1');
       }
-      if (result.results[1]?.status === 'success') {
-        expect(result.results[1].data).toBe('fast');
+      if (result[1]?.status === 'fulfilled') {
+        expect(result[1].value).toBe('fast');
       }
-      if (result.results[2]?.status === 'success') {
-        expect(result.results[2].data).toBe('slow2');
+      if (result[2]?.status === 'fulfilled') {
+        expect(result[2].value).toBe('slow2');
       }
     });
   });

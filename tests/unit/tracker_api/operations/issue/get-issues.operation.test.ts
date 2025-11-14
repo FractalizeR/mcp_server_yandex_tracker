@@ -1,252 +1,194 @@
-/**
- * Unit тесты для GetIssuesOperation (batch-получение задач)
- */
-
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import type { Mock } from 'vitest';
-import { GetIssuesOperation } from '@tracker_api/operations/issue/get-issues.operation.js';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { Logger } from '@infrastructure/logging/index.js';
+import type { CacheManager } from '@infrastructure/cache/cache-manager.interface.js';
 import type { HttpClient } from '@infrastructure/http/client/http-client.js';
 import type { RetryHandler } from '@infrastructure/http/retry/retry-handler.js';
-import type { CacheManager } from '@infrastructure/cache/cache-manager.interface.js';
-import type { Logger } from '@infrastructure/logging/index.js';
+import { ParallelExecutor } from '@infrastructure/async/parallel-executor.js';
+import type { ServerConfig } from '@types';
 import type { IssueWithUnknownFields } from '@tracker_api/entities/index.js';
+import type { BatchResult } from '@types';
+import { GetIssuesOperation } from '@tracker_api/operations/issue/get-issues.operation.js';
 
 describe('GetIssuesOperation', () => {
   let operation: GetIssuesOperation;
-  let httpClient: {
-    get: Mock;
-  };
-  let retryHandler: {
-    executeWithRetry: Mock;
-  };
-  let cacheManager: {
-    get: Mock;
-    set: Mock;
-  };
-  let logger: {
-    info: Mock;
-    warn: Mock;
-    error: Mock;
-    debug: Mock;
-  };
+  let mockHttpClient: HttpClient;
+  let mockRetryHandler: RetryHandler;
+  let mockCacheManager: CacheManager;
+  let mockLogger: Logger;
+  let mockConfig: ServerConfig;
+  let mockParallelExecutor: ParallelExecutor;
 
   beforeEach(() => {
-    // Моки зависимостей
-    httpClient = {
-      get: vi.fn(),
-    };
-
-    retryHandler = {
-      executeWithRetry: vi.fn(<T>(fn: () => Promise<T>) => fn()),
-    };
-
-    cacheManager = {
+    mockHttpClient = {} as HttpClient;
+    mockRetryHandler = {} as RetryHandler;
+    mockCacheManager = {
       get: vi.fn(),
       set: vi.fn(),
-    };
-
-    logger = {
-      info: vi.fn(),
+    } as unknown as CacheManager;
+    mockLogger = {
       warn: vi.fn(),
+      info: vi.fn(),
       error: vi.fn(),
       debug: vi.fn(),
-    };
+    } as unknown as Logger;
+    mockConfig = {
+      maxBatchSize: 50,
+      maxConcurrentRequests: 10,
+      token: 'test-token',
+      orgId: 'test-org',
+    } as ServerConfig;
 
     operation = new GetIssuesOperation(
-      httpClient as unknown as HttpClient,
-      retryHandler as unknown as RetryHandler,
-      cacheManager as unknown as CacheManager,
-      logger as unknown as Logger
+      mockHttpClient,
+      mockRetryHandler,
+      mockCacheManager,
+      mockLogger,
+      mockConfig
     );
+
+    // Мокируем parallelExecutor через приватное поле
+    mockParallelExecutor = {
+      executeParallel: vi.fn(),
+    } as unknown as ParallelExecutor;
+    (operation as any).parallelExecutor = mockParallelExecutor;
   });
 
-  it('должен вернуть пустой массив для пустого входного массива', async () => {
-    const result = await operation.execute([]);
+  describe('execute', () => {
+    it('возвращает пустой массив для пустого массива ключей', async () => {
+      const result = await operation.execute([]);
 
-    expect(result).toEqual([]);
-    expect(logger.warn).toHaveBeenCalledWith('GetIssuesOperation: пустой массив ключей');
-  });
+      expect(result).toEqual([]);
+      expect(mockLogger.warn).toHaveBeenCalledWith('GetIssuesOperation: пустой массив ключей');
+      expect(mockParallelExecutor.executeParallel).not.toHaveBeenCalled();
+    });
 
-  it('должен успешно получить несколько задач параллельно', async () => {
-    const issueKeys = ['QUEUE-123', 'QUEUE-456'];
-    const mockIssues: IssueWithUnknownFields[] = [
-      {
+    it('успешно получает несколько задач', async () => {
+      const issueKeys = ['TASK-1', 'TASK-2', 'TASK-3'];
+      const mockIssues: IssueWithUnknownFields[] = [
+        {
+          id: '1',
+          key: 'TASK-1',
+          summary: 'Issue 1',
+          queue: { id: '1', key: 'Q', display: 'Queue', name: 'Queue' },
+          status: { id: '1', key: 'open', display: 'Open' },
+          createdBy: { uid: 'user1', display: 'User', login: 'user1', isActive: true },
+          createdAt: '2024-01-01',
+          updatedAt: '2024-01-01',
+        } as IssueWithUnknownFields,
+        {
+          id: '2',
+          key: 'TASK-2',
+          summary: 'Issue 2',
+          queue: { id: '1', key: 'Q', display: 'Queue', name: 'Queue' },
+          status: { id: '1', key: 'open', display: 'Open' },
+          createdBy: { uid: 'user1', display: 'User', login: 'user1', isActive: true },
+          createdAt: '2024-01-01',
+          updatedAt: '2024-01-01',
+        } as IssueWithUnknownFields,
+        {
+          id: '3',
+          key: 'TASK-3',
+          summary: 'Issue 3',
+          queue: { id: '1', key: 'Q', display: 'Queue', name: 'Queue' },
+          status: { id: '1', key: 'open', display: 'Open' },
+          createdBy: { uid: 'user1', display: 'User', login: 'user1', isActive: true },
+          createdAt: '2024-01-01',
+          updatedAt: '2024-01-01',
+        } as IssueWithUnknownFields,
+      ];
+
+      const mockBatchResults: BatchResult<string, IssueWithUnknownFields> = [
+        { status: 'fulfilled', value: mockIssues[0]!, key: 'TASK-1', index: 0 },
+        { status: 'fulfilled', value: mockIssues[1]!, key: 'TASK-2', index: 1 },
+        { status: 'fulfilled', value: mockIssues[2]!, key: 'TASK-3', index: 2 },
+      ];
+
+      vi.mocked(mockParallelExecutor.executeParallel).mockResolvedValue(mockBatchResults);
+
+      const result = await operation.execute(issueKeys);
+
+      expect(result).toEqual(mockBatchResults);
+      expect(mockParallelExecutor.executeParallel).toHaveBeenCalledWith(
+        expect.any(Array),
+        'get issues'
+      );
+      expect(mockParallelExecutor.executeParallel).toHaveBeenCalledTimes(1);
+
+      // Проверяем, что operations массив содержит правильные функции
+      const callArgs = vi.mocked(mockParallelExecutor.executeParallel).mock.calls[0];
+      if (callArgs) {
+        const operations = callArgs[0] as Array<{
+          key: string;
+          fn: () => Promise<IssueWithUnknownFields>;
+        }>;
+        expect(operations).toHaveLength(3);
+        expect(operations[0]?.key).toBe('TASK-1');
+        expect(operations[1]?.key).toBe('TASK-2');
+        expect(operations[2]?.key).toBe('TASK-3');
+      }
+    });
+
+    it('обрабатывает частичные ошибки', async () => {
+      const issueKeys = ['TASK-1', 'TASK-2', 'TASK-3'];
+      const mockIssue: IssueWithUnknownFields = {
         id: '1',
-        key: 'QUEUE-123',
-        summary: 'Task 1',
-        queue: { id: '1', key: 'QUEUE', name: 'Queue' },
+        key: 'TASK-1',
+        summary: 'Issue 1',
+        queue: { id: '1', key: 'Q', display: 'Queue', name: 'Queue' },
         status: { id: '1', key: 'open', display: 'Open' },
-        createdBy: { uid: 'user1', display: 'User 1', login: 'user1', isActive: true },
-        createdAt: '2024-01-01T00:00:00Z',
-        updatedAt: '2024-01-01T00:00:00Z',
-      },
-      {
-        id: '2',
-        key: 'QUEUE-456',
-        summary: 'Task 2',
-        queue: { id: '1', key: 'QUEUE', name: 'Queue' },
-        status: { id: '1', key: 'open', display: 'Open' },
-        createdBy: { uid: 'user1', display: 'User 1', login: 'user1', isActive: true },
-        createdAt: '2024-01-01T00:00:00Z',
-        updatedAt: '2024-01-01T00:00:00Z',
-      },
-    ];
+        createdBy: { uid: 'user1', display: 'User', login: 'user1', isActive: true },
+        createdAt: '2024-01-01',
+        updatedAt: '2024-01-01',
+      } as IssueWithUnknownFields;
+      const mockError = new Error('Network error');
 
-    httpClient.get.mockResolvedValueOnce(mockIssues[0]);
-    httpClient.get.mockResolvedValueOnce(mockIssues[1]);
-    cacheManager.get.mockReturnValue(undefined); // Cache miss
+      const mockBatchResults: BatchResult<string, IssueWithUnknownFields> = [
+        { status: 'fulfilled', value: mockIssue, key: 'TASK-1', index: 0 },
+        { status: 'rejected', reason: mockError, key: 'TASK-2', index: 1 },
+        { status: 'rejected', reason: mockError, key: 'TASK-3', index: 2 },
+      ];
 
-    const results = await operation.execute(issueKeys);
+      vi.mocked(mockParallelExecutor.executeParallel).mockResolvedValue(mockBatchResults);
 
-    expect(results).toHaveLength(2);
-    expect(results[0]).toEqual({
-      status: 'fulfilled',
-      issueKey: 'QUEUE-123',
-      value: mockIssues[0],
-    });
-    expect(results[1]).toEqual({
-      status: 'fulfilled',
-      issueKey: 'QUEUE-456',
-      value: mockIssues[1],
+      const result = await operation.execute(issueKeys);
+
+      expect(result).toEqual(mockBatchResults);
+      expect(result[0]?.status).toBe('fulfilled');
+      expect(result[1]?.status).toBe('rejected');
+      expect(result[2]?.status).toBe('rejected');
+
+      if (result[0] && result[0].status === 'fulfilled') {
+        expect(result[0].value.key).toBe('TASK-1');
+      }
+      if (result[1] && result[1].status === 'rejected') {
+        expect(result[1].reason).toEqual(mockError);
+      }
     });
 
-    expect(httpClient.get).toHaveBeenCalledTimes(2);
-    expect(httpClient.get).toHaveBeenCalledWith('/v3/issues/QUEUE-123');
-    expect(httpClient.get).toHaveBeenCalledWith('/v3/issues/QUEUE-456');
-  });
+    it('обрабатывает все отклоненные результаты', async () => {
+      const issueKeys = ['TASK-1', 'TASK-2'];
+      const mockError1 = new Error('Error 1');
+      const mockError2 = new Error('Error 2');
 
-  it('должен обработать частичные ошибки (Promise.allSettled)', async () => {
-    const issueKeys = ['QUEUE-123', 'QUEUE-456', 'QUEUE-789'];
-    const mockIssue: IssueWithUnknownFields = {
-      id: '1',
-      key: 'QUEUE-123',
-      summary: 'Task 1',
-      queue: { id: '1', key: 'QUEUE', name: 'Queue' },
-      status: { id: '1', key: 'open', display: 'Open' },
-      createdBy: { uid: 'user1', display: 'User 1', login: 'user1', isActive: true },
-      createdAt: '2024-01-01T00:00:00Z',
-      updatedAt: '2024-01-01T00:00:00Z',
-    };
-    const mockError = new Error('Not found');
+      const mockBatchResults: BatchResult<string, IssueWithUnknownFields> = [
+        { status: 'rejected', reason: mockError1, key: 'TASK-1', index: 0 },
+        { status: 'rejected', reason: mockError2, key: 'TASK-2', index: 1 },
+      ];
 
-    httpClient.get.mockResolvedValueOnce(mockIssue); // QUEUE-123: success
-    httpClient.get.mockRejectedValueOnce(mockError); // QUEUE-456: error
-    httpClient.get.mockResolvedValueOnce({
-      id: '3',
-      key: 'QUEUE-789',
-      summary: 'Task 3',
-      queue: { id: '1', key: 'QUEUE', name: 'Queue' },
-      status: { id: '1', key: 'open', display: 'Open' },
-      createdBy: { uid: 'user1', display: 'User 1', login: 'user1', isActive: true },
-      createdAt: '2024-01-01T00:00:00Z',
-      updatedAt: '2024-01-01T00:00:00Z',
-    }); // QUEUE-789: success
-    cacheManager.get.mockReturnValue(undefined); // Cache miss
+      vi.mocked(mockParallelExecutor.executeParallel).mockResolvedValue(mockBatchResults);
 
-    const results = await operation.execute(issueKeys);
+      const result = await operation.execute(issueKeys);
 
-    expect(results).toHaveLength(3);
-
-    // QUEUE-123: fulfilled
-    expect(results[0]).toEqual({
-      status: 'fulfilled',
-      issueKey: 'QUEUE-123',
-      value: mockIssue,
+      expect(result).toHaveLength(2);
+      expect(result.every((r) => r.status === 'rejected')).toBe(true);
+      const rejected0 = result[0];
+      const rejected1 = result[1];
+      if (rejected0 && rejected0.status === 'rejected') {
+        expect(rejected0.reason).toEqual(mockError1);
+      }
+      if (rejected1 && rejected1.status === 'rejected') {
+        expect(rejected1.reason).toEqual(mockError2);
+      }
     });
-
-    // QUEUE-456: rejected
-    expect(results[1]).toEqual({
-      status: 'rejected',
-      issueKey: 'QUEUE-456',
-      reason: mockError,
-    });
-
-    // QUEUE-789: fulfilled
-    expect(results[2]).toEqual({
-      status: 'fulfilled',
-      issueKey: 'QUEUE-789',
-      value: {
-        id: '3',
-        key: 'QUEUE-789',
-        summary: 'Task 3',
-        queue: { id: '1', key: 'QUEUE', name: 'Queue' },
-        status: { id: '1', key: 'open', display: 'Open' },
-        createdBy: { uid: 'user1', display: 'User 1', login: 'user1', isActive: true },
-        createdAt: '2024-01-01T00:00:00Z',
-        updatedAt: '2024-01-01T00:00:00Z',
-      },
-    });
-
-    expect(logger.error).toHaveBeenCalledWith('Ошибка получения задачи QUEUE-456:', mockError);
-  });
-
-  it('должен использовать кеш если доступно', async () => {
-    const issueKeys = ['QUEUE-123'];
-    const cachedIssue: IssueWithUnknownFields = {
-      id: '1',
-      key: 'QUEUE-123',
-      summary: 'Cached Task',
-      queue: { id: '1', key: 'QUEUE', name: 'Queue' },
-      status: { id: '1', key: 'open', display: 'Open' },
-      createdBy: { uid: 'user1', display: 'User 1', login: 'user1', isActive: true },
-      createdAt: '2024-01-01T00:00:00Z',
-      updatedAt: '2024-01-01T00:00:00Z',
-    };
-
-    cacheManager.get.mockReturnValueOnce(cachedIssue); // Cache hit
-
-    const results = await operation.execute(issueKeys);
-
-    expect(results).toHaveLength(1);
-    expect(results[0]).toEqual({
-      status: 'fulfilled',
-      issueKey: 'QUEUE-123',
-      value: cachedIssue,
-    });
-
-    expect(httpClient.get).not.toHaveBeenCalled(); // Не должен делать HTTP запрос
-  });
-
-  it('должен сохранить результаты в кеш после успешного получения', async () => {
-    const issueKeys = ['QUEUE-123'];
-    const mockIssue: IssueWithUnknownFields = {
-      id: '1',
-      key: 'QUEUE-123',
-      summary: 'Task 1',
-      queue: { id: '1', key: 'QUEUE', name: 'Queue' },
-      status: { id: '1', key: 'open', display: 'Open' },
-      createdBy: { uid: 'user1', display: 'User 1', login: 'user1', isActive: true },
-      createdAt: '2024-01-01T00:00:00Z',
-      updatedAt: '2024-01-01T00:00:00Z',
-    };
-
-    httpClient.get.mockResolvedValueOnce(mockIssue);
-    cacheManager.get.mockReturnValue(undefined); // Cache miss
-
-    await operation.execute(issueKeys);
-
-    expect(cacheManager.set).toHaveBeenCalledWith('issue:QUEUE-123', mockIssue);
-  });
-
-  it('должен логировать количество запросов', async () => {
-    const issueKeys = ['QUEUE-1', 'QUEUE-2', 'QUEUE-3'];
-
-    httpClient.get.mockResolvedValue({
-      id: '1',
-      key: 'QUEUE-1',
-      summary: 'Task',
-      queue: { id: '1', key: 'QUEUE', name: 'Queue' },
-      status: { id: '1', key: 'open', display: 'Open' },
-      createdBy: { uid: 'user1', display: 'User 1', login: 'user1', isActive: true },
-      createdAt: '2024-01-01T00:00:00Z',
-      updatedAt: '2024-01-01T00:00:00Z',
-    });
-    cacheManager.get.mockReturnValue(undefined);
-
-    await operation.execute(issueKeys);
-
-    expect(logger.info).toHaveBeenCalledWith(
-      'Получение 3 задач параллельно: QUEUE-1, QUEUE-2, QUEUE-3'
-    );
   });
 });

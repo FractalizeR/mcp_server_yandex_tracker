@@ -1,70 +1,44 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import type { Container } from 'inversify';
 import { YandexTrackerFacade } from '@tracker_api/facade/yandex-tracker.facade.js';
-import type { HttpClient } from '@infrastructure/http/client/http-client.js';
-import type { RetryHandler } from '@infrastructure/http/retry/retry-handler.js';
-import type { CacheManager } from '@infrastructure/cache/cache-manager.interface.js';
-import type { Logger } from '@infrastructure/logging/index.js';
-import type { ServerConfig } from '@types';
 import type { PingResult } from '@tracker_api/operations/user/ping.operation.js';
 import type { BatchIssueResult } from '@tracker_api/operations/issue/get-issues.operation.js';
 import type { User } from '@tracker_api/entities/user.entity.js';
-import type { Issue } from '@tracker_api/entities/issue.entity.js';
+import type { Issue, IssueWithUnknownFields } from '@tracker_api/entities/issue.entity.js';
+import type { Queue } from '@tracker_api/entities/queue.entity.js';
+import type { Status } from '@tracker_api/entities/status.entity.js';
 
 describe('YandexTrackerFacade', () => {
   let facade: YandexTrackerFacade;
-  let mockHttpClient: HttpClient;
-  let mockRetryHandler: RetryHandler;
-  let mockCacheManager: CacheManager;
-  let mockLogger: Logger;
-  let mockConfig: ServerConfig;
+  let mockContainer: Container;
+  let mockPingOperation: { execute: () => Promise<PingResult> };
+  let mockGetIssuesOperation: { execute: (keys: string[]) => Promise<BatchIssueResult[]> };
 
   beforeEach(() => {
-    // Mock HttpClient
-    mockHttpClient = {
-      get: vi.fn(),
-      post: vi.fn(),
-      put: vi.fn(),
-      patch: vi.fn(),
-      delete: vi.fn(),
-    } as unknown as HttpClient;
+    // Mock PingOperation
+    mockPingOperation = {
+      execute: vi.fn(),
+    };
 
-    // Mock RetryHandler
-    mockRetryHandler = {
-      executeWithRetry: vi.fn(async (fn) => await fn()),
-    } as unknown as RetryHandler;
+    // Mock GetIssuesOperation
+    mockGetIssuesOperation = {
+      execute: vi.fn(),
+    };
 
-    // Mock CacheManager
-    mockCacheManager = {
-      get: vi.fn().mockReturnValue(undefined),
-      set: vi.fn(),
-      has: vi.fn(),
-      delete: vi.fn(),
-      clear: vi.fn(),
-    } as unknown as CacheManager;
+    // Mock InversifyJS Container
+    mockContainer = {
+      get: vi.fn((symbol: symbol) => {
+        if (symbol === Symbol.for('PingOperation')) {
+          return mockPingOperation;
+        }
+        if (symbol === Symbol.for('GetIssuesOperation')) {
+          return mockGetIssuesOperation;
+        }
+        throw new Error(`Unknown symbol: ${symbol.toString()}`);
+      }),
+    } as unknown as Container;
 
-    // Mock Logger
-    mockLogger = {
-      info: vi.fn(),
-      error: vi.fn(),
-      warn: vi.fn(),
-      debug: vi.fn(),
-      child: vi.fn(() => mockLogger),
-    } as unknown as Logger;
-
-    // Mock Config
-    mockConfig = {
-      organizationId: 'test-org',
-      oauthToken: 'test-token',
-      apiBaseUrl: 'https://api.tracker.yandex.net',
-    } as ServerConfig;
-
-    facade = new YandexTrackerFacade(
-      mockHttpClient,
-      mockRetryHandler,
-      mockCacheManager,
-      mockLogger,
-      mockConfig
-    );
+    facade = new YandexTrackerFacade(mockContainer);
   });
 
   afterEach(() => {
@@ -74,20 +48,12 @@ describe('YandexTrackerFacade', () => {
   describe('ping', () => {
     it('должна успешно вызвать операцию ping', async () => {
       // Arrange
-      const mockUser: User = {
-        self: 'https://api.tracker.yandex.net/v3/users/123',
-        id: '123',
-        display: 'Test User',
-        cloudUid: 'cloud-123',
-        passportUid: 123456,
-        login: 'testuser',
-        trackerUid: 987654,
-        firstName: 'Test',
-        lastName: 'User',
-        email: 'test@example.com',
+      const pingResult: PingResult = {
+        success: true,
+        message: `Успешно подключено к API Яндекс.Трекера. Текущий пользователь: Test User (testuser)`,
       };
 
-      vi.mocked(mockHttpClient.get).mockResolvedValue(mockUser);
+      vi.mocked(mockPingOperation.execute).mockResolvedValue(pingResult);
 
       // Act
       const result: PingResult = await facade.ping();
@@ -95,20 +61,18 @@ describe('YandexTrackerFacade', () => {
       // Assert
       expect(result.success).toBe(true);
       expect(result.message).toContain('Test User');
-      expect(mockHttpClient.get).toHaveBeenCalledWith('/v3/myself');
+      expect(mockPingOperation.execute).toHaveBeenCalledOnce();
+      expect(mockContainer.get).toHaveBeenCalledWith(Symbol.for('PingOperation'));
     });
 
     it('должна делегировать обработку ошибок операции ping', async () => {
       // Arrange
-      const apiError = {
-        name: 'ApiError',
-        message: 'Unauthorized',
-        statusCode: 401,
-        requestId: 'req-123',
-        timestamp: new Date().toISOString(),
+      const pingResult: PingResult = {
+        success: false,
+        message: 'Ошибка подключения к API Яндекс.Трекера',
       };
 
-      vi.mocked(mockHttpClient.get).mockRejectedValue(apiError);
+      vi.mocked(mockPingOperation.execute).mockResolvedValue(pingResult);
 
       // Act
       const result: PingResult = await facade.ping();
@@ -116,6 +80,7 @@ describe('YandexTrackerFacade', () => {
       // Assert
       expect(result.success).toBe(false);
       expect(result.message).toContain('Ошибка подключения');
+      expect(mockPingOperation.execute).toHaveBeenCalledOnce();
     });
   });
 
@@ -123,30 +88,64 @@ describe('YandexTrackerFacade', () => {
     it('должна успешно получить несколько задач', async () => {
       // Arrange
       const issueKeys = ['TEST-1', 'TEST-2'];
-      const mockIssue1: Issue = {
-        self: 'https://api.tracker.yandex.net/v3/issues/TEST-1',
+
+      const mockQueue: Queue = {
         id: '1',
-        key: 'TEST-1',
-        version: 1,
-        summary: 'Test Issue 1',
-        statusStartTime: '2023-01-01T00:00:00.000+0000',
-        updatedAt: '2023-01-01T00:00:00.000+0000',
-        createdAt: '2023-01-01T00:00:00.000+0000',
-      };
-      const mockIssue2: Issue = {
-        self: 'https://api.tracker.yandex.net/v3/issues/TEST-2',
-        id: '2',
-        key: 'TEST-2',
-        version: 1,
-        summary: 'Test Issue 2',
-        statusStartTime: '2023-01-02T00:00:00.000+0000',
-        updatedAt: '2023-01-02T00:00:00.000+0000',
-        createdAt: '2023-01-02T00:00:00.000+0000',
+        key: 'TEST',
+        name: 'Test Queue',
       };
 
-      vi.mocked(mockHttpClient.get)
-        .mockResolvedValueOnce(mockIssue1)
-        .mockResolvedValueOnce(mockIssue2);
+      const mockStatus: Status = {
+        id: '1',
+        key: 'open',
+        display: 'Open',
+      };
+
+      const mockUser: User = {
+        uid: '123',
+        display: 'Test User',
+        login: 'testuser',
+        isActive: true,
+      };
+
+      const mockIssue1: Issue = {
+        id: '1',
+        key: 'TEST-1',
+        summary: 'Test Issue 1',
+        queue: mockQueue,
+        status: mockStatus,
+        createdBy: mockUser,
+        createdAt: '2023-01-01T00:00:00.000+0000',
+        updatedAt: '2023-01-01T00:00:00.000+0000',
+      };
+
+      const mockIssue2: Issue = {
+        id: '2',
+        key: 'TEST-2',
+        summary: 'Test Issue 2',
+        queue: mockQueue,
+        status: mockStatus,
+        createdBy: mockUser,
+        createdAt: '2023-01-02T00:00:00.000+0000',
+        updatedAt: '2023-01-02T00:00:00.000+0000',
+      };
+
+      const batchResults: BatchIssueResult[] = [
+        {
+          status: 'fulfilled',
+          value: mockIssue1 as IssueWithUnknownFields,
+          key: 'ISSUE-1',
+          index: 0,
+        },
+        {
+          status: 'fulfilled',
+          value: mockIssue2 as IssueWithUnknownFields,
+          key: 'ISSUE-2',
+          index: 1,
+        },
+      ];
+
+      vi.mocked(mockGetIssuesOperation.execute).mockResolvedValue(batchResults);
 
       // Act
       const results: BatchIssueResult[] = await facade.getIssues(issueKeys);
@@ -163,28 +162,57 @@ describe('YandexTrackerFacade', () => {
         expect(results[1]!.value.key).toBe('TEST-2');
       }
 
-      expect(mockHttpClient.get).toHaveBeenCalledWith('/v3/issues/TEST-1');
-      expect(mockHttpClient.get).toHaveBeenCalledWith('/v3/issues/TEST-2');
+      expect(mockGetIssuesOperation.execute).toHaveBeenCalledWith(issueKeys);
+      expect(mockContainer.get).toHaveBeenCalledWith(Symbol.for('GetIssuesOperation'));
     });
 
     it('должна обработать частичные ошибки при получении задач', async () => {
       // Arrange
       const issueKeys = ['TEST-1', 'INVALID'];
+
+      const mockQueue: Queue = {
+        id: '1',
+        key: 'TEST',
+        name: 'Test Queue',
+      };
+
+      const mockStatus: Status = {
+        id: '1',
+        key: 'open',
+        display: 'Open',
+      };
+
+      const mockUser: User = {
+        uid: '123',
+        display: 'Test User',
+        login: 'testuser',
+        isActive: true,
+      };
+
       const mockIssue: Issue = {
-        self: 'https://api.tracker.yandex.net/v3/issues/TEST-1',
         id: '1',
         key: 'TEST-1',
-        version: 1,
         summary: 'Test Issue',
-        statusStartTime: '2023-01-01T00:00:00.000+0000',
-        updatedAt: '2023-01-01T00:00:00.000+0000',
+        queue: mockQueue,
+        status: mockStatus,
+        createdBy: mockUser,
         createdAt: '2023-01-01T00:00:00.000+0000',
+        updatedAt: '2023-01-01T00:00:00.000+0000',
       };
+
       const apiError = new Error('Not Found');
 
-      vi.mocked(mockHttpClient.get)
-        .mockResolvedValueOnce(mockIssue)
-        .mockRejectedValueOnce(apiError);
+      const batchResults: BatchIssueResult[] = [
+        {
+          status: 'fulfilled',
+          value: mockIssue as IssueWithUnknownFields,
+          key: 'ISSUE-1',
+          index: 0,
+        },
+        { status: 'rejected', reason: apiError, key: 'ISSUE-2', index: 1 },
+      ];
+
+      vi.mocked(mockGetIssuesOperation.execute).mockResolvedValue(batchResults);
 
       // Act
       const results: BatchIssueResult[] = await facade.getIssues(issueKeys);
@@ -206,26 +234,23 @@ describe('YandexTrackerFacade', () => {
     it('должна вернуть пустой массив для пустого списка ключей', async () => {
       // Arrange
       const issueKeys: string[] = [];
+      const batchResults: BatchIssueResult[] = [];
+
+      vi.mocked(mockGetIssuesOperation.execute).mockResolvedValue(batchResults);
 
       // Act
       const results: BatchIssueResult[] = await facade.getIssues(issueKeys);
 
       // Assert
       expect(results).toHaveLength(0);
-      expect(mockHttpClient.get).not.toHaveBeenCalled();
+      expect(mockGetIssuesOperation.execute).toHaveBeenCalledWith(issueKeys);
     });
   });
 
   describe('constructor', () => {
-    it('должна правильно инициализировать operations', () => {
+    it('должна правильно инициализировать фасад с контейнером', () => {
       // Act - создание нового экземпляра
-      const newFacade = new YandexTrackerFacade(
-        mockHttpClient,
-        mockRetryHandler,
-        mockCacheManager,
-        mockLogger,
-        mockConfig
-      );
+      const newFacade = new YandexTrackerFacade(mockContainer);
 
       // Assert - проверяем, что можем вызвать методы
       expect(newFacade.ping).toBeDefined();

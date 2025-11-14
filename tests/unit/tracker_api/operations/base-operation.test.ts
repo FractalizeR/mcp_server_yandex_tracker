@@ -17,10 +17,6 @@ class TestOperation extends BaseOperation {
   async executeWithCache<T>(key: string, fn: () => Promise<T>): Promise<T> {
     return this.withCache(key, fn);
   }
-
-  async executeWithRetry<T>(fn: () => Promise<T>): Promise<T> {
-    return this.withRetry(fn);
-  }
 }
 
 function createMockHttpClient(): HttpClient {
@@ -120,25 +116,7 @@ describe('BaseOperation', () => {
     });
   });
 
-  describe('withRetry', () => {
-    it('должен делегировать выполнение RetryHandler', async () => {
-      const fn = vi.fn(async () => 'result');
-
-      const result = await operation.executeWithRetry(fn);
-
-      expect(result).toBe('result');
-      expect(mockRetryHandler.executeWithRetry).toHaveBeenCalledWith(fn);
-    });
-
-    it('должен пробросить ошибку от RetryHandler', async () => {
-      const error = new Error('Retry failed');
-      const fn = vi.fn(async () => {
-        throw error;
-      });
-
-      vi.mocked(mockRetryHandler.executeWithRetry).mockRejectedValue(error);
-
-      await expect(operation.executeWithRetry(fn)).rejects.toThrow('Retry failed');
-    });
-  });
+  // DEPRECATED: withRetry() метод удалён из BaseOperation
+  // Retry логика теперь только внутри HttpClient методов
+  // describe('withRetry', () => { ... });
 });

@@ -10,7 +10,7 @@
 import { BaseOperation } from '@tracker_api/operations/base-operation.js';
 import { EntityCacheKey, EntityType } from '@infrastructure/cache/entity-cache-key.js';
 import type { User } from '@tracker_api/entities/user.entity.js';
-import type { ApiError } from '@types';
+import type { ApiError, ServerConfig } from '@types';
 
 /**
  * Результат проверки подключения
@@ -21,6 +21,15 @@ export interface PingResult {
 }
 
 export class PingOperation extends BaseOperation {
+  constructor(
+    httpClient: ConstructorParameters<typeof BaseOperation>[0],
+    retryHandler: ConstructorParameters<typeof BaseOperation>[1],
+    cacheManager: ConstructorParameters<typeof BaseOperation>[2],
+    logger: ConstructorParameters<typeof BaseOperation>[3],
+    _config: ServerConfig // Принимаем для единообразия DI, но не используем
+  ) {
+    super(httpClient, retryHandler, cacheManager, logger);
+  }
   /**
    * Выполняет проверку подключения к API
    * @returns результат проверки
@@ -59,7 +68,8 @@ export class PingOperation extends BaseOperation {
     const cacheKey = EntityCacheKey.createKey(EntityType.USER, 'myself');
 
     return this.withCache(cacheKey, async () => {
-      return this.withRetry(() => this.httpClient.get<User>('/v3/myself'));
+      // ВАЖНО: withRetry УДАЛЁН — retry уже внутри httpClient.get
+      return this.httpClient.get<User>('/v3/myself');
     });
   }
 }

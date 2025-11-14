@@ -2,54 +2,33 @@
  * Фасад для работы с API Яндекс.Трекера
  *
  * Ответственность (SRP):
- * - ТОЛЬКО инициализация операций
  * - ТОЛЬКО делегирование вызовов операциям
  * - НЕТ бизнес-логики (всё в операциях)
+ * - НЕТ ручной инициализации (извлекается из DI контейнера)
  *
- * Паттерн: Facade Pattern
- * Упрощает использование сложной системы операций
+ * КРИТИЧЕСКИЕ ИЗМЕНЕНИЯ:
+ * - Ленивая инициализация через DI контейнер (вместо new)
+ * - Масштабируется до 50+ операций БЕЗ изменения Facade
+ * - Удалён двойной retry (исправлена проблема 9 попыток)
+ *
+ * Паттерн: Facade Pattern + Lazy Initialization
  */
 
-import type { HttpClient } from '@infrastructure/http/client/http-client.js';
-import type { RetryHandler } from '@infrastructure/http/retry/retry-handler.js';
-import type { CacheManager } from '@infrastructure/cache/cache-manager.interface.js';
-import type { Logger } from '@infrastructure/logging/index.js';
-import type { ServerConfig } from '@types';
-
-// User Operations
-import { PingOperation } from '@tracker_api/operations/user/ping.operation.js';
-
-// Issue Operations - Batch
-import { GetIssuesOperation } from '@tracker_api/operations/issue/get-issues.operation.js';
+import type { Container } from 'inversify';
 
 // Types
 import type { PingResult } from '@tracker_api/operations/user/ping.operation.js';
 import type { BatchIssueResult } from '@tracker_api/operations/issue/get-issues.operation.js';
 
 export class YandexTrackerFacade {
-  // User operations
-  private readonly pingOperation: PingOperation;
+  constructor(private readonly container: Container) {}
 
-  // Issue operations - Batch
-  private readonly getIssuesOperation: GetIssuesOperation;
-
-  constructor(
-    httpClient: HttpClient,
-    retryHandler: RetryHandler,
-    cacheManager: CacheManager,
-    logger: Logger,
-    _config: ServerConfig
-  ) {
-    // Инициализация user operations
-    this.pingOperation = new PingOperation(httpClient, retryHandler, cacheManager, logger);
-
-    // Инициализация issue operations - Batch
-    this.getIssuesOperation = new GetIssuesOperation(
-      httpClient,
-      retryHandler,
-      cacheManager,
-      logger
-    );
+  /**
+   * Helper для ленивого получения операции из DI контейнера
+   * @private
+   */
+  private getOperation<T>(operationName: string): T {
+    return this.container.get<T>(Symbol.for(operationName));
   }
 
   // === User Methods ===
@@ -59,7 +38,8 @@ export class YandexTrackerFacade {
    * @returns результат проверки
    */
   async ping(): Promise<PingResult> {
-    return this.pingOperation.execute();
+    const operation = this.getOperation<{ execute: () => Promise<PingResult> }>('PingOperation');
+    return operation.execute();
   }
 
   // === Issue Methods - Batch ===
@@ -70,6 +50,9 @@ export class YandexTrackerFacade {
    * @returns массив результатов (fulfilled | rejected)
    */
   async getIssues(issueKeys: string[]): Promise<BatchIssueResult[]> {
-    return this.getIssuesOperation.execute(issueKeys);
+    const operation = this.getOperation<{
+      execute: (keys: string[]) => Promise<BatchIssueResult[]>;
+    }>('GetIssuesOperation');
+    return operation.execute(issueKeys);
   }
 }

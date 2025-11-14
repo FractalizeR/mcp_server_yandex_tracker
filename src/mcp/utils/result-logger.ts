@@ -38,11 +38,11 @@ export class ResultLogger {
    * @param config - конфигурация логирования
    * @param results - обработанные результаты для детальной статистики
    */
-  static logBatchResults<T>(
+  static logBatchResults<TKey, TValue>(
     logger: Logger,
     operationName: string,
     config: ResultLogConfig,
-    results?: ProcessedBatchResult<T>
+    results?: ProcessedBatchResult<TKey, TValue>
   ): void {
     logger.debug(`${operationName} (${config.totalRequested} шт.)`, {
       successful: config.successCount,

@@ -141,7 +141,7 @@ describe('GetIssuesTool', () => {
     describe('получение задач', () => {
       it('должен получить одну задачу без фильтрации полей', async () => {
         vi.mocked(mockTrackerFacade.getIssues).mockResolvedValue([
-          { status: 'fulfilled', value: mockIssue1, issueKey: 'QUEUE-123' },
+          { status: 'fulfilled', value: mockIssue1, key: 'QUEUE-123', index: 0 },
         ]);
 
         const result = await tool.execute({ issueKeys: ['QUEUE-123'] });
@@ -173,8 +173,8 @@ describe('GetIssuesTool', () => {
 
       it('должен получить несколько задач без фильтрации полей', async () => {
         vi.mocked(mockTrackerFacade.getIssues).mockResolvedValue([
-          { status: 'fulfilled', value: mockIssue1, issueKey: 'QUEUE-123' },
-          { status: 'fulfilled', value: mockIssue2, issueKey: 'QUEUE-456' },
+          { status: 'fulfilled', value: mockIssue1, key: 'QUEUE-123', index: 0 },
+          { status: 'fulfilled', value: mockIssue2, key: 'QUEUE-456', index: 1 },
         ]);
 
         const result = await tool.execute({ issueKeys: ['QUEUE-123', 'QUEUE-456'] });
@@ -203,7 +203,7 @@ describe('GetIssuesTool', () => {
 
       it('должен получить задачи с фильтрацией полей', async () => {
         vi.mocked(mockTrackerFacade.getIssues).mockResolvedValue([
-          { status: 'fulfilled', value: mockIssue1, issueKey: 'QUEUE-123' },
+          { status: 'fulfilled', value: mockIssue1, key: 'QUEUE-123', index: 0 },
         ]);
 
         const result = await tool.execute({
@@ -232,8 +232,8 @@ describe('GetIssuesTool', () => {
       it('должен обработать частичные ошибки', async () => {
         const apiError = new Error('API Error: Issue not found');
         vi.mocked(mockTrackerFacade.getIssues).mockResolvedValue([
-          { status: 'fulfilled', value: mockIssue1, issueKey: 'QUEUE-123' },
-          { status: 'rejected', reason: apiError, issueKey: 'QUEUE-999' },
+          { status: 'fulfilled', value: mockIssue1, key: 'QUEUE-123', index: 0 },
+          { status: 'rejected', reason: apiError, key: 'QUEUE-999', index: 1 },
         ]);
 
         const result = await tool.execute({
@@ -247,13 +247,13 @@ describe('GetIssuesTool', () => {
           data: {
             successful: number;
             failed: number;
-            errors: Array<{ issueKey: string; error: string }>;
+            errors: Array<{ key: string; error: string }>;
           };
         };
         expect(parsed.success).toBe(true);
         expect(parsed.data.successful).toBe(1);
         expect(parsed.data.failed).toBe(1);
-        expect(parsed.data.errors[0]?.issueKey).toBe('QUEUE-999');
+        expect(parsed.data.errors[0]?.key).toBe('QUEUE-999');
       });
 
       it('должен обработать критическую ошибку facade', async () => {

@@ -109,28 +109,29 @@ function bindOperations(container: Container): void {
       const retryHandler = container.get<RetryHandler>(TYPES.RetryHandler);
       const cacheManager = container.get<CacheManager>(TYPES.CacheManager);
       const loggerInstance = container.get<Logger>(TYPES.Logger);
-      return new OperationClass(httpClient, retryHandler, cacheManager, loggerInstance);
+      const configInstance = container.get<ServerConfig>(TYPES.ServerConfig);
+      return new OperationClass(
+        httpClient,
+        retryHandler,
+        cacheManager,
+        loggerInstance,
+        configInstance
+      );
     });
   }
 }
 
 /**
  * Регистрация Facade
+ *
+ * КРИТИЧЕСКИЕ ИЗМЕНЕНИЯ:
+ * - Передаём контейнер вместо зависимостей
+ * - Facade извлекает Operations ленив но из контейнера
+ * - Масштабируется до 50+ операций БЕЗ изменения регистрации
  */
 function bindFacade(container: Container): void {
   container.bind<YandexTrackerFacade>(TYPES.YandexTrackerFacade).toDynamicValue(() => {
-    const httpClient = container.get<HttpClient>(TYPES.HttpClient);
-    const retryHandler = container.get<RetryHandler>(TYPES.RetryHandler);
-    const cacheManager = container.get<CacheManager>(TYPES.CacheManager);
-    const loggerInstance = container.get<Logger>(TYPES.Logger);
-    const configInstance = container.get<ServerConfig>(TYPES.ServerConfig);
-    return new YandexTrackerFacade(
-      httpClient,
-      retryHandler,
-      cacheManager,
-      loggerInstance,
-      configInstance
-    );
+    return new YandexTrackerFacade(container);
   });
 }
 

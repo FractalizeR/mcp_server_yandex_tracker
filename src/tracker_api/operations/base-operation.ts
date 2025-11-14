@@ -50,12 +50,12 @@ export abstract class BaseOperation {
   }
 
   /**
-   * Выполнение с retry (без кеширования)
+   * DEPRECATED: Метод удалён для исправления проблемы "двойного retry".
    *
-   * @param fn - функция для выполнения
-   * @returns результат выполнения
+   * Retry логика уже встроена в HttpClient.get/post/patch/delete методы.
+   * Использование withRetry() приводило к мультипликативному росту попыток (3×3=9).
+   *
+   * Если нужен retry для НЕ-HTTP операций, создайте отдельный метод с явным названием,
+   * например: withExternalApiRetry() или withDatabaseRetry().
    */
-  protected async withRetry<T>(fn: () => Promise<T>): Promise<T> {
-    return this.retryHandler.executeWithRetry(fn);
-  }
 }
