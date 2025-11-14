@@ -102,8 +102,7 @@ handlers/
 4. **Concrete Tool** (например, `ping.tool.ts`) → валидация параметров
 5. **YandexTrackerFacade** → делегирование операциям
 6. **Operation** (например, `ping.operation.ts`) → бизнес-логика
-7. **RetryHandler** → обёртка для retry логики
-8. **HttpClient** → HTTPS запрос к API Яндекс.Трекер v3
+7. **HttpClient** (с встроенным retry) → HTTPS запрос к API Яндекс.Трекер v3
 
 **Разделение ответственности по слоям:**
 
@@ -113,9 +112,9 @@ handlers/
 - **HTTP/Retry/Cache** — инфраструктурные компоненты (переиспользуемые)
 
 **Независимость компонентов:**
-- `HttpClient` не знает про retry
-- `RetryHandler` не знает про HTTP
+- `HttpClient` содержит встроенный retry (через `RetryHandler`)
 - `CacheManager` не знает про API
+- `ParallelExecutor` не знает про HTTP
 - Композируется в `Operation` через DI
 
 ---
@@ -291,9 +290,8 @@ async execute(key: string, data: UpdateIssueDto): Promise<IssueWithUnknownFields
 ```typescript
 const retryStrategy = new ExponentialBackoffStrategy(3, 1000, 10000);
 const httpClient = new HttpClient(config, logger, retryStrategy);
-const retryHandler = new RetryHandler(retryStrategy, logger);
 const cacheManager = new NoOpCache();
-const facade = new YandexTrackerFacade(httpClient, retryHandler, cacheManager, logger, config);
+const facade = new YandexTrackerFacade(container); // Facade получает контейнер
 const toolRegistry = new ToolRegistry(facade, logger);
 ```
 

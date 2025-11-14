@@ -188,8 +188,6 @@ describe('Integration: Full DI', () => {
       prettyLogs: false,
       logMaxSize: 1048576,
       logMaxFiles: 20,
-      maxBatchSize: 100,
-      maxConcurrentRequests: 5,
     };
 
     // Создаём реальный контейнер (ASYNC!)
