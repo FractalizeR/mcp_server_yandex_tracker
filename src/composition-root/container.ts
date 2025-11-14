@@ -21,19 +21,14 @@ import { ExponentialBackoffStrategy } from '@infrastructure/http/retry/exponenti
 import type { CacheManager } from '@infrastructure/cache/cache-manager.interface.js';
 import { NoOpCache } from '@infrastructure/cache/no-op-cache.js';
 
-// Yandex Tracker Operations
-import { PingOperation } from '@tracker_api/operations/user/ping.operation.js';
-import { GetIssuesOperation } from '@tracker_api/operations/issue/get-issues.operation.js';
-
 // Yandex Tracker Facade
 import { YandexTrackerFacade } from '@tracker_api/facade/yandex-tracker.facade.js';
 
-// Tools
-import { PingTool } from '@mcp/tools/ping.tool.js';
-import { GetIssuesTool } from '@mcp/tools/api/issues/get/index.js';
-
 // Tool Registry
 import { ToolRegistry } from '@mcp/tool-registry.js';
+
+// Автоматически импортируемые определения
+import { TOOL_CLASSES, OPERATION_CLASSES } from './definitions/index.js';
 
 /**
  * Регистрация базовых зависимостей (config, logger)
@@ -99,23 +94,24 @@ function bindCacheLayer(container: Container): void {
 
 /**
  * Регистрация операций Yandex Tracker
+ *
+ * АВТОМАТИЧЕСКАЯ РЕГИСТРАЦИЯ:
+ * - Все операции из OPERATION_CLASSES автоматически регистрируются
+ * - Символы создаются из имени класса (ClassName → Symbol.for('ClassName'))
+ * - Для добавления новой операции: добавь класс в definitions/operation-definitions.ts
  */
 function bindOperations(container: Container): void {
-  // Все операции наследуют BaseOperation с конструктором (httpClient, retryHandler, cacheManager, logger)
-  const operations = [
-    { type: TYPES.PingOperation, class: PingOperation },
-    { type: TYPES.GetIssuesOperation, class: GetIssuesOperation },
-  ];
+  for (const OperationClass of OPERATION_CLASSES) {
+    const symbol = Symbol.for(OperationClass.name);
 
-  operations.forEach(({ type, class: OperationClass }) => {
-    container.bind(type).toDynamicValue(() => {
+    container.bind(symbol).toDynamicValue(() => {
       const httpClient = container.get<HttpClient>(TYPES.HttpClient);
       const retryHandler = container.get<RetryHandler>(TYPES.RetryHandler);
       const cacheManager = container.get<CacheManager>(TYPES.CacheManager);
       const loggerInstance = container.get<Logger>(TYPES.Logger);
       return new OperationClass(httpClient, retryHandler, cacheManager, loggerInstance);
     });
-  });
+  }
 }
 
 /**
@@ -140,30 +136,34 @@ function bindFacade(container: Container): void {
 
 /**
  * Регистрация Tools
+ *
+ * АВТОМАТИЧЕСКАЯ РЕГИСТРАЦИЯ:
+ * - Все tools из TOOL_CLASSES автоматически регистрируются
+ * - Символы создаются из имени класса (ClassName → Symbol.for('ClassName'))
+ * - Для добавления нового tool: добавь класс в definitions/tool-definitions.ts
  */
 function bindTools(container: Container): void {
-  const tools = [
-    { type: TYPES.PingTool, class: PingTool },
-    { type: TYPES.GetIssuesTool, class: GetIssuesTool },
-  ];
+  for (const ToolClass of TOOL_CLASSES) {
+    const symbol = Symbol.for(ToolClass.name);
 
-  tools.forEach(({ type, class: ToolClass }) => {
-    container.bind(type).toDynamicValue(() => {
+    container.bind(symbol).toDynamicValue(() => {
       const facade = container.get<YandexTrackerFacade>(TYPES.YandexTrackerFacade);
       const loggerInstance = container.get<Logger>(TYPES.Logger);
       return new ToolClass(facade, loggerInstance);
     });
-  });
+  }
 }
 
 /**
  * Регистрация ToolRegistry
+ *
+ * ВАЖНО: ToolRegistry автоматически извлекает все tools из контейнера
  */
 function bindToolRegistry(container: Container): void {
   container.bind<ToolRegistry>(TYPES.ToolRegistry).toDynamicValue(() => {
-    const facade = container.get<YandexTrackerFacade>(TYPES.YandexTrackerFacade);
     const loggerInstance = container.get<Logger>(TYPES.Logger);
-    return new ToolRegistry(facade, loggerInstance);
+    // Передаём контейнер для автоматической регистрации всех tools
+    return new ToolRegistry(container, loggerInstance);
   });
 }
 

@@ -203,15 +203,26 @@ logger.error('Operation failed', error, { requestId: '456' });
 Правила (см. `.dependency-cruiser.cjs`):
 - ✅ **Layered architecture:** `tracker_api` не импортирует `mcp`, `infrastructure` не импортирует бизнес-слои
 - ✅ **MCP isolation:** MCP tools используют только Facade, не Operations напрямую
-- ✅ **Operations isolation:** Operations импортируются только через Facade или Composition Root
-- ✅ **Composition Root top-level:** Только `index.ts` может импортировать `@composition-root`
+- ✅ **Operations isolation:** Operations импортируются только через Facade, Composition Root или definitions/
+- ✅ **Composition Root top-level:** Только `index.ts` и `ToolRegistry` могут импортировать definitions
 - ✅ **Циклические зависимости:** запрещены
 
 **Визуализация графа:**
 - `npm run depcruise:graph` → `dependency-graph.svg`
 - `npm run depcruise:graph:html` → `dependency-graph.html`
 
-### 10. Форматирование кода (Prettier + Husky)
+### 10. Автоматическая проверка регистрации (validate:tools)
+
+**Lint правило:** `npm run validate:tools`
+
+**Проверяет:**
+- ✅ Все `*.tool.ts` файлы зарегистрированы в `tool-definitions.ts`
+- ✅ Все `*.operation.ts` файлы зарегистрированы в `operation-definitions.ts`
+- ✅ Предотвращает забывчивость при добавлении новых компонентов
+
+**Интеграция:** Автоматически запускается в `npm run validate`
+
+### 11. Форматирование кода (Prettier + Husky)
 
 **Автоматическое форматирование:** Pre-commit hook через Husky + lint-staged
 
@@ -268,15 +279,17 @@ logger.error('Operation failed', error, { requestId: '456' });
 - [ ] 📖 Прочитай [src/mcp/CONVENTIONS.md](src/mcp/CONVENTIONS.md)
 - [ ] Создай структуру `.schema.ts`, `.definition.ts`, `.tool.ts`, `index.ts`
 - [ ] Используй утилиты: `validateParams()`, `BatchResultProcessor`, `ResultLogger`
-- [ ] DI регистрация + тесты
-- [ ] `npm run validate`
+- [ ] **АВТОМАТИЧЕСКАЯ РЕГИСТРАЦИЯ:** Добавь **1 строку** в `src/composition-root/definitions/tool-definitions.ts`
+- [ ] ВСЁ! (DI регистрация, ToolRegistry, TYPES — автоматически)
+- [ ] Тесты + `npm run validate`
 
 ### Добавление Operation
 
 - [ ] 📖 Прочитай [src/tracker_api/operations/CONVENTIONS.md](src/tracker_api/operations/CONVENTIONS.md)
 - [ ] Наследуй `BaseOperation`
 - [ ] Для batch: используй `ParallelExecutor`, возвращай `BatchResult<T>`
-- [ ] Facade метод + DI регистрация + тесты
+- [ ] **АВТОМАТИЧЕСКАЯ РЕГИСТРАЦИЯ:** Добавь **1 строку** в `src/composition-root/definitions/operation-definitions.ts`
+- [ ] Facade метод + тесты
 - [ ] `npm run validate`
 
 ### Добавление Entity

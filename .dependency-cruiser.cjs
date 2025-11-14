@@ -66,15 +66,16 @@ module.exports = {
 
     {
       name: 'operations-isolation',
-      severity: 'warn',  // warn чтобы не блокировать development
+      severity: 'warn', // warn чтобы не блокировать development
       comment: 'Operations импортируются только через Facade или Composition Root',
       from: {
         path: '^src/',
         pathNot: [
           // Исключения (разрешено импортировать operations):
-          '^src/tracker_api/facade/',              // Facade координирует operations
-          '^src/composition-root/container\\.ts$', // DI контейнер регистрирует все зависимости
-          '^src/tracker_api/operations/',          // Operations могут импортировать друг друга
+          '^src/tracker_api/facade/',                           // Facade координирует operations
+          '^src/composition-root/container\\.ts$',              // DI контейнер регистрирует все зависимости
+          '^src/composition-root/definitions/operation-definitions\\.ts$', // Автоматическая регистрация операций
+          '^src/tracker_api/operations/',                       // Operations могут импортировать друг друга
         ],
       },
       to: {
@@ -110,8 +111,9 @@ module.exports = {
       from: {
         path: '^src/',
         pathNot: [
-          '^src/index\\.ts$',             // Entry point может импортировать
-          '^src/composition-root/',       // Файлы внутри composition-root могут импортировать друг друга
+          '^src/index\\.ts$',                     // Entry point может импортировать
+          '^src/composition-root/',               // Файлы внутри composition-root могут импортировать друг друга
+          '^src/mcp/tool-registry\\.ts$',         // ToolRegistry импортирует definitions для автоматической регистрации
         ],
       },
       to: {
@@ -128,12 +130,7 @@ module.exports = {
 
     // Исключить из анализа
     exclude: {
-      path: [
-        '\\.test\\.ts$',
-        '\\.spec\\.ts$',
-        'dist/',
-        'tests/',
-      ],
+      path: ['\\.test\\.ts$', '\\.spec\\.ts$', 'dist/', 'tests/', 'scripts/'],
     },
 
     // Использовать TypeScript для разрешения путей

@@ -6,16 +6,17 @@
  * - Получение списка определений
  * - Маршрутизация вызовов к нужному инструменту
  *
- * Следует принципу Open/Closed:
- * - Открыт для расширения (легко добавить новый инструмент)
- * - Закрыт для модификации (основная логика не меняется)
+ * АВТОМАТИЧЕСКАЯ РЕГИСТРАЦИЯ (Open/Closed Principle):
+ * - Tools автоматически извлекаются из DI контейнера
+ * - Для добавления нового tool: добавь класс в composition-root/definitions/tool-definitions.ts
+ * - НЕ нужно модифицировать этот файл при добавлении новых tools
  */
 
-import type { YandexTrackerFacade } from '@tracker_api/facade/index.js';
+import type { Container } from 'inversify';
 import type { Logger } from '@infrastructure/logging/index.js';
 import type { ToolCallParams, ToolResult } from '@types';
 import type { BaseTool, ToolDefinition } from '@mcp/tools/base/index.js';
-import { PingTool, GetIssuesTool } from '@mcp/tools/index.js';
+import { TOOL_CLASSES } from '@composition-root/definitions/tool-definitions.js';
 
 /**
  * Реестр инструментов
@@ -26,18 +27,20 @@ export class ToolRegistry {
   private tools: Map<string, BaseTool>;
   private logger: Logger;
 
-  constructor(trackerFacade: YandexTrackerFacade, logger: Logger) {
+  /**
+   * @param container - DI контейнер с зарегистрированными tools
+   * @param logger - Logger для логирования
+   */
+  constructor(container: Container, logger: Logger) {
     this.logger = logger;
     this.tools = new Map();
 
-    // Регистрация всех доступных инструментов
-    this.registerTool(new PingTool(trackerFacade, logger));
-    this.registerTool(new GetIssuesTool(trackerFacade, logger));
-
-    // Здесь будут регистрироваться новые инструменты:
-    // this.registerTool(new CreateIssueTool(apiClient, logger));
-    // this.registerTool(new UpdateIssueTool(apiClient, logger));
-    // this.registerTool(new SearchIssuesTool(apiClient, logger));
+    // АВТОМАТИЧЕСКАЯ регистрация всех tools из DI контейнера
+    for (const ToolClass of TOOL_CLASSES) {
+      const symbol = Symbol.for(ToolClass.name);
+      const tool = container.get<BaseTool>(symbol);
+      this.registerTool(tool);
+    }
 
     this.logger.debug(`Зарегистрировано инструментов: ${this.tools.size}`);
   }
