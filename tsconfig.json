@@ -19,6 +19,10 @@
       "@types": ["./src/types.ts"]
     },
 
+    /* Package.json resolution (TypeScript 4.7+) */
+    "resolvePackageJsonExports": true,
+    "resolvePackageJsonImports": true,
+
     /* Emit */
     "outDir": "./dist",
     "rootDir": "./src",
