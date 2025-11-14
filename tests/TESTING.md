@@ -14,18 +14,23 @@ tests/
 │   └── tracker_api/          # Тесты API слоя (operations, facade, entities)
 │
 ├── integration/              # Интеграционные тесты (зеркалируют src/)
-│   ├── mcp/                  # End-to-end тесты MCP tools
-│   │   └── tools/
-│   │       └── api/
-│   │           └── issues/
-│   │               └── get/
-│   │                   └── get-issues.tool.integration.test.ts
-│   └── helpers/              # Вспомогательные утилиты для интеграционных тестов
-│       ├── mcp-client.ts     # Тестовый MCP клиент
-│       ├── mock-server.ts    # Mock HTTP сервера (nock)
-│       └── fixture-generator.ts  # Генератор рандомизированных данных
+│   ├── helpers/
+│   │   ├── mcp-client.ts
+│   │   ├── mock-server.ts
+│   │   ├── fixture-generator.ts  # Старый (deprecated)
+│   │   └── template-based-generator.ts  # Актуальный
+│   ├── templates/            # JSON шаблоны
+│   │   ├── issue.json
+│   │   ├── user.json
+│   │   └── README.md
+│   └── mcp/                  # End-to-end тесты MCP tools
+│       └── tools/
+│           └── api/
+│               └── issues/
+│                   └── get/
+│                       └── get-issues.tool.integration.test.ts
 │
-├── e2e/                      # End-to-end тесты (будущее)
+├── e2e/                      # End-to-end тесты
 │
 └── TESTING.md                # Этот файл
 ```
@@ -74,7 +79,8 @@ src/mcp/tools/api/issues/get/get-issues.tool.ts
 **Helpers:**
 - `@integration/helpers/mcp-client.ts` — тестовый клиент для вызова tools
 - `@integration/helpers/mock-server.ts` — настройка HTTP моков (nock)
-- `@integration/helpers/fixture-generator.ts` — генератор тестовых данных
+- `@integration/helpers/template-based-generator.ts` — template-based генератор (актуальный)
+- `@integration/helpers/fixture-generator.ts` — старый генератор (deprecated)
 
 ## 🔧 Helpers для интеграционных тестов
 
@@ -128,34 +134,36 @@ mockServer.cleanup();
 - ✅ Поддержка batch-запросов
 - ✅ Проверка выполнения всех замоканных запросов
 
-### Fixture Generator
+### Template-Based Generator
 
-Генератор рандомизированных тестовых данных для предотвращения утечки реальной информации:
+**Современный подход:** рандомизация по правилам на основе JSON шаблонов.
 
 ```typescript
-import { generateIssueFixture } from '@integration/helpers/fixture-generator.js';
+import { generateIssue } from '@integration/helpers/template-based-generator.js';
 
-const issue = generateIssueFixture({
-  issueKey: 'QUEUE-1',
-  summary: 'Кастомное саммари', // опционально
-  statusKey: 'open',            // опционально
-  typeKey: 'bug',               // опционально
-  priorityKey: 'critical',      // опционально
-  includeResolution: true,      // опционально
+// Базовый шаблон + переопределение полей
+const issue = generateIssue({
+  overrides: {
+    summary: 'Test issue',
+    status: { key: 'open' }
+  }
 });
 ```
 
-**Генерируемые данные:**
-- ✅ Уникальные ID, UID, даты для каждого вызова
-- ✅ Случайные пользователи, очереди, статусы
-- ✅ Реалистичные структуры согласно API Яндекс.Трекер v3
-- ✅ Нет захардкоженных реальных данных
+**Преимущества:**
+- ✅ Чувствительные данные рандомизируются автоматически
+- ✅ JSON шаблоны легко поддерживать
+- ✅ Умные правила (emails, URLs, ObjectIds)
+- ✅ Масштабируемость: добавил шаблон → получил генератор
 
 **Доступные генераторы:**
-- `generateIssueFixture(options)` — задача
-- `generateError404Fixture()` — ошибка 404
-- `generateError401Fixture()` — ошибка 401
-- `generateError403Fixture()` — ошибка 403
+- `generateIssue(options)` — задача
+- `generateUser(options)` — пользователь
+- `generateError404()` — ошибка 404
+- `generateError401()` — ошибка 401
+- `generateError403()` — ошибка 403
+
+**Подробнее:** `tests/integration/templates/README.md`
 
 ## ✅ Принципы написания интеграционных тестов
 
@@ -174,8 +182,13 @@ it('должен успешно получить одну задачу по кл
 
   // Assert (проверка)
   expect(result.isError).toBeUndefined();
+  expect(result.content).toHaveLength(1);
+
+  const responseWrapper = JSON.parse(result.content[0]!.text);
+  const response = responseWrapper.data;
+
   expect(response.issues).toHaveLength(1);
-  expect(response.issues[0].issueKey).toBe(issueKey);
+  expect(response.issues[0].key).toBe(issueKey);
 
   mockServer.assertAllRequestsDone();
 });
@@ -236,7 +249,7 @@ afterEach(() => {
 ## 🚀 Запуск тестов
 
 ```bash
-# Все тесты
+# Все тесты (unit + integration + e2e)
 npm test
 
 # Только unit тесты
@@ -244,6 +257,9 @@ npm run test:unit
 
 # Только интеграционные тесты
 npm run test:integration
+
+# E2E тесты запускаются через npm test
+# (нет отдельной команды test:e2e)
 
 # С покрытием
 npm run test:coverage
@@ -254,14 +270,15 @@ npm run validate
 
 ## 📊 Coverage
 
-Требования к покрытию unit-тестами (настроено в `vitest.config.ts`):
+Требования к покрытию (настроено в `vitest.config.ts`):
 
 - Branches: ≥80%
 - Functions: ≥80%
 - Lines: ≥80%
 - Statements: ≥80%
 
-**Важно:** Интеграционные тесты НЕ учитываются в покрытии (`coverage.all: false`).
+**Важно:** Coverage считается для всего кода из `src/`, независимо от типа теста (unit/integration/e2e).
+Конфигурация: `vitest.config.ts` → `coverage.include: ['src/**/*.ts']`
 
 ## 🔍 CI/CD
 
