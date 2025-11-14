@@ -18,10 +18,10 @@ import type { AxiosInstance, AxiosError } from 'axios';
 import type { HttpConfig } from '@infrastructure/http/client/http-config.interface.js';
 import type { Logger } from '@infrastructure/logging/index.js';
 import type { QueryParams } from '@types';
-import { ErrorMapper } from '@infrastructure/http/error';
-import { RetryHandler } from '@infrastructure/http/retry';
-import type { RetryStrategy } from '@infrastructure/http/retry';
-import { ParallelExecutor } from '@infrastructure/async';
+import { ErrorMapper } from '@infrastructure/http/error/index.js';
+import { RetryHandler } from '@infrastructure/http/retry/index.js';
+import type { RetryStrategy } from '@infrastructure/http/retry/index.js';
+import { ParallelExecutor } from '@infrastructure/async/index.js';
 import type { BatchResult } from '@types';
 
 export class HttpClient {
