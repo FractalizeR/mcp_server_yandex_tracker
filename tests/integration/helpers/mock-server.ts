@@ -5,12 +5,11 @@
 
 import nock from 'nock';
 import {
-  generateIssueFixture,
-  generateError404Fixture,
-  generateError401Fixture,
-  generateError403Fixture,
-  type GenerateIssueOptions,
-} from './fixture-generator.js';
+  generateIssue,
+  generateError404,
+  generateError401,
+  generateError403,
+} from './template-based-generator.js';
 
 export const TRACKER_API_BASE = 'https://api.tracker.yandex.net';
 export const TRACKER_API_V3 = '/v3';
@@ -31,8 +30,13 @@ export class MockServer {
   /**
    * Мок успешного получения задачи по ключу
    */
-  mockGetIssueSuccess(issueKey: string, options?: Partial<GenerateIssueOptions>): this {
-    const response = generateIssueFixture({ issueKey, ...options });
+  mockGetIssueSuccess(issueKey: string, overrides?: Record<string, unknown>): this {
+    const response = generateIssue({
+      overrides: {
+        key: issueKey,
+        ...overrides,
+      },
+    });
 
     this.scope.get(`${TRACKER_API_V3}/issues/${issueKey}`).reply(200, response);
 
@@ -44,7 +48,11 @@ export class MockServer {
    */
   mockGetIssuesBatchSuccess(issueKeys: string[]): this {
     // Генерируем уникальную фикстуру для каждой задачи
-    const responses = issueKeys.map((key) => generateIssueFixture({ issueKey: key }));
+    const responses = issueKeys.map((key) =>
+      generateIssue({
+        overrides: { key },
+      })
+    );
 
     // Для batch запроса используется POST с параметром keys
     this.scope
@@ -61,7 +69,7 @@ export class MockServer {
    * Мок ошибки 404 (задача не найдена)
    */
   mockGetIssue404(issueKey: string): this {
-    const response = generateError404Fixture();
+    const response = generateError404();
 
     this.scope.get(`${TRACKER_API_V3}/issues/${issueKey}`).reply(404, response);
 
@@ -72,7 +80,7 @@ export class MockServer {
    * Мок ошибки 401 (не авторизован)
    */
   mockGetIssue401(issueKey: string): this {
-    const response = generateError401Fixture();
+    const response = generateError401();
 
     this.scope.get(`${TRACKER_API_V3}/issues/${issueKey}`).reply(401, response);
 
@@ -83,7 +91,7 @@ export class MockServer {
    * Мок ошибки 403 (доступ запрещён)
    */
   mockGetIssue403(issueKey: string): this {
-    const response = generateError403Fixture();
+    const response = generateError403();
 
     this.scope.get(`${TRACKER_API_V3}/issues/${issueKey}`).reply(403, response);
 
