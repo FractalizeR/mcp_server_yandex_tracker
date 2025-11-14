@@ -20,7 +20,7 @@ describe('CategorySearchStrategy', () => {
 
   const mockTools: StaticToolIndex[] = [
     {
-      name: 'yandex_tracker_get_issues',
+      name: 'fyt_mcp_get_issues',
       category: ToolCategory.ISSUES,
       tags: ['issue', 'get', 'batch', 'read'],
       isHelper: false,
@@ -29,7 +29,7 @@ describe('CategorySearchStrategy', () => {
       descriptionShort: 'Get issues',
     },
     {
-      name: 'yandex_tracker_find_issues',
+      name: 'fyt_mcp_find_issues',
       category: ToolCategory.ISSUES,
       tags: ['issue', 'find', 'search', 'jql'],
       isHelper: false,
@@ -38,7 +38,7 @@ describe('CategorySearchStrategy', () => {
       descriptionShort: 'Find issues',
     },
     {
-      name: 'yandex_tracker_ping',
+      name: 'fyt_mcp_ping',
       category: ToolCategory.USERS,
       tags: ['ping', 'health', 'check', 'diagnostics'],
       isHelper: false,
@@ -47,7 +47,7 @@ describe('CategorySearchStrategy', () => {
       descriptionShort: 'Ping',
     },
     {
-      name: 'yandex_tracker_search_tools',
+      name: 'fyt_mcp_search_tools',
       category: ToolCategory.SEARCH,
       tags: ['search', 'tools', 'discovery', 'find', 'helper'],
       isHelper: true,
@@ -56,7 +56,7 @@ describe('CategorySearchStrategy', () => {
       descriptionShort: 'Search tools',
     },
     {
-      name: 'yandex_tracker_get_issue_url',
+      name: 'fyt_mcp_issue_get_url',
       category: ToolCategory.URL_GENERATION,
       tags: ['url', 'link', 'helper', 'issue'],
       isHelper: true,
@@ -97,7 +97,7 @@ describe('CategorySearchStrategy', () => {
       const results = strategy.search('url-generation', mockTools);
 
       expect(results).toHaveLength(1);
-      expect(results[0]!.toolName).toBe('yandex_tracker_get_issue_url');
+      expect(results[0]!.toolName).toBe('fyt_mcp_issue_get_url');
       expect(results[0]!.score).toBe(1.0);
     });
 
@@ -114,7 +114,7 @@ describe('CategorySearchStrategy', () => {
       const results = strategy.search('url', mockTools);
 
       expect(results).toHaveLength(1);
-      expect(results[0]!.toolName).toBe('yandex_tracker_get_issue_url');
+      expect(results[0]!.toolName).toBe('fyt_mcp_issue_get_url');
       expect(results[0]!.score).toBe(0.8);
       expect(results[0]!.matchReason).toContain('Category match');
     });
@@ -185,7 +185,7 @@ describe('CategorySearchStrategy', () => {
 
       // Query содержит 'url' и 'helper'
       const matches = results.filter(
-        (r) => r.toolName === 'yandex_tracker_get_issue_url' && r.matchReason?.includes('Tag match')
+        (r) => r.toolName === 'fyt_mcp_issue_get_url' && r.matchReason?.includes('Tag match')
       );
 
       expect(matches.length).toBeGreaterThan(0);
@@ -198,13 +198,13 @@ describe('CategorySearchStrategy', () => {
       const results = strategy.search('search', mockTools);
 
       // search_tools должен найтись по категории (score 1.0)
-      const categoryMatch = results.find((r) => r.toolName === 'yandex_tracker_search_tools');
+      const categoryMatch = results.find((r) => r.toolName === 'fyt_mcp_search_tools');
       expect(categoryMatch).toBeDefined();
       expect(categoryMatch!.score).toBe(1.0);
       expect(categoryMatch!.matchReason).toContain('Category match');
 
       // find_issues должен найтись по тегу (score 0.9)
-      const tagMatch = results.find((r) => r.toolName === 'yandex_tracker_find_issues');
+      const tagMatch = results.find((r) => r.toolName === 'fyt_mcp_find_issues');
       expect(tagMatch).toBeDefined();
       expect(tagMatch!.matchReason).toContain('Tag match');
     });
