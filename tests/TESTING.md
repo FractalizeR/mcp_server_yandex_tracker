@@ -280,6 +280,202 @@ npm run validate
 **Важно:** Coverage считается для всего кода из `src/`, независимо от типа теста (unit/integration/e2e).
 Конфигурация: `vitest.config.ts` → `coverage.include: ['src/**/*.ts']`
 
+## 🔒 Изоляция тестов и параллельное выполнение
+
+### Принципы изоляции
+
+Все тесты в проекте **ДОЛЖНЫ** выполняться параллельно и независимо друг от друга.
+
+**Конфигурация Vitest обеспечивает:**
+
+```typescript
+// vitest.config.ts
+test: {
+  pool: 'threads',        // Worker threads для параллелизма
+  maxWorkers: 8,          // До 8 параллельных workers
+  isolate: true,          // Каждый тестовый файл в отдельной среде
+  sequence: {
+    shuffle: true,        // Случайный порядок каждый раз
+  },
+}
+```
+
+### Правила написания тестов
+
+#### ✅ ОБЯЗАТЕЛЬНО
+
+1. **Изолируй side effects через `beforeEach`/`afterEach`:**
+
+```typescript
+describe('MyComponent', () => {
+  let tempDir: string;
+
+  beforeEach(async () => {
+    // Создаём изолированное окружение для КАЖДОГО теста
+    tempDir = await mkdtemp(join(tmpdir(), 'test-'));
+  });
+
+  afterEach(async () => {
+    // Очищаем после КАЖДОГО теста
+    await rm(tempDir, { recursive: true, force: true });
+  });
+});
+```
+
+2. **Файловые операции ТОЛЬКО во временные директории:**
+
+```typescript
+// ✅ ПРАВИЛЬНО
+const tempDir = await mkdtemp(join(tmpdir(), 'test-'));
+await writeFile(join(tempDir, 'test.json'), data);
+
+// ❌ НЕПРАВИЛЬНО (модификация проекта)
+await writeFile('./logs/test.log', data);
+```
+
+3. **HTTP моки очищай после каждого теста:**
+
+```typescript
+describe('API tests', () => {
+  let mockServer: MockServer;
+
+  beforeEach(() => {
+    mockServer = createMockServer();
+  });
+
+  afterEach(() => {
+    mockServer.cleanup(); // Очищает nock.cleanAll()
+  });
+});
+```
+
+4. **Избегай глобальных переменных вне `describe()`:**
+
+```typescript
+// ❌ НЕПРАВИЛЬНО (shared state между файлами)
+let globalCounter = 0;
+
+describe('Test', () => {
+  it('increments', () => {
+    globalCounter++; // Race condition при параллелизме!
+  });
+});
+
+// ✅ ПРАВИЛЬНО (изолированное состояние)
+describe('Test', () => {
+  let localCounter: number;
+
+  beforeEach(() => {
+    localCounter = 0;
+  });
+
+  it('increments', () => {
+    localCounter++;
+  });
+});
+```
+
+#### ❌ ЗАПРЕЩЕНО
+
+- Модификация файлов в директории проекта (`src/`, `tests/`, etc.)
+- Shared state между тестовыми файлами через глобальные переменные
+- `beforeAll`/`afterAll` с созданием ресурсов (используй `beforeEach`/`afterEach`)
+- Зависимости от порядка выполнения тестов
+- Моки, которые не очищаются в `afterEach`
+
+### Проверка изоляции
+
+**Автоматическая проверка:**
+
+Тесты всегда выполняются в **случайном порядке** (`sequence.shuffle: true`).
+Если тест падает при случайном порядке — значит есть зависимость от других тестов.
+
+**Ручная проверка:**
+
+```bash
+# Запустить тесты с уникальным seed (основан на текущем времени)
+npm run test:isolation
+
+# Запустить тесты с фиксированным seed для воспроизведения проблемы
+npm test -- --sequence.seed=12345
+
+# Запустить несколько раз подряд
+npm test && npm test && npm test
+```
+
+### Отладка проблем с изоляцией
+
+**Признаки нарушения изоляции:**
+
+1. Тест проходит при запуске отдельно, но падает при `npm test`
+2. Тесты проходят в одном порядке, но падают в другом
+3. Intermittent failures (тест иногда падает, иногда проходит)
+
+**Решение:**
+
+1. Проверь `beforeEach`/`afterEach` — очищается ли состояние
+2. Ищи глобальные переменные и shared state
+3. Проверь моки — вызывается ли `cleanup()`
+4. Убедись, что файловые операции используют временные директории
+
+### Примеры правильной изоляции
+
+**Пример 1: Интеграционный тест с файлами**
+
+```typescript
+// tests/integration/infrastructure/logging/logger.integration.test.ts
+describe('Logger Integration Tests', () => {
+  let testLogsDir: string;
+
+  beforeEach(async () => {
+    // Уникальная временная директория для КАЖДОГО теста
+    testLogsDir = await mkdtemp(join(tmpdir(), 'logger-integration-test-'));
+  });
+
+  afterEach(async () => {
+    // Полная очистка после теста
+    await rm(testLogsDir, { recursive: true, force: true });
+  });
+
+  it('должен создать лог-файл', async () => {
+    const logger = new Logger({ logsDir: testLogsDir });
+    logger.info('Test message');
+
+    const files = await readdir(testLogsDir);
+    expect(files.length).toBeGreaterThan(0);
+  });
+});
+```
+
+**Пример 2: HTTP моки**
+
+```typescript
+// tests/integration/mcp/tools/api/issues/get/get-issues.tool.integration.test.ts
+describe('get-issues integration tests', () => {
+  let client: TestMCPClient;
+  let mockServer: MockServer;
+
+  beforeEach(() => {
+    client = createTestClient();
+    mockServer = createMockServer(); // nock.disableNetConnect()
+  });
+
+  afterEach(() => {
+    mockServer.cleanup(); // nock.cleanAll() + nock.enableNetConnect()
+  });
+
+  it('должен вернуть задачу', async () => {
+    mockServer.mockGetIssueSuccess('QUEUE-1');
+
+    const result = await client.callTool('yandex_tracker_get_issues', {
+      issueKeys: ['QUEUE-1'],
+    });
+
+    expect(result.issues).toHaveLength(1);
+  });
+});
+```
+
 ## 🔍 CI/CD
 
 В CI/CD pipeline автоматически запускается:

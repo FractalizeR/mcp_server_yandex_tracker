@@ -24,6 +24,11 @@ export default defineConfig({
     fileParallelism: true, // Параллельное выполнение тестовых файлов
     isolate: true, // Изолировать каждый тестовый файл в отдельной среде
 
+    // Случайный порядок выполнения для обнаружения зависимостей между тестами
+    sequence: {
+      shuffle: true, // Тесты выполняются в случайном порядке каждый раз
+    },
+
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
