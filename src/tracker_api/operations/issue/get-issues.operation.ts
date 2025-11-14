@@ -12,20 +12,13 @@
 import { BaseOperation } from '@tracker_api/operations/base-operation.js';
 import { EntityCacheKey, EntityType } from '@infrastructure/cache/entity-cache-key.js';
 import type { IssueWithUnknownFields } from '@tracker_api/entities/index.js';
+import type { BatchResult } from '@types';
 
 /**
- * Результат batch-операции для одной задачи
+ * Результат batch-операции для задач
+ * Использует стандартизированный тип BatchResult из @types
  */
-export interface BatchIssueResult {
-  /** Статус операции */
-  status: 'fulfilled' | 'rejected';
-  /** Ключ задачи */
-  issueKey: string;
-  /** Данные задачи (если успех) - с возможными unknown полями */
-  value?: IssueWithUnknownFields;
-  /** Причина ошибки (если провал) */
-  reason?: Error;
-}
+export type BatchIssueResult = BatchResult<IssueWithUnknownFields>[number];
 
 export class GetIssuesOperation extends BaseOperation {
   /**

@@ -97,7 +97,7 @@ describe('ToolRegistry', () => {
       // Assert
       expect(result.isError).toBeUndefined();
       expect(result.content).toHaveLength(1);
-      expect(result.content[0].type).toBe('text');
+      expect(result.content[0]!.type).toBe('text');
 
       expect(mockLogger.info).toHaveBeenCalledWith('Вызов инструмента: yandex_tracker_ping');
       expect(mockLogger.info).toHaveBeenCalledWith(
@@ -147,9 +147,9 @@ describe('ToolRegistry', () => {
       // Assert
       expect(result.isError).toBe(true);
       expect(result.content).toHaveLength(1);
-      expect(result.content[0].type).toBe('text');
+      expect(result.content[0]!.type).toBe('text');
 
-      const content = JSON.parse(result.content[0].text);
+      const content = JSON.parse(result.content[0]!.text);
       expect(content.success).toBe(false);
       expect(content.message).toContain('не найден');
       expect(content.availableTools).toContain('yandex_tracker_ping');
@@ -172,7 +172,7 @@ describe('ToolRegistry', () => {
       expect(result.isError).toBe(true);
       expect(result.content).toHaveLength(1);
 
-      const content = JSON.parse(result.content[0].text);
+      const content = JSON.parse(result.content[0]!.text);
       expect(content.success).toBe(false);
       expect(content.message).toContain('Ошибка при проверке подключения');
       expect(content.tool).toBeUndefined(); // BaseTool не добавляет tool в formatError
@@ -193,7 +193,7 @@ describe('ToolRegistry', () => {
       // Assert
       expect(result.isError).toBe(true);
 
-      const content = JSON.parse(result.content[0].text);
+      const content = JSON.parse(result.content[0]!.text);
       expect(content.message).toContain('Ошибка при проверке подключения');
     });
 

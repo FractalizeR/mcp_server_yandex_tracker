@@ -129,6 +129,7 @@ container.bind<HttpClient>(TYPES.HttpClient).toDynamicValue(() => { ... });
 - ✅ ТОЛЬКО v3: `/v3/issues`, `/v3/myself`
 - ✅ Batch-операции: `getIssues([keys])`, НЕ `getIssue(key)`
 - ✅ Справка: `yandex_tracker_client/` (Python SDK)
+- ✅ Batch-результаты: используй типы `BatchResult<T>`, `FulfilledResult<T>`, `RejectedResult` из `@types`
 
 ### 5. Фильтрация полей (Response Field Filter)
 
@@ -193,6 +194,7 @@ logger.error('Operation failed', error, { requestId: '456' });
 - ✅ **Vitest** с нативной поддержкой ESM и TypeScript
 - ✅ **TypeScript:** `module: "ES2022"`, `moduleResolution: "bundler"`
 - ✅ Импорты используют расширения `.js` для ESM совместимости
+- ✅ **Баг + тест:** Если исправляешь баг, обязательно добавь тест на этот кейс (если его ещё нет)
 
 ### 9. Архитектурные правила (dependency-cruiser)
 
@@ -226,62 +228,70 @@ logger.error('Operation failed', error, { requestId: '456' });
 
 ---
 
-## 📋 ЧЕК-ЛИСТЫ
+## 📖 КОНВЕНЦИИ ПО КОМПОНЕНТАМ
 
-### Добавление API Tool (прямой доступ к API)
+**ОБЯЗАТЕЛЬНО прочитай соответствующий файл перед работой с компонентом:**
 
-- [ ] Определить тип: API (1 HTTP запрос) или Helper (композитная операция)
-- [ ] Создать структуру `src/mcp/tools/api/{feature}/{action}/`
-- [ ] `{action}.schema.ts` — Zod схема валидации параметров
-- [ ] `{action}.definition.ts` — подробное описание для ИИ агента
-- [ ] `{action}.tool.ts` — наследует `BaseTool`, использует Zod
-- [ ] `index.ts` — экспорт всех компонентов tool
-- [ ] `ResponseFieldFilter.filter()` используется (если применимо)
-- [ ] `src/infrastructure/di/types.ts` — токен `TYPES.{Name}Tool`
-- [ ] `src/infrastructure/di/container.ts` — bind в `bindTools()`
-- [ ] `tests/unit/mcp/tools/api/{feature}/{action}/{action}.tool.test.ts`
-- [ ] `npm run validate` — проходит
+- **MCP Tools** — [src/mcp/CONVENTIONS.md](src/mcp/CONVENTIONS.md)
+  - Переиспользуемые утилиты: `BaseTool`, `BatchResultProcessor`, `ResultLogger`
+  - Шаблоны и чек-листы для API и Helper Tools
+  - Примеры и критические правила
 
-### Добавление Helper Tool (композитные операции)
+- **Operations** — [src/tracker_api/operations/CONVENTIONS.md](src/tracker_api/operations/CONVENTIONS.md)
+  - Работа с `BaseOperation`, `ParallelExecutor`, кешированием
+  - Batch-операции и типобезопасность
+  - Интеграция с Facade
 
-- [ ] Создать структуру `src/mcp/tools/helpers/{feature}/{action}/`
-- [ ] Аналогично API Tool: `.schema.ts`, `.definition.ts`, `.tool.ts`, `index.ts`
-- [ ] Использует несколько API calls или сложную бизнес-логику
-- [ ] Тесты + DI регистрация + валидация
+- **Entities** — [src/tracker_api/entities/CONVENTIONS.md](src/tracker_api/entities/CONVENTIONS.md)
+  - Работа с `WithUnknownFields<T>`
+  - Структура и правила создания
+  - Поддержка кастомных полей API
 
-### Добавление зависимости в DI
+- **DTO** — [src/tracker_api/dto/CONVENTIONS.md](src/tracker_api/dto/CONVENTIONS.md)
+  - Input/Output паттерны
+  - Create/Update DTO
+  - Работа с кастомными полями
 
-- [ ] `src/composition-root/types.ts` → `TYPES.NewService: Symbol.for('NewService')`
-- [ ] `src/composition-root/container.ts` → `container.bind<T>(TYPES.NewService).toDynamicValue(() => { ... })`
-- [ ] Использование: `container.get<T>(TYPES.NewService)`
+- **Dependency Injection** — [src/composition-root/CONVENTIONS.md](src/composition-root/CONVENTIONS.md)
+  - Symbol-based токены
+  - Конфигурация контейнера
+  - Тестирование с DI
+
+---
+
+## 📋 КРАТКИЕ ЧЕК-ЛИСТЫ
+
+**⚠️ Подробные чек-листы — в CONVENTIONS.md файлах выше**
+
+### Добавление MCP Tool
+
+- [ ] 📖 Прочитай [src/mcp/CONVENTIONS.md](src/mcp/CONVENTIONS.md)
+- [ ] Создай структуру `.schema.ts`, `.definition.ts`, `.tool.ts`, `index.ts`
+- [ ] Используй утилиты: `validateParams()`, `BatchResultProcessor`, `ResultLogger`
+- [ ] DI регистрация + тесты
+- [ ] `npm run validate`
 
 ### Добавление Operation
 
-- [ ] `src/tracker_api/operations/{feature}/{name}.operation.ts`
-- [ ] Наследует `BaseOperation`
-- [ ] Метод `execute()` реализован
-- [ ] Экспорт в `operations/{feature}/index.ts`
-- [ ] Метод в `YandexTrackerFacade` (`src/tracker_api/facade/`)
-- [ ] Регистрация в `src/composition-root/container.ts` (bindOperations)
-- [ ] Регистрация в `src/composition-root/types.ts`
-- [ ] `tests/unit/tracker_api/operations/{feature}/{name}.operation.test.ts`
-- [ ] `npm run validate` — проходит (включая depcruise)
+- [ ] 📖 Прочитай [src/tracker_api/operations/CONVENTIONS.md](src/tracker_api/operations/CONVENTIONS.md)
+- [ ] Наследуй `BaseOperation`
+- [ ] Для batch: используй `ParallelExecutor`, возвращай `BatchResult<T>`
+- [ ] Facade метод + DI регистрация + тесты
+- [ ] `npm run validate`
 
 ### Добавление Entity
 
-- [ ] Создать `src/tracker_api/entities/{name}.entity.ts` с базовым типом (только known поля)
-- [ ] Добавить `export type {Name}WithUnknownFields = WithUnknownFields<{Name}>`
-- [ ] Импортировать `WithUnknownFields` из `./types.js`
-- [ ] Экспортировать оба типа в `entities/index.ts`
-- [ ] Тесты (если есть бизнес-логика)
+- [ ] 📖 Прочитай [src/tracker_api/entities/CONVENTIONS.md](src/tracker_api/entities/CONVENTIONS.md)
+- [ ] Создай интерфейс (только known поля)
+- [ ] Создай `{Name}WithUnknownFields = WithUnknownFields<{Name}>`
+- [ ] Экспорт в `index.ts`
 
 ### Добавление DTO
 
-- [ ] Создать `src/tracker_api/dto/{feature}/{name}.dto.ts` (только known поля)
-- [ ] Для input DTO — можно добавить `[key: string]: unknown` для кастомных полей
-- [ ] Экспортировать в `dto/{feature}/index.ts` и `dto/index.ts`
-- [ ] Использовать в operations для input параметров
-- [ ] Operations возвращают `*WithUnknownFields`, принимают DTO
+- [ ] 📖 Прочитай [src/tracker_api/dto/CONVENTIONS.md](src/tracker_api/dto/CONVENTIONS.md)
+- [ ] Создай Input DTO (с `[key: string]: unknown` если нужно)
+- [ ] Для update — все поля опциональны
+- [ ] Экспорт в `index.ts`
 
 ### Перед коммитом
 
@@ -300,34 +310,14 @@ logger.error('Operation failed', error, { requestId: '456' });
 
 ---
 
-## 📁 СТРУКТУРА (краткая)
+## 📁 СТРУКТУРА
 
 ```
 src/
-├── composition-root/    # Высший слой: Composition Root (DI контейнер)
-│   ├── types.ts         # Symbol-based токены (TYPES)
-│   ├── container.ts     # Создание и конфигурация DI контейнера
-│   └── index.ts         # Публичный API
-├── infrastructure/      # Инфраструктурный слой (переиспользуемый)
-│   ├── http/            # HTTP клиент + retry + error mapping
-│   ├── cache/           # Кеширование (NoOpCache, EntityCacheKey)
-│   ├── async/           # Параллелизация (ParallelExecutor)
-│   ├── logging/         # Pino логирование (Logger, LoggerConfig)
-│   └── config.ts        # Конфигурация из env
-├── tracker_api/         # Слой работы с Яндекс.Трекер API
-│   ├── entities/        # Issue, User
-│   ├── operations/      # API v3 операции (internal, через Facade)
-│   └── facade/          # YandexTrackerFacade (публичный API)
-├── mcp/                 # Application layer (MCP сервер)
-│   ├── tools/           # MCP tools
-│   │   ├── base/        # BaseTool, BaseToolDefinition
-│   │   ├── common/      # Переиспользуемые Zod схемы
-│   │   ├── api/         # API tools (1 tool = 1 API endpoint)
-│   │   └── helpers/     # Композитные операции
-│   ├── utils/           # ResponseFieldFilter
-│   └── tool-registry.ts # Регистрация tools
-├── types.ts             # Общие типы (ServerConfig, ApiError, etc.)
-└── index.ts             # Entry point
+├── composition-root/    # DI контейнер (см. CONVENTIONS.md)
+├── infrastructure/      # HTTP, кеш, логирование, параллелизация
+├── tracker_api/         # Operations, Entities, DTO, Facade
+└── mcp/                 # Tools (API + Helpers), Utils, Registry
 
 tests/unit/              # Зеркалирует src/
 ```
@@ -338,7 +328,6 @@ tests/unit/              # Зеркалирует src/
 
 ## 🔗 ДОПОЛНИТЕЛЬНО
 
-- **Архитектура:** [ARCHITECTURE.md](./ARCHITECTURE.md) — поток данных, компоненты, паттерны
-- **DI подход:** [docs/di-usage-example.md](./docs/di-usage-example.md) — использование в тестах
-- **Python API:** `yandex_tracker_client/` — справка по API Яндекс.Трекер
-- **Batch операции:** [ARCHITECTURE.md](./ARCHITECTURE.md) (секция "Batch-операции")
+- **Архитектура:** [ARCHITECTURE.md](./ARCHITECTURE.md)
+- **DI использование:** [docs/di-usage-example.md](./docs/di-usage-example.md)
+- **API справка:** `yandex_tracker_client/` (Python SDK)

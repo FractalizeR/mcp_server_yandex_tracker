@@ -65,9 +65,9 @@ describe('PingTool', () => {
       // Assert
       expect(result.isError).toBeUndefined();
       expect(result.content).toHaveLength(1);
-      expect(result.content[0].type).toBe('text');
+      expect(result.content[0]!.type).toBe('text');
 
-      const content = JSON.parse(result.content[0].text);
+      const content = JSON.parse(result.content[0]!.text);
       expect(content.success).toBe(true);
       expect(content.data.message).toContain('Test User');
       expect(content.data.timestamp).toBeDefined();
@@ -90,9 +90,9 @@ describe('PingTool', () => {
       // Assert
       expect(result.isError).toBe(true);
       expect(result.content).toHaveLength(1);
-      expect(result.content[0].type).toBe('text');
+      expect(result.content[0]!.type).toBe('text');
 
-      const content = JSON.parse(result.content[0].text);
+      const content = JSON.parse(result.content[0]!.text);
       expect(content.success).toBe(false);
       expect(content.message).toContain('Ошибка при проверке подключения');
       expect(content.error).toContain('Connection failed');
@@ -114,7 +114,7 @@ describe('PingTool', () => {
       const result = await tool.execute(params);
 
       // Assert
-      const content = JSON.parse(result.content[0].text);
+      const content = JSON.parse(result.content[0]!.text);
       expect(content.data.timestamp).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
     });
 

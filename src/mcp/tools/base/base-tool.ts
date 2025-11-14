@@ -11,6 +11,7 @@ import type { YandexTrackerFacade } from '@tracker_api/facade/yandex-tracker.fac
 import type { Logger } from '@infrastructure/logging/index.js';
 import type { ToolCallParams, ToolResult } from '@types';
 import type { ToolDefinition } from '@mcp/tools/base/base-definition.js';
+import type { ZodSchema, ZodError } from 'zod';
 
 /**
  * Абстрактный базовый класс для всех инструментов
@@ -18,6 +19,7 @@ import type { ToolDefinition } from '@mcp/tools/base/base-definition.js';
  * Инкапсулирует общую логику:
  * - Доступ к Yandex Tracker Facade (высокоуровневый API)
  * - Логирование
+ * - Валидация параметров через Zod
  * - Обработка ошибок
  * - Форматирование результатов
  */
@@ -39,6 +41,32 @@ export abstract class BaseTool {
    * Выполнить инструмент
    */
   abstract execute(params: ToolCallParams): Promise<ToolResult>;
+
+  /**
+   * Валидация параметров через Zod
+   *
+   * @param params - параметры для валидации
+   * @param schema - Zod схема валидации
+   * @returns результат валидации или ToolResult с ошибкой
+   */
+  protected validateParams<T>(
+    params: ToolCallParams,
+    schema: ZodSchema<T>
+  ): { success: true; data: T } | { success: false; error: ToolResult } {
+    const validationResult = schema.safeParse(params);
+
+    if (!validationResult.success) {
+      return {
+        success: false,
+        error: this.formatValidationError(validationResult.error),
+      };
+    }
+
+    return {
+      success: true,
+      data: validationResult.data,
+    };
+  }
 
   /**
    * Форматирование успешного результата
@@ -84,5 +112,13 @@ export abstract class BaseTool {
       ],
       isError: true,
     };
+  }
+
+  /**
+   * Форматирование ошибки валидации Zod
+   */
+  private formatValidationError(zodError: ZodError): ToolResult {
+    const errorMessage = zodError.errors.map((e) => e.message).join('; ');
+    return this.formatError('Ошибка валидации параметров', new Error(errorMessage));
   }
 }

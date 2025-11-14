@@ -140,3 +140,26 @@ export interface ToolResult {
   isError?: boolean;
   [key: string]: unknown;
 }
+
+/**
+ * Успешный результат batch-операции
+ */
+export interface FulfilledResult<T> {
+  status: 'fulfilled';
+  issueKey: string;
+  value: T;
+}
+
+/**
+ * Неудачный результат batch-операции
+ */
+export interface RejectedResult {
+  status: 'rejected';
+  issueKey: string;
+  reason: Error;
+}
+
+/**
+ * Результат batch-операции (массив успешных и неудачных результатов)
+ */
+export type BatchResult<T> = Array<FulfilledResult<T> | RejectedResult>;

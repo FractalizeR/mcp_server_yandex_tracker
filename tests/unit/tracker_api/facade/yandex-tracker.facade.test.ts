@@ -153,14 +153,14 @@ describe('YandexTrackerFacade', () => {
 
       // Assert
       expect(results).toHaveLength(2);
-      expect(results[0].status).toBe('fulfilled');
-      expect(results[1].status).toBe('fulfilled');
+      expect(results[0]!.status).toBe('fulfilled');
+      expect(results[1]!.status).toBe('fulfilled');
 
-      if (results[0].status === 'fulfilled') {
-        expect(results[0].value.key).toBe('TEST-1');
+      if (results[0]!.status === 'fulfilled') {
+        expect(results[0]!.value.key).toBe('TEST-1');
       }
-      if (results[1].status === 'fulfilled') {
-        expect(results[1].value.key).toBe('TEST-2');
+      if (results[1]!.status === 'fulfilled') {
+        expect(results[1]!.value.key).toBe('TEST-2');
       }
 
       expect(mockHttpClient.get).toHaveBeenCalledWith('/v3/issues/TEST-1');
@@ -191,15 +191,15 @@ describe('YandexTrackerFacade', () => {
 
       // Assert
       expect(results).toHaveLength(2);
-      expect(results[0].status).toBe('fulfilled');
-      expect(results[1].status).toBe('rejected');
+      expect(results[0]!.status).toBe('fulfilled');
+      expect(results[1]!.status).toBe('rejected');
 
-      if (results[0].status === 'fulfilled') {
-        expect(results[0].value.key).toBe('TEST-1');
+      if (results[0]!.status === 'fulfilled') {
+        expect(results[0]!.value.key).toBe('TEST-1');
       }
-      if (results[1].status === 'rejected') {
-        expect(results[1].reason).toBeInstanceOf(Error);
-        expect(results[1].reason.message).toBe('Not Found');
+      if (results[1]!.status === 'rejected') {
+        expect(results[1]!.reason).toBeInstanceOf(Error);
+        expect(results[1]!.reason.message).toBe('Not Found');
       }
     });
 
