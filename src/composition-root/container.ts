@@ -51,7 +51,7 @@ function bindInfrastructure(container: Container, config: ServerConfig): void {
   container.bind<Logger>(TYPES.Logger).toDynamicValue(() => {
     return new Logger({
       level: config.logLevel,
-      logsDir: config.prettyLogs ? undefined : config.logsDir,
+      ...(!config.prettyLogs && config.logsDir && { logsDir: config.logsDir }),
       pretty: config.prettyLogs,
       rotation: {
         maxSize: config.logMaxSize,
@@ -79,8 +79,8 @@ function bindHttpLayer(container: Container): void {
         baseURL: configInstance.apiBase,
         timeout: configInstance.requestTimeout,
         token: configInstance.token,
-        orgId: configInstance.orgId,
-        cloudOrgId: configInstance.cloudOrgId,
+        ...(configInstance.orgId && { orgId: configInstance.orgId }),
+        ...(configInstance.cloudOrgId && { cloudOrgId: configInstance.cloudOrgId }),
         maxBatchSize: configInstance.maxBatchSize,
         maxConcurrentRequests: configInstance.maxConcurrentRequests,
       },

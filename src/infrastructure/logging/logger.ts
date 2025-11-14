@@ -145,7 +145,9 @@ export class Logger {
   child(bindings: Record<string, unknown>): Logger {
     const childLogger = new Logger({ level: this.pino.level as LogLevel });
     childLogger.pino = this.pino.child(bindings);
-    childLogger.alerting = this.alerting;
+    if (this.alerting) {
+      childLogger.alerting = this.alerting;
+    }
     return childLogger;
   }
 

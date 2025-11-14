@@ -14,7 +14,6 @@ import { ResponseFieldFilter, ResultLogger } from '@mcp/utils/index.js';
 import type { IssueWithUnknownFields } from '@tracker_api/entities/index.js';
 import { FindIssuesDefinition } from '@mcp/tools/api/issues/find/find-issues.definition.js';
 import { FindIssuesParamsSchema } from '@mcp/tools/api/issues/find/find-issues.schema.js';
-import type { FindIssuesInputDto } from '@tracker_api/dto/index.js';
 
 /**
  * Инструмент для поиска задач
@@ -75,8 +74,18 @@ export class FindIssuesTool extends BaseTool {
       });
 
       // 3. API v3: поиск задач через findIssues
-      const inputDto: FindIssuesInputDto = searchParams;
-      const issues = await this.trackerFacade.findIssues(inputDto);
+      // Строим объект с условным добавлением свойств для совместимости с exactOptionalPropertyTypes
+      const issues = await this.trackerFacade.findIssues({
+        ...(searchParams.query && { query: searchParams.query }),
+        ...(searchParams.filter && { filter: searchParams.filter }),
+        ...(searchParams.keys && { keys: searchParams.keys }),
+        ...(searchParams.queue && { queue: searchParams.queue }),
+        ...(searchParams.filterId && { filterId: searchParams.filterId }),
+        ...(searchParams.order && { order: searchParams.order }),
+        ...(searchParams.perPage !== undefined && { perPage: searchParams.perPage }),
+        ...(searchParams.page !== undefined && { page: searchParams.page }),
+        ...(searchParams.expand && { expand: searchParams.expand }),
+      });
 
       // 4. Фильтрация полей (если указаны)
       const filteredIssues = fields

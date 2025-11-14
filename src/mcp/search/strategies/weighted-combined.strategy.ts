@@ -71,7 +71,7 @@ export class WeightedCombinedStrategy implements ISearchStrategy {
           aggregated.set(toolName, {
             toolName,
             score: weightedScore,
-            matchReason: result.matchReason,
+            ...(result.matchReason && { matchReason: result.matchReason }),
             strategyType,
             matchDetails: {
               [strategyType]: result.score,
@@ -82,7 +82,9 @@ export class WeightedCombinedStrategy implements ISearchStrategy {
           // Берём максимальный weighted score
           if (weightedScore > existing.score) {
             existing.score = weightedScore;
-            existing.matchReason = result.matchReason;
+            if (result.matchReason) {
+              existing.matchReason = result.matchReason;
+            }
             existing.strategyType = strategyType;
           }
 

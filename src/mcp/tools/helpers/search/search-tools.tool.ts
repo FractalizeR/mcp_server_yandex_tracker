@@ -74,7 +74,7 @@ export class SearchToolsTool {
       category: SearchToolsTool.METADATA.category,
       tags: SearchToolsTool.METADATA.tags,
       isHelper: SearchToolsTool.METADATA.isHelper,
-      examples: SearchToolsTool.METADATA.examples,
+      ...(SearchToolsTool.METADATA.examples && { examples: SearchToolsTool.METADATA.examples }),
     };
   }
 
@@ -107,8 +107,8 @@ export class SearchToolsTool {
         this.searchEngine.search({
           query,
           detailLevel: detailLevel ?? 'name_and_description',
-          category,
-          isHelper,
+          ...(category !== undefined && { category }),
+          ...(isHelper !== undefined && { isHelper }),
           limit: limit ?? 10,
         })
       );

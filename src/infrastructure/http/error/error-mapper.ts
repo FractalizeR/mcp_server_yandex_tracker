@@ -55,25 +55,24 @@ export class ErrorMapper {
       };
     }
 
-    // Извлекаем сообщение об ошибке из различных форматов ответа
-    // Используем || для fallback chain (пропускаем пустые строки из API)
-    const errorMessages = data['errorMessages'] as string[] | undefined;
-    // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-    const message = errorMessages?.[0] || (data['message'] as string) || error.message;
-
-    const apiError: ApiError = {
-      statusCode: error.response.status,
-      message,
-      errors: data['errors'] as Record<string, string[]> | undefined,
-    };
-
     // Специальная обработка rate limiting (429 ошибка)
     // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
     if (error.response.status === HttpStatusCode.TOO_MANY_REQUESTS) {
       return this.mapRateLimitError(error);
     }
 
-    return apiError;
+    // Извлекаем сообщение об ошибке из различных форматов ответа
+    // Используем || для fallback chain (пропускаем пустые строки из API)
+    const errorMessages = data['errorMessages'] as string[] | undefined;
+    // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+    const message = errorMessages?.[0] || (data['message'] as string) || error.message;
+    const errors = data['errors'] as Record<string, string[]> | undefined;
+
+    return {
+      statusCode: error.response.status,
+      message,
+      ...(errors && { errors }),
+    };
   }
 
   /**

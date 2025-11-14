@@ -63,7 +63,7 @@ export abstract class BaseTool {
       category: metadata.category,
       tags: metadata.tags,
       isHelper: metadata.isHelper,
-      examples: metadata.examples,
+      ...(metadata.examples && { examples: metadata.examples }),
     };
   }
 

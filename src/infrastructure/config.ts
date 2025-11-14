@@ -90,8 +90,8 @@ function validateOrgIds(
   }
 
   return {
-    orgId: hasOrgId ? orgId.trim() : undefined,
-    cloudOrgId: hasCloudOrgId ? cloudOrgId.trim() : undefined,
+    ...(hasOrgId && { orgId: orgId.trim() }),
+    ...(hasCloudOrgId && { cloudOrgId: cloudOrgId.trim() }),
   };
 }
 
@@ -116,7 +116,7 @@ export function loadConfig(): ServerConfig {
   );
 
   // Используем || для дефолтных значений, так как пустая строка должна быть заменена
-   
+
   const apiBase =
     process.env['YANDEX_TRACKER_API_BASE']?.trim() || 'https://api.tracker.yandex.net';
   // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing

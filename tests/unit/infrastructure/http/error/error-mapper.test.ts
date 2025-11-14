@@ -223,7 +223,7 @@ describe('ErrorMapper', () => {
         const axiosError = createAxiosError({
           message: 'Network Error',
           request: {}, // Запрос был отправлен
-          response: undefined, // Нет ответа
+          // response: undefined - не передаем, если нет ответа
         });
 
         const result: ApiError = ErrorMapper.mapAxiosError(axiosError);
@@ -237,7 +237,7 @@ describe('ErrorMapper', () => {
           message: 'timeout of 5000ms exceeded',
           code: 'ECONNABORTED',
           request: {},
-          response: undefined,
+          // response: undefined - не передаем, если нет ответа
         });
 
         const result: ApiError = ErrorMapper.mapAxiosError(axiosError);
@@ -251,8 +251,7 @@ describe('ErrorMapper', () => {
       it('должен обработать ошибку конфигурации', () => {
         const axiosError = createAxiosError({
           message: 'Invalid URL',
-          request: undefined,
-          response: undefined,
+          // request: undefined, response: undefined - не передаем, если нет
         });
 
         const result: ApiError = ErrorMapper.mapAxiosError(axiosError);
@@ -264,8 +263,7 @@ describe('ErrorMapper', () => {
       it('должен обработать отсутствие сообщения', () => {
         const axiosError = createAxiosError({
           message: '', // Пустое сообщение
-          request: undefined,
-          response: undefined,
+          // request: undefined, response: undefined - не передаем, если нет
         });
 
         const result: ApiError = ErrorMapper.mapAxiosError(axiosError);

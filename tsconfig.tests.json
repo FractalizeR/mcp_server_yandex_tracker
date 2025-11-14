@@ -4,7 +4,7 @@
     /* Наследуем все строгие правила из основного tsconfig.json */
     "noEmit": true,  /* Только проверка типов, без генерации файлов */
     "types": ["node", "vitest/globals"],  /* Глобальные типы для тестов */
-    "rootDir": ".",   /* Переопределяем rootDir для включения tests/ */
+    "rootDir": ".",   /* Переопределяем rootDir для включения tests/ и vitest.config.ts */
     "paths": {
       "@composition-root/*": ["./src/composition-root/*"],
       "@infrastructure/*": ["./src/infrastructure/*"],
