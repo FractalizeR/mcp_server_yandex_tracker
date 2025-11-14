@@ -19,11 +19,11 @@
     "key": "cancelled"
   },
   "resolvedBy": {
-    "self": "https://api.tracker.yandex.net/v3/users/4130000038722754",
-    "id": "4130000038722754",
-    "display": "Автор",
-    "cloudUid": "vjevubv24oen99t8pn5l",
-    "passportUid": 4130000038722754
+    "self": "https://api.tracker.yandex.net/v3/users/1130000000000001",
+    "id": "1130000000000001",
+    "display": "Тестовый Пользователь",
+    "cloudUid": "ajexxxxxxxxxxxxxxxx1",
+    "passportUid": 1130000000000001
   },
   "boards": [
     {
@@ -49,35 +49,35 @@
     "display": "Не будет исправлено"
   },
   "previousStatusLastAssignee": {
-    "self": "https://api.tracker.yandex.net/v3/users/4130000038722754",
-    "id": "4130000038722754",
-    "display": "Автор задачи",
-    "cloudUid": "vjevubv24oen99t8pn5l",
-    "passportUid": 4130000038722754
+    "self": "https://api.tracker.yandex.net/v3/users/1130000000000001",
+    "id": "1130000000000001",
+    "display": "Тестовый Пользователь",
+    "cloudUid": "ajexxxxxxxxxxxxxxxx1",
+    "passportUid": 1130000000000001
   },
   "createdAt": "2022-04-11T08:49:50.935+0000",
   "createdBy": {
-    "self": "https://api.tracker.yandex.net/v3/users/4130000038722754",
-    "id": "4130000038722754",
-    "display": "Автор задачи",
-    "cloudUid": "vjevubv24oen99t8pn5l",
-    "passportUid": 4130000038722754
+    "self": "https://api.tracker.yandex.net/v3/users/1130000000000001",
+    "id": "1130000000000001",
+    "display": "Тестовый Пользователь",
+    "cloudUid": "ajexxxxxxxxxxxxxxxx1",
+    "passportUid": 1130000000000001
   },
   "commentWithoutExternalMessageCount": 0,
   "votes": 0,
   "commentWithExternalMessageCount": 0,
   "assignee": {
-    "self": "https://api.tracker.yandex.net/v3/users/4130000038722754",
-    "id": "4130000038722754",
-    "display": "Автор задачи",
-    "cloudUid": "vjevubv24oen99t8pn5l",
-    "passportUid": 4130000038722754
+    "self": "https://api.tracker.yandex.net/v3/users/1130000000000001",
+    "id": "1130000000000001",
+    "display": "Тестовый Пользователь",
+    "cloudUid": "ajexxxxxxxxxxxxxxxx1",
+    "passportUid": 1130000000000001
   },
   "queue": {
-    "self": "https://api.tracker.yandex.net/v3/queues/DEVOPS",
+    "self": "https://api.tracker.yandex.net/v3/queues/TESTQUEUE",
     "id": "9",
-    "key": "DEVOPS",
-    "display": "DEVOPS"
+    "key": "TESTQUEUE",
+    "display": "TESTQUEUE"
   },
   "updatedAt": "2023-06-05T11:58:52.516+0000",
   "status": {

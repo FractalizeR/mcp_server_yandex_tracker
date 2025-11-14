@@ -1,24 +1,24 @@
 {
-  "self": "https://api.tracker.yandex.net/v2/users/1130000048722754",
-  "uid": 1130000048722754,
-  "login": "vr",
-  "trackerUid": 1130000048722754,
-  "passportUid": 1130000048722754,
-  "cloudUid": "ajevubf24pen24t8pn5l",
-  "firstName": "Владислав",
-  "lastName": "Раструсный",
-  "display": "Владислав Раструсный",
-  "email": "vr@dvizh.io",
+  "self": "https://api.tracker.yandex.net/v2/users/1130000000000001",
+  "uid": 1130000000000001,
+  "login": "testuser",
+  "trackerUid": 1130000000000001,
+  "passportUid": 1130000000000001,
+  "cloudUid": "ajexxxxxxxxxxxxxxxx1",
+  "firstName": "Тестовый",
+  "lastName": "Пользователь",
+  "display": "Тестовый Пользователь",
+  "email": "testuser@example.com",
   "external": false,
   "hasLicense": true,
   "dismissed": false,
   "useNewFilters": true,
   "disableNotifications": false,
-  "firstLoginDate": "2022-03-09T12:07:24.270+0000",
-  "lastLoginDate": "2025-11-14T08:45:46.899+0000",
+  "firstLoginDate": "2022-01-01T10:00:00.000+0000",
+  "lastLoginDate": "2025-01-15T12:00:00.000+0000",
   "welcomeMailSent": true,
   "sources": [
     "directory"
   ],
-  "position": "CTO"
+  "position": "Специалист"
 }
