@@ -1,0 +1,175 @@
+/**
+ * InversifyJS DI Container
+ *
+ * Централизованная конфигурация всех зависимостей проекта.
+ * Использует Symbol-based токены для типобезопасной привязки.
+ */
+
+import 'reflect-metadata';
+import { Container } from 'inversify';
+import type { ServerConfig } from '../../types.js';
+import type { Logger } from '../logger.js';
+import { TYPES } from './types.js';
+
+// HTTP Layer
+import { HttpClient } from '../http/client/http-client.js';
+import { RetryHandler } from '../http/retry/retry-handler.js';
+import type { RetryStrategy } from '../http/retry/retry-strategy.interface.js';
+import { ExponentialBackoffStrategy } from '../http/retry/exponential-backoff.strategy.js';
+
+// Cache Layer
+import type { CacheManager } from '../cache/cache-manager.interface.js';
+import { NoOpCache } from '../cache/no-op-cache.js';
+
+// Yandex Tracker Operations
+import { PingOperation } from '../../domain/operations/user/ping.operation.js';
+import { GetIssuesOperation } from '../../domain/operations/issue/get-issues.operation.js';
+import { CreateIssuesOperation } from '../../domain/operations/issue/create-issues.operation.js';
+import { UpdateIssuesOperation } from '../../domain/operations/issue/update-issues.operation.js';
+import { DeleteIssuesOperation } from '../../domain/operations/issue/delete-issues.operation.js';
+
+// Yandex Tracker Facade
+import { YandexTrackerFacade } from '../../domain/facade/yandex-tracker.facade.js';
+
+// Tools
+import { PingTool } from '../../mcp/tools/ping.tool.js';
+import { GetIssuesTool } from '../../mcp/tools/get-issues.tool.js';
+
+// Tool Registry
+import { ToolRegistry } from '../../mcp/tool-registry.js';
+
+/**
+ * Регистрация базовых зависимостей (config, logger)
+ */
+function bindInfrastructure(container: Container, config: ServerConfig, logger: Logger): void {
+  container.bind<ServerConfig>(TYPES.ServerConfig).toConstantValue(config);
+  container.bind<Logger>(TYPES.Logger).toConstantValue(logger);
+}
+
+/**
+ * Регистрация HTTP слоя (retry, http client)
+ */
+function bindHttpLayer(container: Container): void {
+  container.bind<RetryStrategy>(TYPES.RetryStrategy).toConstantValue(
+    new ExponentialBackoffStrategy(3, 1000, 10000)
+  );
+
+  container.bind<HttpClient>(TYPES.HttpClient).toDynamicValue(() => {
+    const retryStrategy = container.get<RetryStrategy>(TYPES.RetryStrategy);
+    const loggerInstance = container.get<Logger>(TYPES.Logger);
+    const configInstance = container.get<ServerConfig>(TYPES.ServerConfig);
+
+    return new HttpClient(
+      {
+        baseURL: configInstance.apiBase,
+        timeout: configInstance.requestTimeout,
+        token: configInstance.token,
+        orgId: configInstance.orgId,
+        cloudOrgId: configInstance.cloudOrgId,
+        maxBatchSize: configInstance.maxBatchSize,
+        maxConcurrentRequests: configInstance.maxConcurrentRequests,
+      },
+      loggerInstance,
+      retryStrategy
+    );
+  });
+
+  container.bind<RetryHandler>(TYPES.RetryHandler).toDynamicValue(() => {
+    const retryStrategy = container.get<RetryStrategy>(TYPES.RetryStrategy);
+    const loggerInstance = container.get<Logger>(TYPES.Logger);
+    return new RetryHandler(retryStrategy, loggerInstance);
+  });
+}
+
+/**
+ * Регистрация кеша
+ */
+function bindCacheLayer(container: Container): void {
+  container.bind<CacheManager>(TYPES.CacheManager).to(NoOpCache);
+}
+
+/**
+ * Регистрация операций Yandex Tracker
+ */
+function bindOperations(container: Container): void {
+  // Все операции наследуют BaseOperation с конструктором (httpClient, retryHandler, cacheManager, logger)
+  const operations = [
+    { type: TYPES.PingOperation, class: PingOperation },
+    { type: TYPES.GetIssuesOperation, class: GetIssuesOperation },
+    { type: TYPES.CreateIssuesOperation, class: CreateIssuesOperation },
+    { type: TYPES.UpdateIssuesOperation, class: UpdateIssuesOperation },
+    { type: TYPES.DeleteIssuesOperation, class: DeleteIssuesOperation },
+  ];
+
+  operations.forEach(({ type, class: OperationClass }) => {
+    container.bind(type).toDynamicValue(() => {
+      const httpClient = container.get<HttpClient>(TYPES.HttpClient);
+      const retryHandler = container.get<RetryHandler>(TYPES.RetryHandler);
+      const cacheManager = container.get<CacheManager>(TYPES.CacheManager);
+      const loggerInstance = container.get<Logger>(TYPES.Logger);
+      return new OperationClass(httpClient, retryHandler, cacheManager, loggerInstance);
+    });
+  });
+}
+
+/**
+ * Регистрация Facade
+ */
+function bindFacade(container: Container): void {
+  container.bind<YandexTrackerFacade>(TYPES.YandexTrackerFacade).toDynamicValue(() => {
+    const httpClient = container.get<HttpClient>(TYPES.HttpClient);
+    const retryHandler = container.get<RetryHandler>(TYPES.RetryHandler);
+    const cacheManager = container.get<CacheManager>(TYPES.CacheManager);
+    const loggerInstance = container.get<Logger>(TYPES.Logger);
+    const configInstance = container.get<ServerConfig>(TYPES.ServerConfig);
+    return new YandexTrackerFacade(httpClient, retryHandler, cacheManager, loggerInstance, configInstance);
+  });
+}
+
+/**
+ * Регистрация Tools
+ */
+function bindTools(container: Container): void {
+  const tools = [
+    { type: TYPES.PingTool, class: PingTool },
+    { type: TYPES.GetIssuesTool, class: GetIssuesTool },
+  ];
+
+  tools.forEach(({ type, class: ToolClass }) => {
+    container.bind(type).toDynamicValue(() => {
+      const facade = container.get<YandexTrackerFacade>(TYPES.YandexTrackerFacade);
+      const loggerInstance = container.get<Logger>(TYPES.Logger);
+      return new ToolClass(facade, loggerInstance);
+    });
+  });
+}
+
+/**
+ * Регистрация ToolRegistry
+ */
+function bindToolRegistry(container: Container): void {
+  container.bind<ToolRegistry>(TYPES.ToolRegistry).toDynamicValue(() => {
+    const facade = container.get<YandexTrackerFacade>(TYPES.YandexTrackerFacade);
+    const loggerInstance = container.get<Logger>(TYPES.Logger);
+    return new ToolRegistry(facade, loggerInstance);
+  });
+}
+
+/**
+ * Создание и конфигурация DI контейнера
+ */
+export function createContainer(config: ServerConfig, logger: Logger): Container {
+  const container = new Container({
+    defaultScope: 'Singleton',  // Все зависимости по умолчанию Singleton
+  });
+
+  bindInfrastructure(container, config, logger);
+  bindHttpLayer(container);
+  bindCacheLayer(container);
+  bindOperations(container);
+  bindFacade(container);
+  bindTools(container);
+  bindToolRegistry(container);
+
+  return container;
+}

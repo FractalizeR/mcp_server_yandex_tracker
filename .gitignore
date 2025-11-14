@@ -1,0 +1,47 @@
+# Зависимости
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# Скомпилированные файлы
+dist/
+*.js
+*.js.map
+*.d.ts
+
+# Исключения для корневых конфигурационных файлов
+!*.config.js
+!eslint.config.js
+
+# Временные файлы
+*.log
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Переменные окружения (важно для безопасности!)
+.env
+.env.local
+.env.*.local
+
+# Тестирование
+coverage/
+.nyc_output/
+
+# Архивы бандла
+*.mcpb
+*.zip
+
+# Отладка
+debug/

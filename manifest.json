@@ -1,0 +1,99 @@
+{
+  "manifest_version": "0.3",
+  "name": "yandex-tracker-mcp",
+  "version": "0.1.0",
+  "display_name": "Яндекс.Трекер",
+  "description": "MCP сервер для интеграции с Яндекс.Трекером",
+  "long_description": "# Яндекс.Трекер MCP Bundle\n\nПолнофункциональный MCP сервер для работы с API Яндекс.Трекера. Позволяет управлять задачами, проектами, досками и другими сущностями трекера из LLM-моделей.\n\n## Возможности\n\n- Создание и редактирование задач\n- Управление проектами и досками\n- Работа с комментариями и вложениями\n- Фильтрация и поиск задач\n- Управление пользователями и командами\n\n## Безопасность\n\nСервер работает локально и использует OAuth-токен для аутентификации в API Яндекс.Трекера. Все данные передаются по защищённым каналам (HTTPS).",
+  "author": {
+    "name": "Fractalizer",
+    "email": "fractalizer@example.com"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/fractalizer/yandex-tracker-mcp",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fractalizer/yandex-tracker-mcp"
+  },
+  "keywords": [
+    "yandex",
+    "tracker",
+    "task-management",
+    "project-management",
+    "api",
+    "mcp"
+  ],
+  "server": {
+    "type": "node",
+    "entry_point": "dist/index.js",
+    "mcp_config": {
+      "command": "node",
+      "args": [
+        "${__dirname}/dist/index.js"
+      ],
+      "env": {
+        "YANDEX_TRACKER_TOKEN": "${user_config.oauth_token}",
+        "YANDEX_ORG_ID": "${user_config.org_id}",
+        "YANDEX_TRACKER_API_BASE": "https://api.tracker.yandex.net",
+        "LOG_LEVEL": "${user_config.log_level}",
+        "REQUEST_TIMEOUT": "${user_config.request_timeout}"
+      }
+    }
+  },
+  "user_config": {
+    "oauth_token": {
+      "type": "string",
+      "description": "OAuth токен для доступа к API Яндекс.Трекера. Получить можно в настройках OAuth приложения Яндекса.",
+      "required": true,
+      "sensitive": true
+    },
+    "org_id": {
+      "type": "string",
+      "description": "ID организации в Яндекс.Трекере. Можно найти в настройках организации.",
+      "required": true,
+      "sensitive": false
+    },
+    "log_level": {
+      "type": "string",
+      "description": "Уровень логирования: debug, info, warn, error",
+      "required": false,
+      "default": "info",
+      "sensitive": false
+    },
+    "request_timeout": {
+      "type": "number",
+      "description": "Таймаут запросов к API (в миллисекундах)",
+      "required": false,
+      "default": 30000,
+      "min": 5000,
+      "max": 120000,
+      "sensitive": false
+    }
+  },
+  "tools": [
+    {
+      "name": "yandex_tracker_ping",
+      "description": "Проверка доступности API Яндекс.Трекера и валидности токена"
+    }
+  ],
+  "tools_generated": false,
+  "compatibility": {
+    "claude_desktop": ">=0.10.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ],
+    "node": ">=16.0.0"
+  },
+  "privacy_policies": [
+    {
+      "service": "Яндекс.Трекер API",
+      "url": "https://yandex.ru/legal/confidential/"
+    }
+  ],
+  "_meta": {
+    "generated_by": "manual",
+    "last_updated": "2025-11-11"
+  }
+}
