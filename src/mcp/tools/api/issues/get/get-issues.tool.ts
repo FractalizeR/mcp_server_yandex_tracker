@@ -7,7 +7,7 @@
  * - Валидация через Zod
  */
 
-import { BaseTool } from '@mcp/tools/base/index.js';
+import { BaseTool, ToolCategory } from '@mcp/tools/base/index.js';
 import type { ToolDefinition } from '@mcp/tools/base/index.js';
 import type { ToolCallParams, ToolResult } from '@types';
 import { ResponseFieldFilter, BatchResultProcessor, ResultLogger } from '@mcp/utils/index.js';
@@ -31,9 +31,20 @@ import { GetIssuesParamsSchema } from '@mcp/tools/api/issues/get/get-issues.sche
  * - ResultLogger - стандартизированное логирование
  */
 export class GetIssuesTool extends BaseTool {
+  /**
+   * Статические метаданные для compile-time индексации
+   */
+  static override readonly METADATA = {
+    name: 'yandex_tracker_get_issues',
+    description: 'Получить задачи по ключам (batch операция)',
+    category: ToolCategory.ISSUES,
+    tags: ['issue', 'get', 'batch', 'read'],
+    isHelper: false,
+  } as const;
+
   private readonly definition = new GetIssuesDefinition();
 
-  getDefinition(): ToolDefinition {
+  override getDefinition(): ToolDefinition {
     return this.definition.build();
   }
 

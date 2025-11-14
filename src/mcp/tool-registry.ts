@@ -62,6 +62,20 @@ export class ToolRegistry {
   }
 
   /**
+   * Получить tool по имени
+   */
+  getTool(name: string): BaseTool | undefined {
+    return this.tools.get(name);
+  }
+
+  /**
+   * Получить все зарегистрированные tools
+   */
+  getAllTools(): BaseTool[] {
+    return Array.from(this.tools.values());
+  }
+
+  /**
    * Выполнить инструмент по имени
    */
   async execute(name: string, params: ToolCallParams): Promise<ToolResult> {

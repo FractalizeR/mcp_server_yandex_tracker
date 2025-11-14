@@ -7,7 +7,7 @@
  * - Мгновенное выполнение
  */
 
-import { BaseTool } from '@mcp/tools/base/index.js';
+import { BaseTool, ToolCategory } from '@mcp/tools/base/index.js';
 import type { ToolDefinition } from '@mcp/tools/base/index.js';
 import type { ToolCallParams, ToolResult } from '@types';
 import { IssueUrlDefinition } from '@mcp/tools/helpers/issue-url/issue-url.definition.js';
@@ -24,10 +24,21 @@ import { IssueUrlParamsSchema } from '@mcp/tools/helpers/issue-url/issue-url.sch
  * ВАЖНО: НЕ делает запросов к API (работает локально)
  */
 export class IssueUrlTool extends BaseTool {
+  /**
+   * Статические метаданные для compile-time индексации
+   */
+  static override readonly METADATA = {
+    name: 'yandex_tracker_get_issue_url',
+    description: 'Получить URL задачи в Яндекс.Трекере',
+    category: ToolCategory.URL_GENERATION,
+    tags: ['url', 'link', 'helper', 'issue'],
+    isHelper: true,
+  } as const;
+
   private readonly definition = new IssueUrlDefinition();
   private readonly TRACKER_BASE_URL = 'https://tracker.yandex.ru';
 
-  getDefinition(): ToolDefinition {
+  override getDefinition(): ToolDefinition {
     return this.definition.build();
   }
 

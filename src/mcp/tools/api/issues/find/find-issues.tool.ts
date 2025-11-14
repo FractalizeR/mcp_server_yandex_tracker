@@ -7,7 +7,7 @@
  * - Валидация через Zod
  */
 
-import { BaseTool } from '@mcp/tools/base/index.js';
+import { BaseTool, ToolCategory } from '@mcp/tools/base/index.js';
 import type { ToolDefinition } from '@mcp/tools/base/index.js';
 import type { ToolCallParams, ToolResult } from '@types';
 import { ResponseFieldFilter, ResultLogger } from '@mcp/utils/index.js';
@@ -31,9 +31,20 @@ import type { FindIssuesInputDto } from '@tracker_api/dto/index.js';
  * - ResponseFieldFilter - фильтрация полей ответа
  */
 export class FindIssuesTool extends BaseTool {
+  /**
+   * Статические метаданные для compile-time индексации
+   */
+  static override readonly METADATA = {
+    name: 'yandex_tracker_find_issues',
+    description: 'Найти задачи по JQL запросу',
+    category: ToolCategory.ISSUES,
+    tags: ['issue', 'find', 'search', 'jql', 'query'],
+    isHelper: false,
+  } as const;
+
   private readonly definition = new FindIssuesDefinition();
 
-  getDefinition(): ToolDefinition {
+  override getDefinition(): ToolDefinition {
     return this.definition.build();
   }
 

@@ -7,7 +7,7 @@
  * - Получение информации о текущем пользователе
  */
 
-import { BaseTool } from '@mcp/tools/base/index.js';
+import { BaseTool, ToolCategory } from '@mcp/tools/base/index.js';
 import type { ToolDefinition } from '@mcp/tools/base/index.js';
 import type { ToolCallParams, ToolResult } from '@types';
 
@@ -16,9 +16,21 @@ import type { ToolCallParams, ToolResult } from '@types';
  */
 export class PingTool extends BaseTool {
   /**
+   * Статические метаданные для compile-time индексации
+   */
+  static override readonly METADATA = {
+    name: 'yandex_tracker_ping',
+    description:
+      'Проверка доступности API Яндекс.Трекера и валидности OAuth токена. Возвращает информацию о текущем пользователе. Не требует параметров.',
+    category: ToolCategory.USERS,
+    tags: ['ping', 'health', 'check', 'connection', 'diagnostics'],
+    isHelper: false,
+  } as const;
+
+  /**
    * Определение инструмента для MCP
    */
-  getDefinition(): ToolDefinition {
+  override getDefinition(): ToolDefinition {
     return {
       name: 'yandex_tracker_ping',
       description:

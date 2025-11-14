@@ -11,6 +11,7 @@ import type { YandexTrackerFacade } from '@tracker_api/facade/yandex-tracker.fac
 import type { Logger } from '@infrastructure/logging/index.js';
 import type { ToolCallParams, ToolResult } from '@types';
 import type { ToolDefinition } from '@mcp/tools/base/base-definition.js';
+import type { ToolMetadata, StaticToolMetadata } from '@mcp/tools/base/tool-metadata.js';
 import type { ZodSchema, ZodError } from 'zod';
 
 /**
@@ -24,6 +25,14 @@ import type { ZodSchema, ZodError } from 'zod';
  * - Форматирование результатов
  */
 export abstract class BaseTool {
+  /**
+   * Статические метаданные (для compile-time индексации)
+   *
+   * ОБЯЗАТЕЛЬНО для всех tools!
+   * Используется в scripts/generate-tool-index.ts
+   */
+  static readonly METADATA: StaticToolMetadata;
+
   protected readonly trackerFacade: YandexTrackerFacade;
   protected readonly logger: Logger;
 
@@ -36,6 +45,27 @@ export abstract class BaseTool {
    * Получить определение инструмента
    */
   abstract getDefinition(): ToolDefinition;
+
+  /**
+   * Получить метаданные (runtime)
+   *
+   * Комбинирует static METADATA с runtime definition
+   */
+  getMetadata(): ToolMetadata {
+    const ToolClass = this.constructor as typeof BaseTool;
+    const metadata = ToolClass.METADATA;
+
+    // Все tools должны определять METADATA, но TypeScript не знает об этом
+    // т.к. это abstract class без конкретной реализации
+    // В runtime это всегда будет определено для конкретных классов
+    return {
+      definition: this.getDefinition(),
+      category: metadata.category,
+      tags: metadata.tags,
+      isHelper: metadata.isHelper,
+      examples: metadata.examples,
+    };
+  }
 
   /**
    * Выполнить инструмент

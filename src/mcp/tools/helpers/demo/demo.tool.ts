@@ -9,12 +9,23 @@
  * 3. Всё остальное происходит АВТОМАТИЧЕСКИ
  */
 
-import { BaseTool } from '@mcp/tools/base/index.js';
+import { BaseTool, ToolCategory } from '@mcp/tools/base/index.js';
 import type { ToolCallParams, ToolResult } from '@types';
 import { DemoDefinition } from './demo.definition.js';
 import { DemoParamsSchema } from './demo.schema.js';
 
 export class DemoTool extends BaseTool {
+  /**
+   * Статические метаданные для compile-time индексации
+   */
+  static override readonly METADATA = {
+    name: 'yandex_tracker_demo',
+    description: 'Демонстрационный инструмент для тестирования',
+    category: ToolCategory.DEMO,
+    tags: ['demo', 'example', 'test'],
+    isHelper: true,
+  } as const;
+
   private readonly definition = new DemoDefinition();
 
   getDefinition(): ReturnType<DemoDefinition['build']> {
