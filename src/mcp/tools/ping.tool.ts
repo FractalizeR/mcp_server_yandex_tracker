@@ -19,7 +19,7 @@ export class PingTool extends BaseTool {
    * Статические метаданные для compile-time индексации
    */
   static override readonly METADATA = {
-    name: 'yandex_tracker_ping',
+    name: 'fyt_mcp_ping',
     description:
       'Проверка доступности API Яндекс.Трекера и валидности OAuth токена. Возвращает информацию о текущем пользователе. Не требует параметров.',
     category: ToolCategory.USERS,
@@ -32,7 +32,7 @@ export class PingTool extends BaseTool {
    */
   override getDefinition(): ToolDefinition {
     return {
-      name: 'yandex_tracker_ping',
+      name: 'fyt_mcp_ping',
       description:
         'Проверка доступности API Яндекс.Трекера и валидности OAuth токена. ' +
         'Возвращает информацию о текущем пользователе. ' +

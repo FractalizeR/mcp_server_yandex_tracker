@@ -19,7 +19,7 @@ export class DemoTool extends BaseTool {
    * Статические метаданные для compile-time индексации
    */
   static override readonly METADATA = {
-    name: 'yandex_tracker_demo',
+    name: 'fyt_mcp_demo',
     description: 'Демонстрационный инструмент для тестирования',
     category: ToolCategory.DEMO,
     tags: ['demo', 'example', 'test'],

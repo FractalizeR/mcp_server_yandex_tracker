@@ -1,7 +1,7 @@
 {
-  "name": "yandex-tracker-mcp",
+  "name": "fyt-mcp",
   "version": "0.1.0",
-  "description": "MCP сервер для интеграции с Яндекс.Трекером",
+  "description": "FractalizeR's Yandex Tracker MCP - MCP сервер для интеграции с Яндекс.Трекером",
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
@@ -28,6 +28,10 @@
     "depcruise:graph:html": "depcruise src --output-type dot | dot -T svg | depcruise-wrap-stream-in-html > dependency-graph.html",
     "validate:tools": "tsx scripts/validate-tool-registration.ts",
     "validate": "npm run lint && npm run typecheck:all && npm run test && npm run depcruise && npm run validate:tools && npm run build && npm run build:bundle",
+    "mcp:connect": "tsx cli/bin/mcp-connect.ts connect",
+    "mcp:disconnect": "tsx cli/bin/mcp-connect.ts disconnect",
+    "mcp:status": "tsx cli/bin/mcp-connect.ts status",
+    "mcp:list": "tsx cli/bin/mcp-connect.ts list",
     "prepublish": "npm run clean && npm run build:bundle",
     "prepare": "husky"
   },
@@ -43,9 +47,14 @@
     "node": ">=22.0.0"
   },
   "dependencies": {
+    "@iarna/toml": "^2.2.5",
     "@modelcontextprotocol/sdk": "^1.22.0",
     "axios": "^1.13.2",
+    "chalk": "^5.6.2",
+    "commander": "^14.0.2",
+    "inquirer": "^9.3.8",
     "inversify": "^7.10.4",
+    "ora": "^8.2.0",
     "p-limit": "^7.2.0",
     "pino": "^10.1.0",
     "pino-pretty": "^13.1.2",
@@ -57,6 +66,7 @@
   "devDependencies": {
     "@commitlint/cli": "^20.1.0",
     "@commitlint/config-conventional": "^20.0.0",
+    "@types/inquirer": "^9.0.9",
     "@types/nock": "^10.0.3",
     "@types/node": "^24.10.1",
     "@types/p-limit": "^2.1.0",

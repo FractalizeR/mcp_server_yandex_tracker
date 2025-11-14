@@ -16,7 +16,7 @@ import { BaseToolDefinition, type ToolDefinition } from '@mcp/tools/base/index.j
 export class FindIssuesDefinition extends BaseToolDefinition {
   build(): ToolDefinition {
     return {
-      name: 'yandex_tracker_find_issues',
+      name: 'fyt_mcp_find_issues',
       description: this.buildDescription(),
       inputSchema: {
         type: 'object',
@@ -64,7 +64,7 @@ export class FindIssuesDefinition extends BaseToolDefinition {
       '- Применить сложные фильтры с логическими операторами\n' +
       '\n' +
       'НЕ используй для:\n' +
-      '- Получения конкретных задач по ключам (используй yandex_tracker_get_issues - эффективнее)'
+      '- Получения конкретных задач по ключам (используй fyt_mcp_get_issues - эффективнее)'
     );
   }
 
@@ -149,7 +149,7 @@ export class FindIssuesDefinition extends BaseToolDefinition {
     return this.buildArrayParam(
       'Список ключей задач для поиска (альтернатива query/filter). ' +
         '\n\n' +
-        'ВАЖНО: Если нужно получить задачи по ключам, лучше используй yandex_tracker_get_issues ' +
+        'ВАЖНО: Если нужно получить задачи по ключам, лучше используй fyt_mcp_get_issues ' +
         '(он оптимизирован для batch-получения). ' +
         '\n\n' +
         'Этот параметр полезен когда нужно:\n' +

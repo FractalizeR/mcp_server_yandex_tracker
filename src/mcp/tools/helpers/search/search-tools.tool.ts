@@ -35,7 +35,7 @@ export class SearchToolsTool {
    * Статические метаданные для compile-time индексации
    */
   static readonly METADATA: StaticToolMetadata = {
-    name: 'yandex_tracker_search_tools',
+    name: 'fyt_mcp_search_tools',
     description:
       'Поиск доступных MCP инструментов по запросу. ' +
       'Поддерживает поиск по названию, описанию, категориям и тегам. ' +

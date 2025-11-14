@@ -34,7 +34,7 @@ export class FindIssuesTool extends BaseTool {
    * Статические метаданные для compile-time индексации
    */
   static override readonly METADATA = {
-    name: 'yandex_tracker_find_issues',
+    name: 'fyt_mcp_find_issues',
     description: 'Найти задачи по JQL запросу',
     category: ToolCategory.ISSUES,
     tags: ['issue', 'find', 'search', 'jql', 'query'],

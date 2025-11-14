@@ -35,7 +35,7 @@ export class GetIssuesTool extends BaseTool {
    * Статические метаданные для compile-time индексации
    */
   static override readonly METADATA = {
-    name: 'yandex_tracker_get_issues',
+    name: 'fyt_mcp_get_issues',
     description: 'Получить задачи по ключам (batch операция)',
     category: ToolCategory.ISSUES,
     tags: ['issue', 'get', 'batch', 'read'],

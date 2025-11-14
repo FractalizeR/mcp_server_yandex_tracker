@@ -16,7 +16,7 @@ import { BaseToolDefinition, type ToolDefinition } from '@mcp/tools/base/index.j
 export class GetIssuesDefinition extends BaseToolDefinition {
   build(): ToolDefinition {
     return {
-      name: 'yandex_tracker_get_issues',
+      name: 'fyt_mcp_get_issues',
       description: this.buildDescription(),
       inputSchema: {
         type: 'object',

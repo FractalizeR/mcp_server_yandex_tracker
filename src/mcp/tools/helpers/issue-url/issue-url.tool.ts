@@ -28,7 +28,7 @@ export class IssueUrlTool extends BaseTool {
    * Статические метаданные для compile-time индексации
    */
   static override readonly METADATA = {
-    name: 'yandex_tracker_get_issue_url',
+    name: 'fyt_mcp_get_issue_url',
     description: 'Получить URL задачи в Яндекс.Трекере',
     category: ToolCategory.URL_GENERATION,
     tags: ['url', 'link', 'helper', 'issue'],
