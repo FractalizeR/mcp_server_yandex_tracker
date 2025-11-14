@@ -1,0 +1,5 @@
+{
+  "statusCode": 401,
+  "errorMessages": ["Authentication required"],
+  "errors": {}
+}

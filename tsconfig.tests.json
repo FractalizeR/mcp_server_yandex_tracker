@@ -8,7 +8,8 @@
   },
   "include": [
     "src/**/*",  /* Включаем src для разрешения импортов */
-    "tests/**/*"  /* Только тесты */
+    "tests/**/*",  /* Только тесты */
+    "vitest.config.ts"  /* Vitest конфигурация */
   ],
   "exclude": [
     "node_modules",

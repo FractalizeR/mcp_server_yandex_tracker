@@ -20,6 +20,8 @@ export default defineConfig({
       reporter: ['text', 'json', 'html'],
       include: ['src/**/*.ts'],
       exclude: ['src/index.ts'],
+      // Интеграционные тесты НЕ влияют на покрытие unit-тестов
+      all: false,
       thresholds: {
         branches: 80,
         functions: 80,
