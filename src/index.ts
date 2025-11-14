@@ -16,7 +16,7 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 
 import { loadConfig } from '@infrastructure/config.js';
-import { Logger } from '@infrastructure/logger.js';
+import type { Logger } from '@infrastructure/logging/index.js';
 import type { ToolRegistry } from '@mcp/tool-registry.js';
 
 // DI Container
@@ -88,17 +88,19 @@ async function main(): Promise<void> {
     // Загрузка конфигурации
     const config = loadConfig();
 
-    // Инициализация логгера
-    logger = new Logger(config.logLevel);
+    // Создание DI контейнера (Logger создаётся внутри)
+    const container = createContainer(config);
+
+    // Получение Logger из контейнера
+    logger = container.get<Logger>(TYPES.Logger);
     logger.info('Запуск Яндекс.Трекер MCP сервера...');
     logger.debug('Конфигурация загружена', {
       apiBase: config.apiBase,
       logLevel: config.logLevel,
       requestTimeout: config.requestTimeout,
+      logsDir: config.logsDir,
+      prettyLogs: config.prettyLogs,
     });
-
-    // Создание DI контейнера
-    const container = createContainer(config, logger);
 
     // Получение ToolRegistry из контейнера
     const toolRegistry = container.get<ToolRegistry>(TYPES.ToolRegistry);

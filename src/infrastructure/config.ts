@@ -124,6 +124,14 @@ export function loadConfig(): ServerConfig {
   const maxBatchSize = validateMaxBatchSize(process.env['MAX_BATCH_SIZE'], 200);
   const maxConcurrentRequests = validateMaxConcurrentRequests(process.env['MAX_CONCURRENT_REQUESTS'], 5);
 
+  // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+  const logsDir = process.env['LOGS_DIR']?.trim() || './logs';
+  const prettyLogs = process.env['PRETTY_LOGS'] === 'true';
+
+  // Ротация логов (по умолчанию: 50KB, 20 файлов = максимум ~1MB на диске)
+  const logMaxSize = parseInt(process.env['LOG_MAX_SIZE'] || '51200', 10); // 50KB в байтах
+  const logMaxFiles = parseInt(process.env['LOG_MAX_FILES'] || '20', 10);
+
   return {
     token: token.trim(),
     ...validatedOrgIds,
@@ -132,5 +140,9 @@ export function loadConfig(): ServerConfig {
     requestTimeout,
     maxBatchSize,
     maxConcurrentRequests,
+    logsDir,
+    prettyLogs,
+    logMaxSize,
+    logMaxFiles,
   };
 }

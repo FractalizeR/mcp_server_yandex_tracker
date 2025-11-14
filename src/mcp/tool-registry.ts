@@ -12,7 +12,7 @@
  */
 
 import type { YandexTrackerFacade } from '@tracker_api/facade/index.js';
-import type { Logger } from '@infrastructure/logger.js';
+import type { Logger } from '@infrastructure/logging/index.js';
 import type { ToolCallParams, ToolResult } from '@types';
 import type { BaseTool, ToolDefinition } from '@mcp/tools/base/index.js';
 import { PingTool, GetIssuesTool } from '@mcp/tools/index.js';

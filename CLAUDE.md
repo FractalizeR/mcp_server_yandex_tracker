@@ -67,6 +67,7 @@
 - **InversifyJS v7** (DI, Symbol-based tokens, `defaultScope: 'Singleton'`)
 - **Zod** (валидация параметров, type inference)
 - **Axios** (HTTP client)
+- **Pino** + **rotating-file-stream** (production logging с автоматической ротацией)
 - **Vitest** (тесты, покрытие ≥80%)
 - **MCP SDK** (Model Context Protocol)
 - **API:** Яндекс.Трекер v3 (ТОЛЬКО `/v3/*` endpoints)
@@ -155,7 +156,32 @@ if (!result.success) { return this.formatError(...); }
 - ✅ Type inference: `type Params = z.infer<typeof ParamsSchema>`
 - ❌ НЕ пиши кастомные валидаторы
 
-### 7. Тестирование
+### 7. Логирование (Pino)
+
+```typescript
+// ❌ НЕ ТАК (console.log)
+console.log('Debug message', data);
+
+// ✅ ТАК (structured logging)
+logger.info('Operation completed', { userId: '123', duration: 45 });
+logger.error('Operation failed', error, { requestId: '456' });
+```
+
+- ✅ **Pino** для production-ready логирования
+- ✅ **Structured logging:** JSON формат с метаданными
+- ✅ **Dual output:** error/warn → stderr + файл, info/debug → файл
+- ✅ **Автоматическая ротация:** старые логи сжимаются в `.gz` архивы
+- ✅ **Child loggers:** для request tracing
+- ✅ **Конфигурация:**
+  - `LOGS_DIR` — директория для логов (по умолчанию: `./logs`)
+  - `PRETTY_LOGS=true` — pretty-printing для development
+  - `LOG_LEVEL` — уровень логирования (debug, info, warn, error)
+  - `LOG_MAX_SIZE` — размер файла для ротации (по умолчанию: 50KB)
+  - `LOG_MAX_FILES` — количество ротируемых файлов (по умолчанию: 20)
+- ⚠️ **MCP stdio:** stdout для JSON-RPC, stderr для логов
+- ⚠️ **Alerting:** интерфейс готов (`setAlertingTransport`), но алерты пока не отправляются
+
+### 8. Тестирование
 
 - Unit тесты: `tests/unit/` (зеркалируют `src/`)
 - Покрытие: ≥80%
@@ -241,7 +267,7 @@ src/
 │   ├── cache/           # Кеширование (NoOpCache, EntityCacheKey)
 │   ├── di/              # DI контейнер (InversifyJS)
 │   ├── async/           # Параллелизация (ParallelExecutor)
-│   ├── logger.ts        # Логирование
+│   ├── logging/         # Pino логирование (Logger, LoggerConfig)
 │   └── config.ts        # Конфигурация из env
 ├── tracker_api/         # Слой работы с Яндекс.Трекер API
 │   ├── entities/        # Issue, User

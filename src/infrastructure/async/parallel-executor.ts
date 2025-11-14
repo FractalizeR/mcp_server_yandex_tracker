@@ -18,7 +18,7 @@
  */
 
 import pLimit from 'p-limit';
-import type { Logger } from '@infrastructure/logger.js';
+import type { Logger } from '@infrastructure/logging/index.js';
 import type { ApiError } from '@types';
 
 /**

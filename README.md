@@ -78,6 +78,10 @@ ID организации можно найти в настройках Янде
 | `YANDEX_ORG_ID` | string | ⚠️ Один из двух* | ID организации (Яндекс 360 для бизнеса) | - |
 | `YANDEX_CLOUD_ORG_ID` | string | ⚠️ Один из двух* | ID организации (Yandex Cloud Organization) | - |
 | `LOG_LEVEL` | string | Нет | Уровень логирования: debug, info, warn, error | `info` |
+| `LOGS_DIR` | string | Нет | Директория для лог-файлов | `./logs` |
+| `PRETTY_LOGS` | boolean | Нет | Pretty-printing логов (для development) | `false` |
+| `LOG_MAX_SIZE` | number | Нет | Максимальный размер лог-файла (байты) | `51200` (50KB) |
+| `LOG_MAX_FILES` | number | Нет | Количество ротируемых лог-файлов | `20` |
 | `REQUEST_TIMEOUT` | number | Нет | Таймаут запросов (мс), диапазон: 5000-120000 | `30000` |
 | `MAX_BATCH_SIZE` | number | Нет | Максимальное количество элементов в batch-запросе, диапазон: 1-1000 | `200` |
 | `MAX_CONCURRENT_REQUESTS` | number | Нет | Максимальное количество одновременных HTTP-запросов, диапазон: 1-20 | `5` |
@@ -85,6 +89,66 @@ ID организации можно найти в настройках Янде
 **\* Важно:** Необходимо указать **только один** из параметров `YANDEX_ORG_ID` или `YANDEX_CLOUD_ORG_ID`:
 - Используйте `YANDEX_ORG_ID`, если к Трекеру привязана **Яндекс 360 для бизнеса**
 - Используйте `YANDEX_CLOUD_ORG_ID`, если к Трекеру привязана **Yandex Cloud Organization**
+
+### Логирование
+
+MCP сервер использует production-ready логирование на базе [Pino](https://github.com/pinojs/pino) с поддержкой:
+- **Structured logging** — логи в JSON формате для удобного парсинга
+- **Автоматическая ротация** — старые логи сжимаются в `.gz` архивы
+- **Dual output** — критичные логи (error/warn) дублируются в stderr для мониторинга
+- **Request tracing** — поддержка correlation ID через child loggers
+
+#### Директория логов
+
+По умолчанию логи записываются в `./logs` относительно текущей рабочей директории.
+
+**Для локального запуска через npx:**
+```bash
+# Создайте рабочую директорию
+mkdir ~/yandex-tracker-workspace
+cd ~/yandex-tracker-workspace
+
+# Запустите сервер (логи будут в ~/yandex-tracker-workspace/logs/)
+npx yandex-tracker-mcp
+
+# Или укажите кастомную директорию
+LOGS_DIR=~/logs/yandex-tracker npx yandex-tracker-mcp
+```
+
+**Для Claude Desktop:**
+- Логи создаются автоматически в директории приложения
+- Обычно: `~/Library/Application Support/Claude/logs/` (macOS)
+
+#### Ротация логов
+
+Логи автоматически ротируются при достижении указанного размера:
+
+```bash
+# По умолчанию: 50KB файл, 20 ротаций (максимум ~1MB на диске)
+LOG_MAX_SIZE=51200     # 50KB в байтах
+LOG_MAX_FILES=20       # Количество файлов
+
+# Пример: увеличить до 1MB файл, 50 ротаций (~50MB на диске)
+LOG_MAX_SIZE=1048576 LOG_MAX_FILES=50 npx yandex-tracker-mcp
+```
+
+**Файлы логов:**
+- `combined.log` — все логи (info, warn, error, debug)
+- `combined.log.1.gz`, `combined.log.2.gz`, ... — ротированные архивы
+- `error.log` — только ошибки (error)
+- `error.log.1.gz`, `error.log.2.gz`, ... — ротированные архивы ошибок
+
+**Важно:** Старые логи автоматически удаляются при превышении `LOG_MAX_FILES`, так что сервер не засорит диск.
+
+#### Development mode
+
+Для удобной разработки включите pretty-printing:
+
+```bash
+PRETTY_LOGS=true LOG_LEVEL=debug npm run dev
+```
+
+В этом режиме логи выводятся в stderr в человекочитаемом формате (без записи в файлы).
 
 ## Использование
 

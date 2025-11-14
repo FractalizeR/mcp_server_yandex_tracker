@@ -8,7 +8,7 @@ import { GetIssuesOperation } from '@tracker_api/operations/issue/get-issues.ope
 import type { HttpClient } from '@infrastructure/http/client/http-client.js';
 import type { RetryHandler } from '@infrastructure/http/retry/retry-handler.js';
 import type { CacheManager } from '@infrastructure/cache/cache-manager.interface.js';
-import type { Logger } from '@infrastructure/logger.js';
+import type { Logger } from '@infrastructure/logging/index.js';
 import type { IssueWithUnknownFields } from '@tracker_api/entities/index.js';
 
 describe('GetIssuesOperation', () => {

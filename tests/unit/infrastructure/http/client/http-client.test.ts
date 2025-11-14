@@ -5,7 +5,7 @@
 import {describe, it, expect, beforeEach, vi} from 'vitest';
 import { HttpClient } from '@infrastructure/http/client/http-client.js';
 import type { HttpConfig } from '@infrastructure/http/client/http-config.interface.js';
-import type { Logger } from '@infrastructure/logger.js';
+import type { Logger } from '@infrastructure/logging/index.js';
 import type { RetryStrategy } from '@infrastructure/http/retry/retry-strategy.interface.js';
 
 /**

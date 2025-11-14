@@ -5,7 +5,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { GetIssuesTool } from '@mcp/tools/api/issues/get/index.js';
 import type { YandexTrackerFacade } from '@tracker_api/facade/yandex-tracker.facade.js';
-import type { Logger } from '@infrastructure/logger.js';
+import type { Logger } from '@infrastructure/logging/index.js';
 import type { IssueWithUnknownFields } from '@tracker_api/entities/index.js';
 
 describe('GetIssuesTool', () => {

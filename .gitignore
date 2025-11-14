@@ -45,3 +45,7 @@ coverage/
 
 # Отладка
 debug/
+
+# Логи
+logs/
+*.log.gz

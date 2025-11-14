@@ -8,7 +8,7 @@
  */
 
 import type { YandexTrackerFacade } from '@tracker_api/facade/yandex-tracker.facade.js';
-import type { Logger } from '@infrastructure/logger.js';
+import type { Logger } from '@infrastructure/logging/index.js';
 import type { ToolCallParams, ToolResult } from '@types';
 import type { ToolDefinition } from '@mcp/tools/base/base-definition.js';
 

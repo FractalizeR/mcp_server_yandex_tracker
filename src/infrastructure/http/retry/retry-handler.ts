@@ -12,7 +12,7 @@
  */
 
 import type { RetryStrategy } from '@infrastructure/http/retry/retry-strategy.interface.js';
-import type { Logger } from '@infrastructure/logger.js';
+import type { Logger } from '@infrastructure/logging/index.js';
 import type { ApiError } from '@types';
 
 export class RetryHandler {

@@ -16,7 +16,7 @@
 import axios from 'axios';
 import type { AxiosInstance, AxiosError } from 'axios';
 import type { HttpConfig } from '@infrastructure/http/client/http-config.interface.js';
-import type { Logger } from '@infrastructure/logger.js';
+import type { Logger } from '@infrastructure/logging/index.js';
 import type { QueryParams } from '@types';
 import { ErrorMapper } from '@infrastructure/http/error';
 import { RetryHandler } from '@infrastructure/http/retry';

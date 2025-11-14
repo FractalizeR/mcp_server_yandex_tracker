@@ -8,7 +8,7 @@
 import 'reflect-metadata';
 import { Container } from 'inversify';
 import type { ServerConfig } from '@types';
-import type { Logger } from '@infrastructure/logger.js';
+import { Logger } from '@infrastructure/logging/index.js';
 import { TYPES } from '@infrastructure/di/types.js';
 
 // HTTP Layer
@@ -41,9 +41,21 @@ import { ToolRegistry } from '@mcp/tool-registry.js';
 /**
  * Регистрация базовых зависимостей (config, logger)
  */
-function bindInfrastructure(container: Container, config: ServerConfig, logger: Logger): void {
+function bindInfrastructure(container: Container, config: ServerConfig): void {
   container.bind<ServerConfig>(TYPES.ServerConfig).toConstantValue(config);
-  container.bind<Logger>(TYPES.Logger).toConstantValue(logger);
+
+  // Logger создаётся на основе конфигурации
+  container.bind<Logger>(TYPES.Logger).toDynamicValue(() => {
+    return new Logger({
+      level: config.logLevel,
+      logsDir: config.prettyLogs ? undefined : config.logsDir,
+      pretty: config.prettyLogs,
+      rotation: {
+        maxSize: config.logMaxSize,
+        maxFiles: config.logMaxFiles,
+      },
+    });
+  });
 }
 
 /**
@@ -158,12 +170,12 @@ function bindToolRegistry(container: Container): void {
 /**
  * Создание и конфигурация DI контейнера
  */
-export function createContainer(config: ServerConfig, logger: Logger): Container {
+export function createContainer(config: ServerConfig): Container {
   const container = new Container({
     defaultScope: 'Singleton',  // Все зависимости по умолчанию Singleton
   });
 
-  bindInfrastructure(container, config, logger);
+  bindInfrastructure(container, config);
   bindHttpLayer(container);
   bindCacheLayer(container);
   bindOperations(container);

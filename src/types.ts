@@ -53,6 +53,14 @@ export interface ServerConfig {
   maxBatchSize: number;
   /** Максимальное количество одновременных HTTP-запросов (технический лимит, throttling) */
   maxConcurrentRequests: number;
+  /** Директория для лог-файлов */
+  logsDir: string;
+  /** Включить pretty-printing логов (для development) */
+  prettyLogs: boolean;
+  /** Максимальный размер лог-файла в байтах (по умолчанию: 50KB) */
+  logMaxSize: number;
+  /** Количество ротируемых лог-файлов (по умолчанию: 20) */
+  logMaxFiles: number;
 }
 
 /**

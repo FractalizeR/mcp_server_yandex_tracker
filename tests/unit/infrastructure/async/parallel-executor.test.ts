@@ -4,7 +4,7 @@
 
 import {describe, it, expect, beforeEach, vi} from 'vitest';
 import { ParallelExecutor } from '@infrastructure/async/parallel-executor.js';
-import type { Logger } from '@infrastructure/logger.js';
+import type { Logger } from '@infrastructure/logging/index.js';
 import type { ApiError } from '@types';
 
 /**
