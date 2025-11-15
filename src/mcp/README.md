@@ -202,11 +202,15 @@ export class NewTool extends BaseTool {
   - [ ] Детальное описание для ИИ агента (примеры, ограничения)
 - [ ] **{action}.tool.ts** — наследует `BaseTool`
   - [ ] ✅ **ОБЯЗАТЕЛЬНО:** `static override readonly METADATA` с метаданными для Tool Search
+  - [ ] ⚠️ **Если tool изменяет данные:** `requiresExplicitUserConsent: true` в METADATA
   - [ ] ✅ Валидация: `this.validateParams(params, Schema)`
   - [ ] ✅ Batch-обработка: `BatchResultProcessor.process()`
   - [ ] ✅ Логирование: `ResultLogger.logOperationStart()` и `.logBatchResults()`
   - [ ] ✅ Фильтрация: `ResponseFieldFilter.filter()` (если применимо)
   - [ ] ❌ НЕ дублируй логику валидации, обработки, логирования
+- [ ] **{action}.definition.ts** (если `requiresExplicitUserConsent: true`):
+  - [ ] ✅ Реализуй `getStaticMetadata()` → возврат `ToolClass.METADATA`
+  - [ ] ✅ Оберни description: `this.wrapWithSafetyWarning(this.buildDescription())`
 - [ ] **index.ts** — экспорт `{ NewTool, NewDefinition, NewParamsSchema }`
 - [ ] **АВТОМАТИЧЕСКАЯ РЕГИСТРАЦИЯ:**
   - [ ] Добавь класс в `src/composition-root/definitions/tool-definitions.ts`
@@ -305,6 +309,64 @@ export class GetIssuesTool extends BaseTool {
 
 **Почему:** METADATA используется для compile-time индексирования (Tool Search System).
 Без этого инструмент не будет найден через SearchToolsTool.
+
+---
+
+### 6. Флаг requiresExplicitUserConsent для опасных операций
+
+⚠️ **Если tool ИЗМЕНЯЕТ данные пользователя, обязательно установи флаг безопасности:**
+
+```typescript
+export class UpdateIssueTool extends BaseTool {
+  static override readonly METADATA = {
+    name: 'yandex_tracker_update_issue',
+    description: 'Обновить задачу',
+    category: ToolCategory.ISSUES,
+    tags: ['issue', 'update', 'write'],
+    isHelper: false,
+    requiresExplicitUserConsent: true, // ← ОБЯЗАТЕЛЬНО для опасных операций
+  } as const;
+}
+```
+
+**Когда ставить `requiresExplicitUserConsent: true`:**
+- ✅ Изменение данных: `update_issue`, `create_issue`, `delete_*`
+- ✅ Необратимые операции: `transition_issue`, `execute_*`
+- ❌ Read-only операции: `get_*`, `find_*`, `search_*`, `list_*`
+- ❌ Helper tools (url-generation, search)
+
+**Что делает флаг:**
+1. **Автоматически добавляет предупреждение** в tool description для ИИ агента
+2. **Compile-time валидация:** TypeScript требует реализацию `getStaticMetadata()` в Definition
+3. **Runtime валидация:** `npm run validate:tools` проверяет корректность флага
+
+**Пример Definition:**
+```typescript
+export class UpdateIssueDefinition extends BaseToolDefinition {
+  protected getStaticMetadata(): StaticToolMetadata {
+    return UpdateIssueTool.METADATA; // ← Связь с Tool.METADATA
+  }
+
+  build(): ToolDefinition {
+    return {
+      name: buildToolName('update_issue'),
+      description: this.wrapWithSafetyWarning(this.buildDescription()), // ← Автоматическое предупреждение
+      inputSchema: { /* ... */ },
+    };
+  }
+}
+```
+
+**Предупреждение для ИИ:**
+```
+⚠️ КРИТИЧЕСКИ ВАЖНО:
+Этот инструмент ИЗМЕНЯЕТ данные пользователя в Яндекс.Трекере.
+Используй его ТОЛЬКО если:
+1. Пользователь ЯВНО попросил выполнить эту операцию
+2. Ты полностью уверен в корректности параметров
+3. У тебя есть ВСЕ необходимые данные (не используй placeholder/dummy значения)
+...
+```
 
 ---
 

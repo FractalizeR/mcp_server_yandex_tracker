@@ -191,10 +191,6 @@
 - ESLint правила: `max-params` (≤4), `complexity` (≤10), `max-depth` (≤4)
 - Режим `warn` — не блокирует build, но предупреждает
 
-### 13. Структура валидации
-
-`npm run validate` — полная, или частично: `validate:code`/`:tests`/`:architecture`/`:security`/`:build`/`:docs`. Dev: `watch`, `test:ui`, `test:changed`, `dev:debug`, `mcp:validate`
-
 ---
 
 ## 📖 КОНВЕНЦИИ ПО КОМПОНЕНТАМ
@@ -218,11 +214,15 @@
 
 - [ ] 📖 Прочитай [src/mcp/README.md](src/mcp/README.md)
 - [ ] Создай структуру: `{feature}/{action}/{name}.schema.ts`, `.definition.ts`, `.tool.ts`, `index.ts`
-- [ ] Добавь `static readonly METADATA` (обязательно для Tool Search)
+- [ ] Добавь `static readonly METADATA`:
+  - [ ] ⚠️ Если tool ИЗМЕНЯЕТ данные → `requiresExplicitUserConsent: true`
+  - [ ] ✅ Если tool только ЧИТАЕТ → НЕ добавляй флаг (или `false`)
+- [ ] В `Definition.build()`:
+  - [ ] Реализуй `getStaticMetadata()` → возврат `ToolClass.METADATA`
+  - [ ] Оберни description: `this.wrapWithSafetyWarning(this.buildDescription())`
 - [ ] Используй утилиты: `validateParams()`, `BatchResultProcessor`, `ResultLogger`
 - [ ] **АВТОМАТИЧЕСКАЯ РЕГИСТРАЦИЯ:** Добавь **1 строку** в `src/composition-root/definitions/tool-definitions.ts`
-- [ ] ВСЁ! (DI регистрация, ToolRegistry, TYPES — автоматически)
-- [ ] Тесты + `npm run validate`
+- [ ] Тесты + `npm run validate` (автоматически проверит флаг)
 
 ### Добавление Operation
 
