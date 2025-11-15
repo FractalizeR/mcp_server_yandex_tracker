@@ -41,6 +41,7 @@ export class UpdateIssueTool extends BaseTool {
     category: ToolCategory.ISSUES,
     tags: ['issue', 'update', 'write'],
     isHelper: false,
+    requiresExplicitUserConsent: true,
   } as const;
 
   private readonly definition = new UpdateIssueDefinition();

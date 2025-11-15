@@ -2,9 +2,14 @@
  * Определение MCP tool для поиска задач
  */
 
-import { BaseToolDefinition, type ToolDefinition } from '@mcp/tools/base/index.js';
+import {
+  BaseToolDefinition,
+  type ToolDefinition,
+  type StaticToolMetadata,
+} from '@mcp/tools/base/index.js';
 
 import { buildToolName } from '@mcp/tools/common/utils/index.js';
+import { FindIssuesTool } from './find-issues.tool.js';
 /**
  * Definition для FindIssuesTool
  *
@@ -15,10 +20,14 @@ import { buildToolName } from '@mcp/tools/common/utils/index.js';
  * - Формат ответа
  */
 export class FindIssuesDefinition extends BaseToolDefinition {
+  protected getStaticMetadata(): StaticToolMetadata {
+    return FindIssuesTool.METADATA;
+  }
+
   build(): ToolDefinition {
     return {
       name: buildToolName('find_issues'),
-      description: this.buildDescription(),
+      description: this.wrapWithSafetyWarning(this.buildDescription()),
       inputSchema: {
         type: 'object',
         properties: {

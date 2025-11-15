@@ -42,6 +42,7 @@ export class TransitionIssueTool extends BaseTool {
     category: ToolCategory.ISSUES,
     tags: ['issue', 'transition', 'workflow', 'write'],
     isHelper: false,
+    requiresExplicitUserConsent: true,
   } as const;
 
   private readonly definition = new TransitionIssueDefinition();

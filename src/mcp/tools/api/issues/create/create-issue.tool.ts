@@ -39,6 +39,7 @@ export class CreateIssueTool extends BaseTool {
     category: ToolCategory.ISSUES,
     tags: ['issue', 'create', 'write'],
     isHelper: false,
+    requiresExplicitUserConsent: true,
   } as const;
 
   private readonly definition = new CreateIssueDefinition();

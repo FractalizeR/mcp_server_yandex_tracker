@@ -3,3 +3,4 @@
  */
 
 export { buildToolName } from './tool-name.js';
+export { SafetyWarningBuilder } from './safety-warning-builder.js';

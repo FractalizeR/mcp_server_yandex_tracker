@@ -2,8 +2,13 @@
  * Определение MCP tool для получения URL задачи
  */
 
-import { BaseToolDefinition, type ToolDefinition } from '@mcp/tools/base/index.js';
+import {
+  BaseToolDefinition,
+  type ToolDefinition,
+  type StaticToolMetadata,
+} from '@mcp/tools/base/index.js';
 import { buildToolName } from '@mcp/tools/common/utils/index.js';
+import { IssueUrlTool } from './issue-url.tool.js';
 
 /**
  * Definition для IssueUrlTool
@@ -14,10 +19,14 @@ import { buildToolName } from '@mcp/tools/common/utils/index.js';
  * - Формат URL
  */
 export class IssueUrlDefinition extends BaseToolDefinition {
+  protected getStaticMetadata(): StaticToolMetadata {
+    return IssueUrlTool.METADATA;
+  }
+
   build(): ToolDefinition {
     return {
       name: buildToolName('get_issue_urls'),
-      description: this.buildDescription(),
+      description: this.wrapWithSafetyWarning(this.buildDescription()),
       inputSchema: {
         type: 'object',
         properties: {

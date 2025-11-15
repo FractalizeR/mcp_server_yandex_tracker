@@ -77,4 +77,25 @@ export interface StaticToolMetadata {
 
   /** Примеры использования (опционально) */
   examples?: readonly string[];
+
+  /**
+   * Флаг "опасной" операции, изменяющей данные пользователя
+   *
+   * Если true:
+   * - В description автоматически добавляется предупреждение для ИИ агента
+   * - SearchToolsTool помечает такие tools в результатах
+   * - npm run validate:tools проверяет корректность флага
+   *
+   * Используй для:
+   * - Изменения задач (update, transition)
+   * - Создания/удаления сущностей (create, delete)
+   * - Любых необратимых операций
+   *
+   * НЕ используй для:
+   * - Read-only операций (get, find, search, list)
+   * - Helper tools (url-generation, search)
+   *
+   * @default false
+   */
+  requiresExplicitUserConsent?: boolean;
 }

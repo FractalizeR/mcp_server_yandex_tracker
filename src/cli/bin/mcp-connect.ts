@@ -12,6 +12,7 @@ import { connectCommand } from '../commands/connect.command.js';
 import { disconnectCommand } from '../commands/disconnect.command.js';
 import { statusCommand } from '../commands/status.command.js';
 import { listCommand } from '../commands/list.command.js';
+import { validateCommand } from '../commands/validate.command.js';
 import { Logger } from '../utils/logger.js';
 import { MCP_SERVER_DISPLAY_NAME, MCP_SERVER_NAME } from '../../constants.js';
 import type { ConnectCommandOptions } from '../commands/connect.command.js';
@@ -87,6 +88,19 @@ program
   .action(async () => {
     try {
       await listCommand();
+    } catch (error) {
+      Logger.error(`Ошибка: ${(error as Error).message}`);
+      process.exit(1);
+    }
+  });
+
+// Команда validate
+program
+  .command('validate')
+  .description('Проверить валидность конфигураций MCP клиентов')
+  .action(async () => {
+    try {
+      await validateCommand();
     } catch (error) {
       Logger.error(`Ошибка: ${(error as Error).message}`);
       process.exit(1);

@@ -2,7 +2,12 @@
  * Определение MCP tool для создания задачи
  */
 
-import { BaseToolDefinition, type ToolDefinition } from '@mcp/tools/base/index.js';
+import {
+  BaseToolDefinition,
+  type ToolDefinition,
+  type StaticToolMetadata,
+} from '@mcp/tools/base/index.js';
+import { CreateIssueTool } from './create-issue.tool.js';
 import { buildToolName } from '@mcp/tools/common/utils/index.js';
 
 /**
@@ -15,10 +20,14 @@ import { buildToolName } from '@mcp/tools/common/utils/index.js';
  * - Формат ответа
  */
 export class CreateIssueDefinition extends BaseToolDefinition {
+  protected getStaticMetadata(): StaticToolMetadata {
+    return CreateIssueTool.METADATA;
+  }
+
   build(): ToolDefinition {
     return {
       name: buildToolName('create_issue'),
-      description: this.buildDescription(),
+      description: this.wrapWithSafetyWarning(this.buildDescription()),
       inputSchema: {
         type: 'object',
         properties: {

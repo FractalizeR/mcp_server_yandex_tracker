@@ -2,9 +2,14 @@
  * Определение MCP tool для получения доступных переходов статусов задачи
  */
 
-import { BaseToolDefinition, type ToolDefinition } from '@mcp/tools/base/index.js';
+import {
+  BaseToolDefinition,
+  type ToolDefinition,
+  type StaticToolMetadata,
+} from '@mcp/tools/base/index.js';
 
 import { buildToolName } from '@mcp/tools/common/utils/index.js';
+import { GetIssueTransitionsTool } from './get-issue-transitions.tool.js';
 /**
  * Definition для GetIssueTransitionsTool
  *
@@ -15,10 +20,14 @@ import { buildToolName } from '@mcp/tools/common/utils/index.js';
  * - Формат ответа
  */
 export class GetIssueTransitionsDefinition extends BaseToolDefinition {
+  protected getStaticMetadata(): StaticToolMetadata {
+    return GetIssueTransitionsTool.METADATA;
+  }
+
   build(): ToolDefinition {
     return {
       name: buildToolName('get_issue_transitions'),
-      description: this.buildDescription(),
+      description: this.wrapWithSafetyWarning(this.buildDescription()),
       inputSchema: {
         type: 'object',
         properties: {

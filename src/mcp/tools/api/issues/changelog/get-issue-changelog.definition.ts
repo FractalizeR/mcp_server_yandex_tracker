@@ -2,9 +2,14 @@
  * Определение MCP tool для получения истории изменений задачи
  */
 
-import { BaseToolDefinition, type ToolDefinition } from '@mcp/tools/base/index.js';
+import {
+  BaseToolDefinition,
+  type ToolDefinition,
+  type StaticToolMetadata,
+} from '@mcp/tools/base/index.js';
 
 import { buildToolName } from '@mcp/tools/common/utils/index.js';
+import { GetIssueChangelogTool } from './get-issue-changelog.tool.js';
 /**
  * Definition для GetIssueChangelogTool
  *
@@ -15,10 +20,14 @@ import { buildToolName } from '@mcp/tools/common/utils/index.js';
  * - Формат ответа
  */
 export class GetIssueChangelogDefinition extends BaseToolDefinition {
+  protected getStaticMetadata(): StaticToolMetadata {
+    return GetIssueChangelogTool.METADATA;
+  }
+
   build(): ToolDefinition {
     return {
       name: buildToolName('get_issue_changelog'),
-      description: this.buildDescription(),
+      description: this.wrapWithSafetyWarning(this.buildDescription()),
       inputSchema: {
         type: 'object',
         properties: {

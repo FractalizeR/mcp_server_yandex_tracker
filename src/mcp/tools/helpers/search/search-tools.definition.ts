@@ -7,21 +7,28 @@
  * - Примеры использования
  */
 
-import type { ToolDefinition } from '@mcp/tools/base/index.js';
-
+import type { ToolDefinition, StaticToolMetadata } from '@mcp/tools/base/index.js';
+import { BaseToolDefinition } from '@mcp/tools/base/index.js';
 import { buildToolName } from '@mcp/tools/common/utils/index.js';
+import { SearchToolsTool } from './search-tools.tool.js';
+
 /**
  * Definition builder для SearchToolsTool
  */
-export class SearchToolsDefinition {
+export class SearchToolsDefinition extends BaseToolDefinition {
+  protected getStaticMetadata(): StaticToolMetadata {
+    return SearchToolsTool.METADATA;
+  }
+
   build(): ToolDefinition {
     return {
       name: buildToolName('search_tools'),
-      description:
+      description: this.wrapWithSafetyWarning(
         'Поиск доступных MCP инструментов по запросу. ' +
-        'Поддерживает поиск по названию, описанию, категориям и тегам. ' +
-        'Используйте для обнаружения нужных инструментов перед их вызовом. ' +
-        'Примеры: "найти инструменты для работы с задачами", "ping", "получить URL".',
+          'Поддерживает поиск по названию, описанию, категориям и тегам. ' +
+          'Используйте для обнаружения нужных инструментов перед их вызовом. ' +
+          'Примеры: "найти инструменты для работы с задачами", "ping", "получить URL".'
+      ),
       inputSchema: {
         type: 'object',
         properties: {

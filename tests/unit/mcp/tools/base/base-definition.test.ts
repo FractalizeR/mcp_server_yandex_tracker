@@ -1,9 +1,22 @@
 import { describe, it, expect } from 'vitest';
 import { BaseToolDefinition } from '@mcp/tools/base/base-definition.js';
 import type { ToolDefinition } from '@mcp/tools/base/base-definition.js';
+import type { StaticToolMetadata } from '@mcp/tools/base/tool-metadata.js';
+import { ToolCategory } from '@mcp/tools/base/tool-metadata.js';
 
 // Тестовая реализация BaseToolDefinition
 class TestToolDefinition extends BaseToolDefinition {
+  protected getStaticMetadata(): StaticToolMetadata {
+    return {
+      name: 'test_tool',
+      description: 'Test tool description',
+      category: ToolCategory.DEMO,
+      tags: ['test'],
+      isHelper: true,
+      requiresExplicitUserConsent: false,
+    };
+  }
+
   build(): ToolDefinition {
     return {
       name: 'test_tool',

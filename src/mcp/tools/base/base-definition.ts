@@ -7,6 +7,9 @@
  * - Примеры использования для ИИ агента
  */
 
+import type { StaticToolMetadata } from './tool-metadata.js';
+import { SafetyWarningBuilder } from '@mcp/tools/common/utils/index.js';
+
 /**
  * Определение инструмента для MCP
  */
@@ -27,12 +30,41 @@ export interface ToolDefinition {
  * Базовый класс для построения определений инструментов
  *
  * Предоставляет helper методы для создания JSON Schema параметров
+ * и автоматического добавления предупреждений безопасности
  */
 export abstract class BaseToolDefinition {
   /**
    * Построить определение инструмента
    */
   abstract build(): ToolDefinition;
+
+  /**
+   * Получить статические метаданные из наследника
+   *
+   * Используется для:
+   * - Проверки флага requiresExplicitUserConsent
+   * - Автоматического добавления предупреждений безопасности
+   *
+   * @returns Метаданные из статического свойства METADATA наследника
+   */
+  protected abstract getStaticMetadata(): StaticToolMetadata;
+
+  /**
+   * Обернуть description предупреждением безопасности
+   *
+   * Автоматически добавляет предупреждение для ИИ агента если
+   * requiresExplicitUserConsent === true в метаданных
+   *
+   * @param description - Оригинальное описание инструмента
+   * @returns Описание с предупреждением (если требуется)
+   */
+  protected wrapWithSafetyWarning(description: string): string {
+    const metadata = this.getStaticMetadata();
+    return SafetyWarningBuilder.addWarningToDescription(
+      description,
+      metadata.requiresExplicitUserConsent
+    );
+  }
 
   /**
    * Создать описание строкового параметра
