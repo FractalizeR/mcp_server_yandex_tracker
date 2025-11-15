@@ -1,0 +1,45 @@
+# Gitleaks configuration for Yandex Tracker MCP
+title = "Gitleaks config for fyt-mcp"
+
+[extend]
+# Используем стандартные правила Gitleaks
+useDefault = true
+
+[allowlist]
+description = "Allowlist for known false positives"
+
+# Пути к файлам, которые нужно игнорировать
+paths = [
+  # Test fixtures и примеры
+  '''tests/.*''',
+  '''yandex_tracker_client/.*''',  # Python SDK документация
+
+  # Логи и временные файлы
+  '''logs/.*''',
+  '''\.log$''',
+  '''knip-report\.json$''',
+  '''dependency-graph\..*''',
+
+  # Package lock и node_modules
+  '''package-lock\.json$''',
+  '''node_modules/.*''',
+]
+
+# Регулярные выражения для игнорирования
+regexes = [
+  # Примеры в документации (обернуты в кавычки)
+  '''["']example-token-.*["']''',
+  '''["']test-.*-key["']''',
+
+  # Placeholder значения
+  '''YOUR_.*_HERE''',
+  '''<YOUR_.*>''',
+]
+
+# Комментарии с этими словами будут игнорироваться
+stopwords = [
+  "example",
+  "test",
+  "placeholder",
+  "demo",
+]

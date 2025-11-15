@@ -1,0 +1,81 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:base"
+  ],
+  "schedule": [
+    "before 5am on Monday"
+  ],
+  "timezone": "Europe/Moscow",
+  "labels": [
+    "dependencies"
+  ],
+  "packageRules": [
+    {
+      "description": "Автоматически мержить патчи и минорные обновления",
+      "matchUpdateTypes": [
+        "patch",
+        "minor"
+      ],
+      "groupName": "all non-major dependencies",
+      "groupSlug": "all-minor-patch",
+      "automerge": true,
+      "automergeType": "pr",
+      "automergeStrategy": "squash"
+    },
+    {
+      "description": "Группировать major обновления для ручного review",
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "groupName": "major dependencies",
+      "groupSlug": "major",
+      "automerge": false
+    },
+    {
+      "description": "Группировать TypeScript и ESLint обновления",
+      "matchPackagePatterns": [
+        "^typescript$",
+        "^@typescript-eslint/",
+        "^eslint"
+      ],
+      "groupName": "typescript and linting",
+      "groupSlug": "typescript-linting"
+    },
+    {
+      "description": "Группировать тестовые зависимости",
+      "matchPackagePatterns": [
+        "^vitest$",
+        "^@vitest/"
+      ],
+      "groupName": "testing dependencies",
+      "groupSlug": "testing"
+    },
+    {
+      "description": "Обновлять MCP SDK отдельно (потенциально breaking)",
+      "matchPackageNames": [
+        "@modelcontextprotocol/sdk"
+      ],
+      "groupName": "MCP SDK",
+      "groupSlug": "mcp-sdk",
+      "automerge": false
+    }
+  ],
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "labels": [
+      "security"
+    ]
+  },
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": [
+      "before 5am on the first day of the month"
+    ]
+  },
+  "prConcurrentLimit": 3,
+  "prHourlyLimit": 2,
+  "dependencyDashboard": true,
+  "semanticCommits": "enabled",
+  "commitMessagePrefix": "chore(deps):"
+}

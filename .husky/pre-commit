@@ -1,2 +1,8 @@
 #!/bin/sh
+
+# Проверка секретов в staged файлах
+echo "🔍 Checking for secrets with Gitleaks..."
+npx gitleaks protect --staged --verbose --config .gitleaks.toml
+
+# Форматирование и линтинг
 npx lint-staged

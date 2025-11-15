@@ -1,0 +1,30 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "entry": ["src/index.ts", "scripts/**/*.ts", "src/cli/bin/**/*.ts"],
+  "project": ["src/**/*.ts", "scripts/**/*.ts"],
+  "ignore": [
+    "tests/**",
+    "**/*.test.ts",
+    "**/*.spec.ts"
+  ],
+  "ignoreDependencies": [
+    "@modelcontextprotocol/sdk",
+    "tsx",
+    "vitest",
+    "@vitest/coverage-v8",
+    "@iarna/toml",
+    "chalk",
+    "commander",
+    "inquirer",
+    "ora",
+    "axios",
+    "inversify",
+    "p-limit",
+    "pino",
+    "pino-pretty",
+    "rotating-file-stream",
+    "zod"
+  ],
+  "ignoreExportsUsedInFile": true,
+  "includeEntryExports": false
+}

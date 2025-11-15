@@ -57,3 +57,8 @@ logs/
 
 # TypeScript incremental compilation cache
 *.tsbuildinfo
+
+# Отчёты инструментов качества кода
+knip-report.json
+dependency-graph.svg
+dependency-graph.html
