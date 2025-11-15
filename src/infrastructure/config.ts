@@ -2,6 +2,8 @@
  * Загрузка и валидация конфигурации из переменных окружения
  */
 
+import { resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import type { ServerConfig, LogLevel } from '@types';
 import {
   DEFAULT_API_BASE,
@@ -14,6 +16,11 @@ import {
   DEFAULT_LOG_MAX_FILES,
   ENV_VAR_NAMES,
 } from '../constants.js';
+
+// Путь к корню проекта (dist/ или src/)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const PROJECT_ROOT = resolve(__dirname, '../..');
 
 /**
  * Валидация уровня логирования
@@ -147,7 +154,9 @@ export function loadConfig(): ServerConfig {
   );
 
   // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-  const logsDir = process.env[ENV_VAR_NAMES.LOGS_DIR]?.trim() || DEFAULT_LOGS_DIR;
+  const logsDirRaw = process.env[ENV_VAR_NAMES.LOGS_DIR]?.trim() || DEFAULT_LOGS_DIR;
+  // Если путь относительный - резолвим относительно PROJECT_ROOT
+  const logsDir = resolve(PROJECT_ROOT, logsDirRaw);
   const prettyLogs = process.env[ENV_VAR_NAMES.PRETTY_LOGS] === 'true';
 
   // Ротация логов (по умолчанию: 50KB, 20 файлов = максимум ~1MB на диске)
