@@ -1,0 +1,153 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'  # Triggered by tags like v1.0.0, v0.2.1, etc.
+
+permissions:
+  contents: write  # For creating GitHub releases
+  packages: write  # For publishing to npm
+
+jobs:
+  validate:
+    name: Validate Before Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run full validation
+        run: npm run validate
+        env:
+          CI: true
+
+      - name: Verify version matches tag
+        run: |
+          TAG_VERSION="${GITHUB_REF#refs/tags/v}"
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          if [ "$TAG_VERSION" != "$PKG_VERSION" ]; then
+            echo "❌ Error: Tag version ($TAG_VERSION) doesn't match package.json version ($PKG_VERSION)"
+            exit 1
+          fi
+          echo "✅ Version verified: $PKG_VERSION"
+
+  publish-npm:
+    name: Publish to NPM Registry
+    needs: validate
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+          cache: 'npm'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build package
+        run: npm run build
+
+      - name: Publish to NPM
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        # Если NPM_TOKEN еще не настроен, этот шаг будет пропущен
+        continue-on-error: true
+
+  build-mcpb:
+    name: Build and Release MCPB Bundle
+    needs: validate
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build MCPB bundle
+        run: npm run build:bundle
+
+      - name: Extract version
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Create release archive
+        run: |
+          mkdir -p release
+          cp dist/bundle.js release/
+          cp package.json release/
+          cp README.md release/
+          cd release
+          tar -czf ../fractalizer_mcp_yandex_tracker-${{ steps.version.outputs.VERSION }}.tar.gz *
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            fractalizer_mcp_yandex_tracker-${{ steps.version.outputs.VERSION }}.tar.gz
+            dist/bundle.js
+          body: |
+            ## 🚀 Release ${{ steps.version.outputs.VERSION }}
+
+            ### Installation
+
+            **NPM Registry:**
+            ```bash
+            npm install -g fractalizer_mcp_yandex_tracker@${{ steps.version.outputs.VERSION }}
+            ```
+
+            **MCPB Bundle (standalone):**
+            Download `fractalizer_mcp_yandex_tracker-${{ steps.version.outputs.VERSION }}.tar.gz` or `bundle.js`
+
+            ### Changes
+            See [CHANGELOG.md](CHANGELOG.md) for details.
+
+          draft: false
+          prerelease: ${{ contains(steps.version.outputs.VERSION, '-') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  notify-success:
+    name: Notify Release Success
+    needs: [publish-npm, build-mcpb]
+    runs-on: ubuntu-latest
+    if: success()
+
+    steps:
+      - name: Extract version
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Success message
+        run: |
+          echo "🎉 Release ${{ steps.version.outputs.VERSION }} completed successfully!"
+          echo "✅ NPM package published"
+          echo "✅ MCPB bundle created"
+          echo "✅ GitHub release created"

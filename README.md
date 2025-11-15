@@ -1,5 +1,10 @@
 # Яндекс.Трекер для Claude Desktop
 
+[![CI](https://github.com/fractalizer/yandex-tracker-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/fractalizer/yandex-tracker-mcp/actions/workflows/ci.yml)
+[![Release](https://github.com/fractalizer/yandex-tracker-mcp/actions/workflows/release.yml/badge.svg)](https://github.com/fractalizer/yandex-tracker-mcp/actions/workflows/release.yml)
+[![npm version](https://img.shields.io/npm/v/fractalizer_mcp_yandex_tracker.svg)](https://www.npmjs.com/package/fractalizer_mcp_yandex_tracker)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 **Управляй задачами в Яндекс.Трекере прямо из Claude!** 🚀
 
 Этот MCP-сервер позволяет Claude работать с твоими задачами в Яндекс.Трекере: искать, читать, создавать и обновлять их — всё это без переключения между приложениями.
@@ -251,6 +256,13 @@ npm run build
 # Подключи к Claude Desktop
 npm run mcp:connect
 ```
+
+### Как контрибьютить
+
+Хочешь помочь проекту? Читай [CONTRIBUTING.md](.github/CONTRIBUTING.md) - там все про:
+- Процесс разработки и PR
+- CI/CD pipeline и автоматические проверки
+- Процесс релиза
 
 ### Архитектура и конвенции
 - **Архитектура:** [ARCHITECTURE.md](./ARCHITECTURE.md) — layered architecture, DI, модульность
