@@ -72,11 +72,21 @@
 
 ## 📏 Лимиты размера документации
 
+**Жёсткие лимиты (MUST):**
+
 | Тип файла | Лимит | Проверка |
 |-----------|-------|----------|
-| CLAUDE.md | ≤250 строк | `npm run validate:docs` |
-| ARCHITECTURE.md | ≤400 строк | `npm run validate:docs` |
-| Module README.md | ≤400 строк | `npm run validate:docs` |
+| CLAUDE.md | ≤300 строк | `npm run validate:docs` |
+| ARCHITECTURE.md | ≤500 строк | `npm run validate:docs` |
+| Module README.md | ≤500 строк | `npm run validate:docs` |
+
+**Целевые значения (SHOULD):**
+
+| Тип файла | Цель |
+|-----------|------|
+| CLAUDE.md | ~250 строк |
+| ARCHITECTURE.md | ~400 строк |
+| Module README.md | ~300-400 строк |
 
 ---
 
