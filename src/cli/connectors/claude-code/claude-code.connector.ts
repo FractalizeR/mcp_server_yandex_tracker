@@ -31,30 +31,30 @@ export class ClaudeCodeConnector extends BaseConnector {
     };
   }
 
-  async isInstalled(): Promise<boolean> {
-    return CommandExecutor.isCommandAvailable('claude');
+  isInstalled(): Promise<boolean> {
+    return Promise.resolve(CommandExecutor.isCommandAvailable('claude'));
   }
 
-  async getStatus(): Promise<ConnectionStatus> {
+  getStatus(): Promise<ConnectionStatus> {
     try {
       const output = CommandExecutor.exec('claude mcp list');
       const connected = output.includes(MCP_SERVER_NAME);
 
       if (connected) {
-        return {
+        return Promise.resolve({
           connected,
           details: {
             configPath: 'managed by claude mcp',
           },
-        };
+        });
       }
 
-      return { connected };
+      return Promise.resolve({ connected });
     } catch (error) {
-      return {
+      return Promise.resolve({
         connected: false,
         error: `Ошибка проверки статуса: ${(error as Error).message}`,
-      };
+      });
     }
   }
 
@@ -70,11 +70,11 @@ export class ClaudeCodeConnector extends BaseConnector {
       '--env',
       `${ENV_VAR_NAMES.YANDEX_ORG_ID}=${serverConfig.orgId}`,
       '--env',
-      `${ENV_VAR_NAMES.YANDEX_TRACKER_API_BASE}=${serverConfig.apiBase || DEFAULT_API_BASE}`,
+      `${ENV_VAR_NAMES.YANDEX_TRACKER_API_BASE}=${serverConfig.apiBase ?? DEFAULT_API_BASE}`,
       '--env',
-      `${ENV_VAR_NAMES.LOG_LEVEL}=${serverConfig.logLevel || DEFAULT_LOG_LEVEL}`,
+      `${ENV_VAR_NAMES.LOG_LEVEL}=${serverConfig.logLevel ?? DEFAULT_LOG_LEVEL}`,
       '--env',
-      `${ENV_VAR_NAMES.REQUEST_TIMEOUT}=${serverConfig.requestTimeout || DEFAULT_REQUEST_TIMEOUT}`,
+      `${ENV_VAR_NAMES.REQUEST_TIMEOUT}=${serverConfig.requestTimeout ?? DEFAULT_REQUEST_TIMEOUT}`,
       '--',
       'node',
       path.join(serverConfig.projectPath, SERVER_ENTRY_POINT),

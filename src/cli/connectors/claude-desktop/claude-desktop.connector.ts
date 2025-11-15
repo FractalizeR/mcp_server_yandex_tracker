@@ -21,7 +21,7 @@ import {
 } from '../../../constants.js';
 
 interface ClaudeDesktopConfig {
-  mcpServers: Record<
+  mcpServers?: Record<
     string,
     {
       command: string;
@@ -48,7 +48,7 @@ export class ClaudeDesktopConnector extends BaseConnector {
     } else {
       // Windows
       this.configPath = path.join(
-        process.env['APPDATA'] || '',
+        process.env['APPDATA'] ?? '',
         'Claude/claude_desktop_config.json'
       );
     }
@@ -110,16 +110,17 @@ export class ClaudeDesktopConnector extends BaseConnector {
     }
 
     // Добавить/обновить MCP сервер
+    config.mcpServers ??= {};
     config.mcpServers[MCP_SERVER_NAME] = {
       command: 'node',
       args: [path.join(serverConfig.projectPath, SERVER_ENTRY_POINT)],
       env: {
         [ENV_VAR_NAMES.YANDEX_TRACKER_TOKEN]: serverConfig.token,
         [ENV_VAR_NAMES.YANDEX_ORG_ID]: serverConfig.orgId,
-        [ENV_VAR_NAMES.YANDEX_TRACKER_API_BASE]: serverConfig.apiBase || DEFAULT_API_BASE,
-        [ENV_VAR_NAMES.LOG_LEVEL]: serverConfig.logLevel || DEFAULT_LOG_LEVEL,
+        [ENV_VAR_NAMES.YANDEX_TRACKER_API_BASE]: serverConfig.apiBase ?? DEFAULT_API_BASE,
+        [ENV_VAR_NAMES.LOG_LEVEL]: serverConfig.logLevel ?? DEFAULT_LOG_LEVEL,
         [ENV_VAR_NAMES.REQUEST_TIMEOUT]: String(
-          serverConfig.requestTimeout || DEFAULT_REQUEST_TIMEOUT
+          serverConfig.requestTimeout ?? DEFAULT_REQUEST_TIMEOUT
         ),
       },
     };

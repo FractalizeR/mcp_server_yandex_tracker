@@ -11,7 +11,7 @@ export class CommandExecutor {
   static exec(command: string): string {
     try {
       return execSync(command, { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'ignore'] });
-    } catch (error) {
+    } catch {
       throw new Error(`Command failed: ${command}`);
     }
   }

@@ -6,6 +6,28 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 import * as toml from '@iarna/toml';
 
+/**
+ * ErrnoException интерфейс
+ */
+interface ErrnoException extends Error {
+  code?: string;
+  errno?: number;
+  syscall?: string;
+  path?: string;
+}
+
+/**
+ * Type guard для проверки ErrnoException
+ */
+function isErrnoException(error: unknown): error is ErrnoException {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'code' in error &&
+    typeof (error as Record<string, unknown>)['code'] === 'string'
+  );
+}
+
 export class FileManager {
   /**
    * Прочитать и распарсить JSON файл
@@ -57,10 +79,13 @@ export class FileManager {
   static async ensureDir(dirPath: string): Promise<void> {
     try {
       await fs.mkdir(dirPath, { recursive: true });
-    } catch (error) {
+    } catch (err: unknown) {
       // Игнорируем ошибку, если директория уже существует
-      if ((error as NodeJS.ErrnoException).code !== 'EEXIST') {
-        throw error;
+      if (!isErrnoException(err)) {
+        throw err;
+      }
+      if (err.code !== 'EEXIST') {
+        throw err;
       }
     }
   }
@@ -76,7 +101,7 @@ export class FileManager {
    * Получить домашнюю директорию пользователя
    */
   static getHomeDir(): string {
-    return process.env['HOME'] || process.env['USERPROFILE'] || '';
+    return process.env['HOME'] ?? process.env['USERPROFILE'] ?? '';
   }
 
   /**

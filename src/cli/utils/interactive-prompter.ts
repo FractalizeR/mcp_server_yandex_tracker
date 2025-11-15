@@ -42,21 +42,21 @@ export class InteractivePrompter {
         name: 'token',
         message: 'OAuth токен Яндекс.Трекера:',
         mask: '*',
-        validate: (input: string) => input.length > 0 || 'Токен обязателен',
+        validate: (input: string): string | true => input.length > 0 || 'Токен обязателен',
       },
       {
         type: 'input',
         name: 'orgId',
         message: 'ID организации:',
         default: savedConfig?.orgId,
-        validate: (input: string) => input.length > 0 || 'ID организации обязателен',
+        validate: (input: string): string | true => input.length > 0 || 'ID организации обязателен',
       },
       {
         type: 'list',
         name: 'logLevel',
         message: 'Уровень логирования:',
         choices: ['info', 'debug', 'warn', 'error'],
-        default: savedConfig?.logLevel || DEFAULT_LOG_LEVEL,
+        default: savedConfig?.logLevel ?? DEFAULT_LOG_LEVEL,
       },
     ]);
 

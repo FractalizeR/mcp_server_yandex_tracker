@@ -31,8 +31,8 @@ export async function disconnectCommand(options: DisconnectCommandOptions): Prom
 
     const connectedClients = Array.from(statuses.entries())
       .filter(([, status]) => status.connected)
-      .map(([name]) => registry.get(name)!)
-      .filter(Boolean);
+      .map(([name]) => registry.get(name))
+      .filter((c): c is NonNullable<typeof c> => c !== undefined);
 
     if (connectedClients.length === 0) {
       Logger.warn('MCP сервер не подключен ни к одному клиенту');

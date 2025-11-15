@@ -51,8 +51,8 @@ export class CodexConnector extends BaseConnector {
     };
   }
 
-  async isInstalled(): Promise<boolean> {
-    return CommandExecutor.isCommandAvailable('codex');
+  isInstalled(): Promise<boolean> {
+    return Promise.resolve(CommandExecutor.isCommandAvailable('codex'));
   }
 
   async getStatus(): Promise<ConnectionStatus> {
@@ -92,11 +92,11 @@ export class CodexConnector extends BaseConnector {
       '--env',
       `${ENV_VAR_NAMES.YANDEX_ORG_ID}=${serverConfig.orgId}`,
       '--env',
-      `${ENV_VAR_NAMES.YANDEX_TRACKER_API_BASE}=${serverConfig.apiBase || DEFAULT_API_BASE}`,
+      `${ENV_VAR_NAMES.YANDEX_TRACKER_API_BASE}=${serverConfig.apiBase ?? DEFAULT_API_BASE}`,
       '--env',
-      `${ENV_VAR_NAMES.LOG_LEVEL}=${serverConfig.logLevel || DEFAULT_LOG_LEVEL}`,
+      `${ENV_VAR_NAMES.LOG_LEVEL}=${serverConfig.logLevel ?? DEFAULT_LOG_LEVEL}`,
       '--env',
-      `${ENV_VAR_NAMES.REQUEST_TIMEOUT}=${serverConfig.requestTimeout || DEFAULT_REQUEST_TIMEOUT}`,
+      `${ENV_VAR_NAMES.REQUEST_TIMEOUT}=${serverConfig.requestTimeout ?? DEFAULT_REQUEST_TIMEOUT}`,
       '--',
       'node',
       path.join(serverConfig.projectPath, SERVER_ENTRY_POINT),

@@ -15,7 +15,7 @@ export abstract class BaseConnector implements MCPConnector {
   /**
    * Базовая валидация конфигурации
    */
-  async validateConfig(config: MCPServerConfig): Promise<string[]> {
+  validateConfig(config: MCPServerConfig): Promise<string[]> {
     const errors: string[] = [];
 
     if (!config.token || config.token.trim().length === 0) {
@@ -30,7 +30,7 @@ export abstract class BaseConnector implements MCPConnector {
       errors.push('Путь к проекту обязателен');
     }
 
-    return errors;
+    return Promise.resolve(errors);
   }
 
   /**
@@ -45,7 +45,7 @@ export abstract class BaseConnector implements MCPConnector {
   /**
    * Получить текущую платформу
    */
-  protected getCurrentPlatform(): NodeJS.Platform {
+  protected getCurrentPlatform(): ReturnType<typeof os.platform> {
     return os.platform();
   }
 }
