@@ -9,7 +9,12 @@
 
 import { PingTool } from '@mcp/tools/ping.tool.js';
 import { GetIssuesTool } from '@mcp/tools/api/issues/get/index.js';
+import { CreateIssueTool } from '@mcp/tools/api/issues/create/index.js';
 import { FindIssuesTool } from '@mcp/tools/api/issues/find/index.js';
+import { UpdateIssueTool } from '@mcp/tools/api/issues/update/index.js';
+import { GetIssueChangelogTool } from '@mcp/tools/api/issues/changelog/index.js';
+import { GetIssueTransitionsTool } from '@mcp/tools/api/issues/transitions/get/index.js';
+import { TransitionIssueTool } from '@mcp/tools/api/issues/transitions/execute/index.js';
 import { IssueUrlTool } from '@mcp/tools/helpers/issue-url/index.js';
 import { DemoTool } from '@mcp/tools/helpers/demo/index.js';
 import { SearchToolsTool } from '@mcp/tools/helpers/search/index.js';
@@ -30,7 +35,12 @@ import { SearchToolsTool } from '@mcp/tools/helpers/search/index.js';
 export const TOOL_CLASSES = [
   PingTool,
   GetIssuesTool,
+  CreateIssueTool,
   FindIssuesTool,
+  UpdateIssueTool,
+  GetIssueChangelogTool,
+  GetIssueTransitionsTool,
+  TransitionIssueTool,
   IssueUrlTool,
   DemoTool,
   SearchToolsTool, // ← Helper tool для поиска других инструментов

@@ -8,8 +8,15 @@
  */
 
 import { PingOperation } from '@tracker_api/api_operations/user/ping.operation.js';
-import { GetIssuesOperation } from '@tracker_api/api_operations/issue/get-issues.operation.js';
-import { FindIssuesOperation } from '@tracker_api/api_operations/issue/find/index.js';
+import {
+  GetIssuesOperation,
+  FindIssuesOperation,
+  CreateIssueOperation,
+  UpdateIssueOperation,
+  GetIssueChangelogOperation,
+  GetIssueTransitionsOperation,
+  TransitionIssueOperation,
+} from '@tracker_api/api_operations/issue/index.js';
 
 /**
  * Массив всех Operation классов в проекте
@@ -19,7 +26,16 @@ import { FindIssuesOperation } from '@tracker_api/api_operations/issue/find/inde
  * - Symbol автоматически создаётся как Symbol.for(ClassName)
  * - Пример: PingOperation → Symbol.for('PingOperation')
  */
-export const OPERATION_CLASSES = [PingOperation, GetIssuesOperation, FindIssuesOperation] as const;
+export const OPERATION_CLASSES = [
+  PingOperation,
+  GetIssuesOperation,
+  FindIssuesOperation,
+  CreateIssueOperation,
+  UpdateIssueOperation,
+  GetIssueChangelogOperation,
+  GetIssueTransitionsOperation,
+  TransitionIssueOperation,
+] as const;
 
 /**
  * Тип для Operation классов (type-safe)

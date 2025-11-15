@@ -22,3 +22,13 @@ export type { IssueType, IssueTypeWithUnknownFields } from './issue-type.entity.
 
 // Issue
 export type { Issue, IssueWithUnknownFields } from './issue.entity.js';
+
+// Changelog
+export type {
+  ChangelogEntry,
+  ChangelogEntryWithUnknownFields,
+  ChangelogField,
+} from './changelog.entity.js';
+
+// Transition
+export type { Transition, TransitionWithUnknownFields } from './transition.entity.js';

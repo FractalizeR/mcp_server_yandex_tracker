@@ -9,7 +9,12 @@ import type { BatchIssueResult } from '@tracker_api/api_operations/issue/get-iss
 import type { IssueWithUnknownFields } from '@tracker_api/entities/index.js';
 import { PingTool } from '@mcp/tools/ping.tool.js';
 import { GetIssuesTool } from '@mcp/tools/api/issues/get/index.js';
+import { CreateIssueTool } from '@mcp/tools/api/issues/create/index.js';
+import { UpdateIssueTool } from '@mcp/tools/api/issues/update/index.js';
 import { FindIssuesTool } from '@mcp/tools/api/issues/find/index.js';
+import { GetIssueChangelogTool } from '@mcp/tools/api/issues/changelog/index.js';
+import { GetIssueTransitionsTool } from '@mcp/tools/api/issues/transitions/get/index.js';
+import { TransitionIssueTool } from '@mcp/tools/api/issues/transitions/execute/index.js';
 import { IssueUrlTool } from '@mcp/tools/helpers/issue-url/index.js';
 import { DemoTool } from '@mcp/tools/helpers/demo/index.js';
 
@@ -24,6 +29,8 @@ describe('ToolRegistry', () => {
     mockFacade = {
       ping: vi.fn(),
       getIssues: vi.fn(),
+      createIssue: vi.fn(),
+      updateIssue: vi.fn(),
       findIssues: vi.fn(),
     } as unknown as YandexTrackerFacade;
 
@@ -46,8 +53,23 @@ describe('ToolRegistry', () => {
         if (symbolStr.includes('GetIssuesTool')) {
           return new GetIssuesTool(mockFacade, mockLogger);
         }
+        if (symbolStr.includes('CreateIssueTool')) {
+          return new CreateIssueTool(mockFacade, mockLogger);
+        }
+        if (symbolStr.includes('UpdateIssueTool')) {
+          return new UpdateIssueTool(mockFacade, mockLogger);
+        }
         if (symbolStr.includes('FindIssuesTool')) {
           return new FindIssuesTool(mockFacade, mockLogger);
+        }
+        if (symbolStr.includes('GetIssueChangelogTool')) {
+          return new GetIssueChangelogTool(mockFacade, mockLogger);
+        }
+        if (symbolStr.includes('GetIssueTransitionsTool')) {
+          return new GetIssueTransitionsTool(mockFacade, mockLogger);
+        }
+        if (symbolStr.includes('TransitionIssueTool')) {
+          return new TransitionIssueTool(mockFacade, mockLogger);
         }
         if (symbolStr.includes('IssueUrlTool')) {
           return new IssueUrlTool(mockFacade, mockLogger);
@@ -85,13 +107,13 @@ describe('ToolRegistry', () => {
       // Lazy initialization - проверяем после первого вызова
       const definitions = registry.getDefinitions();
 
-      // Assert - теперь у нас 6 tools (включая FindIssuesTool, IssueUrlTool, DemoTool, SearchToolsTool)
+      // Assert - теперь у нас 11 tools (Ping, GetIssues, CreateIssue, UpdateIssue, FindIssues, GetIssueChangelog, GetIssueTransitions, TransitionIssue, IssueUrl, Demo, SearchTools)
       expect(mockLogger.debug).toHaveBeenCalledWith('Зарегистрирован инструмент: fyt_mcp_ping');
       expect(mockLogger.debug).toHaveBeenCalledWith(
         'Зарегистрирован инструмент: fyt_mcp_get_issues'
       );
-      expect(mockLogger.debug).toHaveBeenCalledWith('Зарегистрировано инструментов: 6');
-      expect(definitions.length).toBe(6);
+      expect(mockLogger.debug).toHaveBeenCalledWith('Зарегистрировано инструментов: 11');
+      expect(definitions.length).toBe(11);
     });
   });
 
@@ -100,8 +122,8 @@ describe('ToolRegistry', () => {
       // Act
       const definitions = registry.getDefinitions();
 
-      // Assert - теперь 6 tools
-      expect(definitions).toHaveLength(6);
+      // Assert - теперь 11 tools
+      expect(definitions).toHaveLength(11);
 
       const pingDef = definitions.find((d) => d.name === 'fyt_mcp_ping');
       const getIssuesDef = definitions.find((d) => d.name === 'fyt_mcp_get_issues');

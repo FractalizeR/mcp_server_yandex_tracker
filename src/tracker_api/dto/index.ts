@@ -10,4 +10,5 @@ export type {
   UpdateIssueDto,
   SearchIssuesDto,
   FindIssuesInputDto,
+  ExecuteTransitionDto,
 } from './issue/index.js';
