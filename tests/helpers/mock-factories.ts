@@ -8,13 +8,18 @@ import type { YandexTrackerFacade } from '@tracker_api/facade/yandex-tracker.fac
  * Создать полностью типизированный mock для Logger
  */
 export function createMockLogger(): Logger {
-  const childLogger: Logger = {
+  const childLogger = {
     debug: vi.fn(),
     info: vi.fn(),
     warn: vi.fn(),
     error: vi.fn(),
-    child: vi.fn(() => childLogger),
-  };
+    child: vi.fn(),
+    setAlertingTransport: vi.fn(),
+    setLevel: vi.fn(),
+  } as unknown as Logger;
+
+  // Настроить child чтобы возвращал сам себя
+  (childLogger.child as ReturnType<typeof vi.fn>).mockReturnValue(childLogger);
 
   return childLogger;
 }

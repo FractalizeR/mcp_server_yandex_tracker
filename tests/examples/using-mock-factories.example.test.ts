@@ -15,6 +15,7 @@ import type { YandexTrackerFacade } from '@tracker_api/facade/yandex-tracker.fac
  */
 describe('EXAMPLE: Using Mock Factories', () => {
   let mockLogger: Logger;
+  // @ts-expect-error - пример использования, используется только для демонстрации паттерна
   let mockHttpClient: HttpClient;
   let mockFacade: Partial<YandexTrackerFacade>;
 

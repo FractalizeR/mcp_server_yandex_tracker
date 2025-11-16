@@ -183,7 +183,7 @@ export class MockServer {
 
     // Если matcher не передан, мокируем все запросы
     if (!matcher) {
-      this.mockAdapter.onPost(`${TRACKER_API_V3}/issues/_search`).reply((config) => {
+      this.mockAdapter.onPost(`${TRACKER_API_V3}/issues/_search`).reply((_config) => {
         // Удаляем из pending при вызове
         const index = this.pendingMocks.indexOf(`POST ${TRACKER_API_V3}/issues/_search`);
         if (index !== -1) {
@@ -222,7 +222,7 @@ export class MockServer {
    * Мок ошибки 400 при поиске задач (невалидный запрос)
    */
   mockFindIssuesError400(): this {
-    this.mockAdapter.onPost(`${TRACKER_API_V3}/issues/_search`).reply((config) => {
+    this.mockAdapter.onPost(`${TRACKER_API_V3}/issues/_search`).reply((_config) => {
       // Удаляем из pending при вызове
       const index = this.pendingMocks.indexOf(`POST ${TRACKER_API_V3}/issues/_search`);
       if (index !== -1) {
@@ -246,7 +246,7 @@ export class MockServer {
    * Мок пустого результата поиска
    */
   mockFindIssuesEmpty(): this {
-    this.mockAdapter.onPost(`${TRACKER_API_V3}/issues/_search`).reply((config) => {
+    this.mockAdapter.onPost(`${TRACKER_API_V3}/issues/_search`).reply((_config) => {
       // Удаляем из pending при вызове
       const index = this.pendingMocks.indexOf(`POST ${TRACKER_API_V3}/issues/_search`);
       if (index !== -1) {
@@ -275,9 +275,7 @@ export class MockServer {
    */
   assertAllRequestsDone(): void {
     if (this.pendingMocks.length > 0) {
-      throw new Error(
-        `Не все HTTP моки были использованы: ${this.pendingMocks.join(', ')}`
-      );
+      throw new Error(`Не все HTTP моки были использованы: ${this.pendingMocks.join(', ')}`);
     }
   }
 }
