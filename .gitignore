@@ -62,3 +62,6 @@ logs/
 knip-report.json
 dependency-graph.svg
 dependency-graph.html
+
+# Continuation prompts (локальные, не коммитятся)
+.continuation-prompts/
