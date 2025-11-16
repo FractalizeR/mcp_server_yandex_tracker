@@ -9,6 +9,7 @@
  */
 
 import { BaseTool, ToolCategory } from '@mcp-framework/core';
+import type { YandexTrackerFacade } from '@tracker_api/facade/index.js';
 import type { ToolDefinition } from '@mcp-framework/core';
 import type { ToolCallParams, ToolResult } from '@mcp-framework/infrastructure';
 import { IssueUrlDefinition } from '@tools/helpers/issue-url/issue-url.definition.js';
@@ -55,7 +56,7 @@ export class IssueUrlTool extends BaseTool<YandexTrackerFacade> {
     const { issueKeys } = validation.data;
 
     // 2. Формирование URL для каждой задачи (без API запросов)
-    const results = issueKeys.map((issueKey) => ({
+    const results = issueKeys.map((issueKey: string) => ({
       issueKey,
       url: `${this.TRACKER_BASE_URL}/${issueKey}`,
       description: `Открыть задачу ${issueKey} в браузере`,

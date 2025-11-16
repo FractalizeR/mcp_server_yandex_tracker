@@ -43,7 +43,7 @@ export const CreateIssueParamsSchema = z.object({
    * Кастомные поля Трекера (опционально)
    * Формат: { "fieldKey": "value" }
    */
-  customFields: z.record(z.unknown()).optional(),
+  customFields: z.record(z.string(), z.unknown()).optional(),
 
   /**
    * Опциональный массив полей для фильтрации ответа

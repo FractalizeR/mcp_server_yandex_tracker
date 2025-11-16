@@ -21,7 +21,7 @@ import type { BaseTool, ToolDefinition } from './tools/base/index.js';
  * Конструктор класса Tool для DI
  */
 export interface ToolConstructor {
-  new (...args: unknown[]): BaseTool;
+  new (...args: any[]): BaseTool<any>; // eslint-disable-line @typescript-eslint/no-explicit-any
   name: string;
 }
 

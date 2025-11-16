@@ -4,4 +4,5 @@
  * Используют несколько API вызовов или реализуют операции, которых нет в API
  */
 
-export * from './search/index.js';
+// SearchToolsTool moved to @mcp-framework/search package
+// export * from './search/index.js';

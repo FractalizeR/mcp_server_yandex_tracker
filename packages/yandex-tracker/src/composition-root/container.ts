@@ -215,8 +215,8 @@ async function bindSearchToolsTool(container: Container): Promise<void> {
 function bindToolRegistry(container: Container): void {
   container.bind<ToolRegistry>(TYPES.ToolRegistry).toDynamicValue(() => {
     const loggerInstance = container.get<Logger>(TYPES.Logger);
-    // Передаём контейнер для автоматической регистрации всех tools
-    return new ToolRegistry(container, loggerInstance);
+    // Передаём контейнер, logger и TOOL_CLASSES для автоматической регистрации всех tools
+    return new ToolRegistry(container, loggerInstance, TOOL_CLASSES);
   });
 }
 
