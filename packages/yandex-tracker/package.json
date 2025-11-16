@@ -8,7 +8,7 @@
     "mcp-server-yandex-tracker": "./dist/index.js"
   },
   "scripts": {
-    "build": "tsc && tsc-alias",
+    "build": "tsc -b && tsc-alias",
     "build:bundle": "esbuild src/index.ts --bundle --platform=node --format=esm --outfile=dist/bundle.js --external:@modelcontextprotocol/sdk --external:axios --external:inversify --external:p-limit --sourcemap",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",

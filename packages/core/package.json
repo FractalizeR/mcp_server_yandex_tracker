@@ -20,7 +20,7 @@
     }
   },
   "scripts": {
-    "build": "tsc && tsc-alias",
+    "build": "tsc -b && tsc-alias",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest watch",
