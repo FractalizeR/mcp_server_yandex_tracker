@@ -4,8 +4,8 @@
 
 import { describe, it, expect } from 'vitest';
 import type { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
-import { ErrorMapper } from '@infrastructure/http/error/error-mapper.js';
-import type { ApiError } from '@types';
+import { ErrorMapper } from '@mcp-framework/infrastructure/http/error/error-mapper.js';
+import type { ApiError } from '@mcp-framework/infrastructure/types.js';
 
 /**
  * Вспомогательная функция для создания мок AxiosError
