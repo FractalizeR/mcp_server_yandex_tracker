@@ -30,7 +30,11 @@
     "@mcp-framework/core": "*",
     "@mcp-framework/search": "*",
     "@mcp-framework/infrastructure": "*",
-    "inversify": "^7.10.4"
+    "@modelcontextprotocol/sdk": "^1.22.0",
+    "inversify": "^7.10.4",
+    "zod": "^3.25.76",
+    "axios": "^1.7.9",
+    "pino": "^10.1.0"
   },
   "devDependencies": {
     "@types/node": "^24.10.1",

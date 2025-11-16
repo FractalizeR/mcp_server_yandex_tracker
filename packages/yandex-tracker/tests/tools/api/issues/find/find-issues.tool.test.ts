@@ -4,9 +4,9 @@
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Logger } from '@mcp-framework/infrastructure/logging/index.js';
-import type { YandexTrackerFacade } from '../../../src/tracker_api/facade/yandex-tracker.facade.js';
-import type { IssueWithUnknownFields } from '../../../src/tracker_api/entities/index.js';
-import { FindIssuesTool } from '../../../src/mcp/tools/api/issues/find/index.js';
+import type { YandexTrackerFacade } from '@tracker_api/facade/yandex-tracker.facade.js';
+import type { IssueWithUnknownFields } from '@tracker_api/entities/index.js';
+import { FindIssuesTool } from '@tools/api/issues/find/index.js';
 
 describe('FindIssuesTool', () => {
   let tool: FindIssuesTool;
@@ -332,7 +332,7 @@ describe('FindIssuesTool', () => {
   describe('METADATA', () => {
     it('должен иметь корректные статические метаданные', () => {
       expect(FindIssuesTool.METADATA).toBeDefined();
-      expect(FindIssuesTool.METADATA.name).toBe('fractalizer_mcp_yandex_tracker_find_issues');
+      expect(FindIssuesTool.METADATA.name).toBe('find_issues');
       expect(FindIssuesTool.METADATA.description).toContain('Найти задачи');
       expect(FindIssuesTool.METADATA.category).toBe('issues');
       expect(FindIssuesTool.METADATA.tags).toContain('issue');

@@ -5,13 +5,13 @@
 import { describe, it, expect } from 'vitest';
 import type { Container } from 'inversify';
 import type { ServerConfig } from '@mcp-framework/infrastructure/types.js';
-import { createContainer } from '../../../src/composition-root/container.js';
-import { TYPES } from '../../../src/composition-root/types.js';
+import { createContainer } from '@composition-root/container.js';
+import { TYPES } from '@composition-root/types.js';
 import type { Logger } from '@mcp-framework/infrastructure/logging/index.js';
 import type { HttpClient } from '@mcp-framework/infrastructure/http/client/http-client.js';
 import type { CacheManager } from '@mcp-framework/infrastructure/cache/cache-manager.interface.js';
-import type { YandexTrackerFacade } from '../../../src/tracker_api/facade/yandex-tracker.facade.js';
-import type { ToolRegistry } from '../../../src/mcp/tool-registry.js';
+import type { YandexTrackerFacade } from '@tracker_api/facade/yandex-tracker.facade.js';
+import type { ToolRegistry } from '@mcp-framework/core/tool-registry.js';
 
 describe('Container', () => {
   let container: Container;

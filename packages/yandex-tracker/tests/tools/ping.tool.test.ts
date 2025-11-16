@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { PingTool } from '../../../src/mcp/tools/ping.tool.js';
-import type { YandexTrackerFacade } from '../../../src/tracker_api/facade/yandex-tracker.facade.js';
+import { PingTool } from '@tools/ping.tool.js';
+import type { YandexTrackerFacade } from '@tracker_api/facade/yandex-tracker.facade.js';
 import type { Logger } from '@mcp-framework/infrastructure/logging/index.js';
 import type { ToolCallParams } from '@mcp-framework/infrastructure/types.js';
-import type { PingResult } from '../../../src/tracker_api/api_operations/user/ping.operation.js';
+import type { PingResult } from '@tracker_api/api_operations/user/ping.operation.js';
 
 describe('PingTool', () => {
   let tool: PingTool;
@@ -39,7 +39,7 @@ describe('PingTool', () => {
       const definition = tool.getDefinition();
 
       // Assert
-      expect(definition.name).toBe('fractalizer_mcp_yandex_tracker_ping');
+      expect(definition.name).toBe('ping');
       expect(definition.description).toContain('API Яндекс.Трекера');
       expect(definition.description).toContain('OAuth токена');
       expect(definition.inputSchema.type).toBe('object');
