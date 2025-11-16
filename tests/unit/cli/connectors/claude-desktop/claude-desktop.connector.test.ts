@@ -246,7 +246,7 @@ describe('ClaudeDesktopConnector', () => {
       await connector.connect(mockConfig);
 
       // Assert
-      const writeCall = FileManager.writeJSON.mock.calls[0];
+      const writeCall = FileManager.writeJSON.mock.calls[0]!;
       const writtenConfig = writeCall[1];
       expect(writtenConfig.mcpServers.fractalizer_mcp_yandex_tracker).toBeDefined();
       expect(writtenConfig.mcpServers['other-server']).toBeDefined(); // Не удаляем другие серверы
@@ -271,7 +271,7 @@ describe('ClaudeDesktopConnector', () => {
       await connector.connect(fullConfig);
 
       // Assert
-      const writeCall = FileManager.writeJSON.mock.calls[0];
+      const writeCall = FileManager.writeJSON.mock.calls[0]!;
       const writtenConfig = writeCall[1];
       const env = writtenConfig.mcpServers.fractalizer_mcp_yandex_tracker.env;
 
@@ -298,7 +298,7 @@ describe('ClaudeDesktopConnector', () => {
       await connector.connect(minimalConfig);
 
       // Assert
-      const writeCall = FileManager.writeJSON.mock.calls[0];
+      const writeCall = FileManager.writeJSON.mock.calls[0]!;
       const writtenConfig = writeCall[1];
       const env = writtenConfig.mcpServers.fractalizer_mcp_yandex_tracker.env;
 
@@ -317,7 +317,7 @@ describe('ClaudeDesktopConnector', () => {
       await connector.connect(mockConfig);
 
       // Assert
-      const writeCall = FileManager.writeJSON.mock.calls[0];
+      const writeCall = FileManager.writeJSON.mock.calls[0]!;
       const writtenConfig = writeCall[1];
       const args = writtenConfig.mcpServers.fractalizer_mcp_yandex_tracker.args;
 
@@ -362,7 +362,7 @@ describe('ClaudeDesktopConnector', () => {
       await connector.disconnect();
 
       // Assert
-      const writeCall = FileManager.writeJSON.mock.calls[0];
+      const writeCall = FileManager.writeJSON.mock.calls[0]!;
       const writtenConfig = writeCall[1];
       expect(writtenConfig.mcpServers.fractalizer_mcp_yandex_tracker).toBeUndefined();
       expect(writtenConfig.mcpServers['other-server']).toBeDefined(); // Не удаляем другие серверы
