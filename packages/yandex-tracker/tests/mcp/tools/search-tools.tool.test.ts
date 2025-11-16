@@ -12,17 +12,17 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { SearchToolsTool } from '@tools/helpers/search/search-tools.tool.js';
+import { SearchToolsTool } from '@mcp-framework/search';
 import { ToolSearchEngine } from '@mcp-framework/search/tool-search-engine.js';
 import { WeightedCombinedStrategy } from '@mcp-framework/search/strategies/weighted-combined.strategy.js';
 import { NameSearchStrategy } from '@mcp-framework/search/strategies/name-search.strategy.js';
 import { DescriptionSearchStrategy } from '@mcp-framework/search/strategies/description-search.strategy.js';
 import { CategorySearchStrategy } from '@mcp-framework/search/strategies/category-search.strategy.js';
 import { FuzzySearchStrategy } from '@mcp-framework/search/strategies/fuzzy-search.strategy.js';
-import { ToolCategory } from '@tools/base/tool-metadata.js';
+import { ToolCategory } from '@mcp-framework/core/tools/base/tool-metadata.js';
 import type { StaticToolIndex, StrategyType } from '@mcp-framework/search/types.js';
-import type { ToolRegistry } from '@mcp/tool-registry.js';
-import type { BaseTool } from '@tools/base/base-tool.js';
+import type { ToolRegistry } from '@mcp-framework/core/tool-registry.js';
+import type { BaseTool } from '@mcp-framework/core/tools/base/base-tool.js';
 import type { Logger } from '@mcp-framework/infrastructure/logging/index.js';
 
 describe('SearchToolsTool (E2E)', () => {

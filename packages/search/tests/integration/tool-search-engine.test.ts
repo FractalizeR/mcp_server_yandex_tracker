@@ -16,10 +16,10 @@ import { NameSearchStrategy } from '@mcp-framework/search/strategies/name-search
 import { DescriptionSearchStrategy } from '@mcp-framework/search/strategies/description-search.strategy.js';
 import { CategorySearchStrategy } from '@mcp-framework/search/strategies/category-search.strategy.js';
 import { FuzzySearchStrategy } from '@mcp-framework/search/strategies/fuzzy-search.strategy.js';
-import { ToolCategory } from '@mcp/tools/base/tool-metadata.js';
+import { ToolCategory } from '@mcp-framework/core/tools/base/tool-metadata.js';
 import type { StaticToolIndex, StrategyType } from '@mcp-framework/search/types.js';
-import type { ToolRegistry } from '@mcp/tool-registry.js';
-import type { BaseTool } from '@mcp/tools/base/base-tool.js';
+import type { ToolRegistry } from '@mcp-framework/core/tool-registry.js';
+import type { BaseTool } from '@mcp-framework/core/tools/base/base-tool.js';
 
 describe('ToolSearchEngine (Integration)', () => {
   // Mock ToolRegistry
