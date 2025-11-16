@@ -2,25 +2,28 @@
 
 ## Текущая ситуация
 
-**Дата обновления:** 2025-11-16
-**Ветка:** `claude/review-continuation-prompt-stage-01Te4nRpVYo8oTKdWPGzJvij`
+**Дата обновления:** 2025-01-16
+**Ветка:** `claude/continuation-prompt-implementation-01Hu2KMLWa78M7JZ1ymZoVWf`
+**Коммит:** `471efb8` - "test: добавить unit тесты для улучшения покрытия (+5% coverage)"
 
-### Текущее покрытие (2025-11-16)
+### Текущее покрытие (2025-01-16)
 
 ```
-Lines:      60.86% (было 46.01%, +14.85%)
-Functions:  69.92% (было 53.82%, +16.10%)
-Statements: 60.83% (было 46.18%, +14.65%)
-Branches:   56.26% (было 43.11%, +13.15%)
+Lines:      65.83% (было 60.86%, +4.97%)
+Functions:  67.27% (было 69.92%, -2.65%)
+Statements: 65.83% (было 60.83%, +5.00%)
+Branches:   72.55% (было 56.26%, +16.29%)
 ```
+
+**Прогресс:** +5% Lines, +5% Statements, +16.29% Branches
 
 ### Цели финального этапа
 
 **Минимальные цели (MUST):**
-- Lines: 70%+ (нужно +9.14%)
-- Functions: 75%+ (нужно +5.08%)
-- Statements: 70%+ (нужно +9.17%)
-- Branches: 65%+ (нужно +8.74%)
+- Lines: 70%+ (нужно +4.17%) ⚠️
+- Functions: 75%+ (нужно +7.73%) ⚠️
+- Statements: 70%+ (нужно +4.17%) ⚠️
+- Branches: 65%+ (✅ ДОСТИГНУТО - 72.55%)
 
 **Идеальные цели (SHOULD):**
 - Lines: 80%+
@@ -67,152 +70,27 @@ Branches:   56.26% (было 43.11%, +13.15%)
 - NameSearchStrategy (тесты есть) ✅
 - DescriptionSearchStrategy (17 тестов) ✅
 
+### Stage 4: SearchToolsTool и GetIssuesOperation (ВЫПОЛНЕН - 2025-01-16)
+
+✅ **SearchToolsTool tests** - 23 unit теста (коммит 471efb8):
+- Валидация параметров (Zod): 8 тестов
+- Функциональность поиска: 9 тестов
+- Логирование: 2 теста
+- Обработка ошибок: 3 теста
+- Метаданные: 1 тест
+
+✅ **GetIssuesOperation edge cases** - 3 новых теста (коммит 471efb8):
+- Реальный код кеширования для одной задачи (покрывает строки 76-81)
+- Использование кешированных данных
+- Batch запросы с реальным ParallelExecutor
+
+**Результат:** +5% Lines, +5% Statements, +16.29% Branches
+
 ---
 
 ## Оставшиеся задачи
 
-### Приоритет 1: КРИТИЧНО для достижения минимальных целей (+9% покрытия)
-
-#### 1.1. SearchToolsTool tests (+3% покрытия)
-
-**Проблема:** SearchToolsTool покрыт только на 19.04%, но это критичный helper tool
-
-**Файл:** `tests/unit/mcp/tools/helpers/search/search-tools.tool.test.ts`
-**Тестируемый:** `src/mcp/tools/helpers/search/search-tools.tool.ts`
-
-**ВАЖНО:** Уже есть integration тесты (25 tests), нужны unit тесты для покрытия.
-
-**Тесты:**
-1. ✅ **Validation**
-   - should validate query parameter (required, non-empty string)
-   - should validate limit parameter (positive integer, max 50)
-   - should use default limit if not provided
-
-2. ✅ **Search functionality**
-   - should use SearchEngine to find tools
-   - should return ranked results sorted by score
-   - should limit results based on limit parameter
-   - should include tool metadata in results (name, category, description)
-   - should handle empty query gracefully
-   - should handle no results found
-
-3. ✅ **Caching**
-   - should use LRU cache for repeated queries
-   - should return cached results for same query
-   - should handle cache misses correctly
-
-4. ✅ **Error handling**
-   - should handle SearchEngine errors
-   - should log search operations
-
-**Шаблон:**
-
-```typescript
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { SearchToolsTool } from './search-tools.tool.js';
-import type { SearchEngine } from '@mcp/search/engine/search-engine.js';
-import type { Logger } from '@infrastructure/logging/logger.js';
-
-describe('SearchToolsTool', () => {
-  let tool: SearchToolsTool;
-  let mockSearchEngine: SearchEngine;
-  let mockLogger: Logger;
-
-  beforeEach(() => {
-    mockSearchEngine = {
-      search: vi.fn(),
-    } as unknown as SearchEngine;
-
-    mockLogger = {
-      info: vi.fn(),
-      debug: vi.fn(),
-      error: vi.fn(),
-    } as unknown as Logger;
-
-    tool = new SearchToolsTool(mockSearchEngine, mockLogger);
-  });
-
-  describe('Validation', () => {
-    it('should require query parameter', async () => {
-      const result = await tool.execute({});
-      expect(result.isError).toBe(true);
-    });
-
-    it('should validate limit parameter', async () => {
-      const result = await tool.execute({ query: 'test', limit: -1 });
-      expect(result.isError).toBe(true);
-    });
-  });
-
-  describe('Search functionality', () => {
-    it('should call SearchEngine.search with query', async () => {
-      const mockResults = [
-        { toolName: 'get_issues', score: 0.9, strategyType: 'exact' as const, matchReason: 'exact match' }
-      ];
-      vi.mocked(mockSearchEngine.search).mockReturnValue(mockResults);
-
-      await tool.execute({ query: 'get issues' });
-
-      expect(mockSearchEngine.search).toHaveBeenCalledWith('get issues');
-    });
-
-    it('should limit results based on limit parameter', async () => {
-      const mockResults = Array(10).fill(null).map((_, i) => ({
-        toolName: `tool_${i}`,
-        score: 0.9 - i * 0.1,
-        strategyType: 'exact' as const,
-        matchReason: 'match'
-      }));
-      vi.mocked(mockSearchEngine.search).mockReturnValue(mockResults);
-
-      const result = await tool.execute({ query: 'test', limit: 5 });
-
-      const parsed = JSON.parse(result.content[0]?.text || '{}');
-      expect(parsed.data.results).toHaveLength(5);
-    });
-  });
-});
-```
-
-**Ожидаемое улучшение:** +3% Lines, +2% Functions
-
----
-
-#### 1.2. Докрыть GetIssuesOperation строки 76-81 (+0.5% покрытия)
-
-**Проблема:** GetIssuesOperation покрыт на 75%, строки 76-81 не покрыты
-
-**Файл:** Расширить `tests/unit/tracker_api/api_operations/issue/get/get-issues.operation.test.ts`
-
-**Что добавить:**
-```typescript
-describe('GetIssuesOperation - edge cases', () => {
-  it('should handle empty issueKeys array', async () => {
-    await expect(operation.execute([])).rejects.toThrow();
-  });
-
-  it('should handle single issue key', async () => {
-    // Test line 76-81: single key path
-    const mockResponse = { data: { id: '1', key: 'TEST-1' } };
-    vi.mocked(mockHttpClient.get).mockResolvedValue(mockResponse);
-
-    const result = await operation.execute(['TEST-1']);
-
-    expect(result).toHaveLength(1);
-    expect(result[0].status).toBe('fulfilled');
-  });
-
-  it('should handle batch with all successful requests', async () => {
-    // Test batch path lines 76-81
-    const keys = ['TEST-1', 'TEST-2', 'TEST-3'];
-    // ... test batch logic
-  });
-});
-```
-
-**Ожидаемое улучшение:** +0.5% Lines
-
----
+### Приоритет 1: КРИТИЧНО для достижения минимальных целей (~4-5% покрытия)
 
 #### 1.3. Докрыть FindIssuesOperation строки 83, 102-103 (+0.3% покрытия)
 
@@ -384,14 +262,14 @@ describeOrSkip('integration tests', () => {
 
 ### Быстрый путь к минимальным целям (70% coverage)
 
-**Шаг 1:** SearchToolsTool tests (1-2 часа) → +3% покрытия
-**Шаг 2:** GetIssuesOperation edge cases (30 мин) → +0.5%
-**Шаг 3:** FindIssuesOperation edge cases (30 мин) → +0.3%
-**Шаг 4:** ResponseFieldFilter edge cases (30 мин) → +0.5%
-**Шаг 5:** BaseDefinition safety tests (1 час) → +1%
-**Шаг 6:** ExactMatchStrategy tests (1 час) → +0.5%
+**✅ Шаг 1:** SearchToolsTool tests (1-2 часа) → +3% покрытия (ВЫПОЛНЕНО)
+**✅ Шаг 2:** GetIssuesOperation edge cases (30 мин) → +0.5% (ВЫПОЛНЕНО)
+**⏳ Шаг 3:** FindIssuesOperation edge cases (30 мин) → +0.3%
+**⏳ Шаг 4:** ResponseFieldFilter edge cases (30 мин) → +0.5%
+**⏳ Шаг 5:** BaseDefinition safety tests (1 час) → +1%
+**⏳ Шаг 6:** ExactMatchStrategy tests (1 час) → +0.5%
 
-**Итого:** ~5-6 часов работы → 65.86% coverage (близко к минимальным целям)
+**Итого:** ~3-4 часа работы → ~68-70% coverage (достижение минимальных целей)
 
 ### Путь к идеальным целям (80% coverage)
 
@@ -456,6 +334,6 @@ npm run validate
 
 ---
 
-**Последнее обновление:** 2025-11-16
+**Последнее обновление:** 2025-01-16
 **Автор:** Claude Code
-**Статус:** В процессе выполнения
+**Статус:** В процессе выполнения (2 из 6 приоритетных задач выполнено)
