@@ -3,16 +3,49 @@ import type { Container } from 'inversify';
 import { YandexTrackerFacade } from '@tracker_api/facade/yandex-tracker.facade.js';
 import type { PingResult } from '@tracker_api/api_operations/user/ping.operation.js';
 import type { BatchIssueResult } from '@tracker_api/api_operations/issue/get-issues.operation.js';
+import type { FindIssuesResult } from '@tracker_api/api_operations/issue/find/index.js';
 import type { User } from '@tracker_api/entities/user.entity.js';
 import type { Issue, IssueWithUnknownFields } from '@tracker_api/entities/issue.entity.js';
 import type { Queue } from '@tracker_api/entities/queue.entity.js';
 import type { Status } from '@tracker_api/entities/status.entity.js';
+import type {
+  FindIssuesInputDto,
+  CreateIssueDto,
+  UpdateIssueDto,
+  ExecuteTransitionDto,
+} from '@tracker_api/dto/index.js';
+import type {
+  ChangelogEntryWithUnknownFields,
+  TransitionWithUnknownFields,
+} from '@tracker_api/entities/index.js';
 
 describe('YandexTrackerFacade', () => {
   let facade: YandexTrackerFacade;
   let mockContainer: Container;
   let mockPingOperation: { execute: () => Promise<PingResult> };
   let mockGetIssuesOperation: { execute: (keys: string[]) => Promise<BatchIssueResult[]> };
+  let mockFindIssuesOperation: {
+    execute: (params: FindIssuesInputDto) => Promise<FindIssuesResult>;
+  };
+  let mockCreateIssueOperation: {
+    execute: (data: CreateIssueDto) => Promise<IssueWithUnknownFields>;
+  };
+  let mockUpdateIssueOperation: {
+    execute: (key: string, data: UpdateIssueDto) => Promise<IssueWithUnknownFields>;
+  };
+  let mockGetIssueChangelogOperation: {
+    execute: (key: string) => Promise<ChangelogEntryWithUnknownFields[]>;
+  };
+  let mockGetIssueTransitionsOperation: {
+    execute: (key: string) => Promise<TransitionWithUnknownFields[]>;
+  };
+  let mockTransitionIssueOperation: {
+    execute: (
+      key: string,
+      id: string,
+      data?: ExecuteTransitionDto
+    ) => Promise<IssueWithUnknownFields>;
+  };
 
   beforeEach(() => {
     // Mock PingOperation
@@ -25,6 +58,36 @@ describe('YandexTrackerFacade', () => {
       execute: vi.fn(),
     };
 
+    // Mock FindIssuesOperation
+    mockFindIssuesOperation = {
+      execute: vi.fn(),
+    };
+
+    // Mock CreateIssueOperation
+    mockCreateIssueOperation = {
+      execute: vi.fn(),
+    };
+
+    // Mock UpdateIssueOperation
+    mockUpdateIssueOperation = {
+      execute: vi.fn(),
+    };
+
+    // Mock GetIssueChangelogOperation
+    mockGetIssueChangelogOperation = {
+      execute: vi.fn(),
+    };
+
+    // Mock GetIssueTransitionsOperation
+    mockGetIssueTransitionsOperation = {
+      execute: vi.fn(),
+    };
+
+    // Mock TransitionIssueOperation
+    mockTransitionIssueOperation = {
+      execute: vi.fn(),
+    };
+
     // Mock InversifyJS Container
     mockContainer = {
       get: vi.fn((symbol: symbol) => {
@@ -33,6 +96,24 @@ describe('YandexTrackerFacade', () => {
         }
         if (symbol === Symbol.for('GetIssuesOperation')) {
           return mockGetIssuesOperation;
+        }
+        if (symbol === Symbol.for('FindIssuesOperation')) {
+          return mockFindIssuesOperation;
+        }
+        if (symbol === Symbol.for('CreateIssueOperation')) {
+          return mockCreateIssueOperation;
+        }
+        if (symbol === Symbol.for('UpdateIssueOperation')) {
+          return mockUpdateIssueOperation;
+        }
+        if (symbol === Symbol.for('GetIssueChangelogOperation')) {
+          return mockGetIssueChangelogOperation;
+        }
+        if (symbol === Symbol.for('GetIssueTransitionsOperation')) {
+          return mockGetIssueTransitionsOperation;
+        }
+        if (symbol === Symbol.for('TransitionIssueOperation')) {
+          return mockTransitionIssueOperation;
         }
         throw new Error(`Unknown symbol: ${symbol.toString()}`);
       }),
@@ -244,6 +325,200 @@ describe('YandexTrackerFacade', () => {
       // Assert
       expect(results).toHaveLength(0);
       expect(mockGetIssuesOperation.execute).toHaveBeenCalledWith(issueKeys);
+    });
+  });
+
+  describe('findIssues', () => {
+    it('должна вызвать FindIssuesOperation.execute с правильными params', async () => {
+      const params: FindIssuesInputDto = { query: 'status: open', perPage: 50 };
+      const mockResult: FindIssuesResult = [
+        {
+          id: '1',
+          key: 'TEST-1',
+          summary: 'Test',
+          queue: { id: '1', key: 'TEST', display: 'Test', name: 'Test' },
+          status: { id: '1', key: 'open', display: 'Open' },
+          createdBy: { uid: '1', display: 'User', login: 'user', isActive: true },
+          createdAt: '2024-01-01',
+          updatedAt: '2024-01-01',
+        },
+      ];
+
+      vi.mocked(mockFindIssuesOperation.execute).mockResolvedValue(mockResult);
+
+      const result = await facade.findIssues(params);
+
+      expect(mockFindIssuesOperation.execute).toHaveBeenCalledWith(params);
+      expect(result).toEqual(mockResult);
+    });
+
+    it('должна обрабатывать ошибки от FindIssuesOperation', async () => {
+      const params: FindIssuesInputDto = { query: 'invalid' };
+      const error = new Error('Find failed');
+      vi.mocked(mockFindIssuesOperation.execute).mockRejectedValue(error);
+
+      await expect(facade.findIssues(params)).rejects.toThrow('Find failed');
+    });
+  });
+
+  describe('createIssue', () => {
+    it('должна вызвать CreateIssueOperation.execute с правильными данными', async () => {
+      const issueData: CreateIssueDto = { queue: 'TEST', summary: 'New Issue' };
+      const mockResult: IssueWithUnknownFields = {
+        id: '1',
+        key: 'TEST-1',
+        summary: 'New Issue',
+        queue: { id: '1', key: 'TEST', display: 'Test', name: 'Test' },
+        status: { id: '1', key: 'open', display: 'Open' },
+        createdBy: { uid: '1', display: 'User', login: 'user', isActive: true },
+        createdAt: '2024-01-01',
+        updatedAt: '2024-01-01',
+      };
+
+      vi.mocked(mockCreateIssueOperation.execute).mockResolvedValue(mockResult);
+
+      const result = await facade.createIssue(issueData);
+
+      expect(mockCreateIssueOperation.execute).toHaveBeenCalledWith(issueData);
+      expect(result).toEqual(mockResult);
+    });
+
+    it('должна обрабатывать ошибки от CreateIssueOperation', async () => {
+      const issueData: CreateIssueDto = { queue: 'TEST', summary: '' };
+      const error = new Error('Create failed');
+      vi.mocked(mockCreateIssueOperation.execute).mockRejectedValue(error);
+
+      await expect(facade.createIssue(issueData)).rejects.toThrow('Create failed');
+    });
+  });
+
+  describe('updateIssue', () => {
+    it('должна вызвать UpdateIssueOperation.execute с правильными параметрами', async () => {
+      const issueKey = 'TEST-123';
+      const updateData: UpdateIssueDto = { summary: 'Updated' };
+      const mockResult: IssueWithUnknownFields = {
+        id: '1',
+        key: 'TEST-123',
+        summary: 'Updated',
+        queue: { id: '1', key: 'TEST', display: 'Test', name: 'Test' },
+        status: { id: '1', key: 'open', display: 'Open' },
+        createdBy: { uid: '1', display: 'User', login: 'user', isActive: true },
+        createdAt: '2024-01-01',
+        updatedAt: '2024-01-02',
+      };
+
+      vi.mocked(mockUpdateIssueOperation.execute).mockResolvedValue(mockResult);
+
+      const result = await facade.updateIssue(issueKey, updateData);
+
+      expect(mockUpdateIssueOperation.execute).toHaveBeenCalledWith(issueKey, updateData);
+      expect(result).toEqual(mockResult);
+    });
+
+    it('должна обрабатывать ошибки от UpdateIssueOperation', async () => {
+      const issueKey = 'TEST-123';
+      const updateData: UpdateIssueDto = { summary: '' };
+      const error = new Error('Update failed');
+      vi.mocked(mockUpdateIssueOperation.execute).mockRejectedValue(error);
+
+      await expect(facade.updateIssue(issueKey, updateData)).rejects.toThrow('Update failed');
+    });
+  });
+
+  describe('getIssueChangelog', () => {
+    it('должна вызвать GetIssueChangelogOperation.execute с правильным ключом', async () => {
+      const issueKey = 'TEST-123';
+      const mockResult: ChangelogEntryWithUnknownFields[] = [
+        {
+          id: '1',
+          updatedAt: '2024-01-01',
+          updatedBy: { uid: '1', display: 'User', login: 'user', isActive: true },
+          fields: [],
+        },
+      ];
+
+      vi.mocked(mockGetIssueChangelogOperation.execute).mockResolvedValue(mockResult);
+
+      const result = await facade.getIssueChangelog(issueKey);
+
+      expect(mockGetIssueChangelogOperation.execute).toHaveBeenCalledWith(issueKey);
+      expect(result).toEqual(mockResult);
+    });
+
+    it('должна обрабатывать ошибки от GetIssueChangelogOperation', async () => {
+      const issueKey = 'TEST-123';
+      const error = new Error('Changelog failed');
+      vi.mocked(mockGetIssueChangelogOperation.execute).mockRejectedValue(error);
+
+      await expect(facade.getIssueChangelog(issueKey)).rejects.toThrow('Changelog failed');
+    });
+  });
+
+  describe('getIssueTransitions', () => {
+    it('должна вызвать GetIssueTransitionsOperation.execute с правильным ключом', async () => {
+      const issueKey = 'TEST-123';
+      const mockResult: TransitionWithUnknownFields[] = [
+        {
+          id: 'trans1',
+          display: 'Start Progress',
+          to: { id: '2', key: 'inProgress', display: 'In Progress' },
+        },
+      ];
+
+      vi.mocked(mockGetIssueTransitionsOperation.execute).mockResolvedValue(mockResult);
+
+      const result = await facade.getIssueTransitions(issueKey);
+
+      expect(mockGetIssueTransitionsOperation.execute).toHaveBeenCalledWith(issueKey);
+      expect(result).toEqual(mockResult);
+    });
+
+    it('должна обрабатывать ошибки от GetIssueTransitionsOperation', async () => {
+      const issueKey = 'TEST-123';
+      const error = new Error('Transitions failed');
+      vi.mocked(mockGetIssueTransitionsOperation.execute).mockRejectedValue(error);
+
+      await expect(facade.getIssueTransitions(issueKey)).rejects.toThrow('Transitions failed');
+    });
+  });
+
+  describe('transitionIssue', () => {
+    it('должна вызвать TransitionIssueOperation.execute с правильными параметрами', async () => {
+      const issueKey = 'TEST-123';
+      const transitionId = 'trans1';
+      const transitionData: ExecuteTransitionDto = { comment: 'Moving' };
+      const mockResult: IssueWithUnknownFields = {
+        id: '1',
+        key: 'TEST-123',
+        summary: 'Test',
+        queue: { id: '1', key: 'TEST', display: 'Test', name: 'Test' },
+        status: { id: '2', key: 'inProgress', display: 'In Progress' },
+        createdBy: { uid: '1', display: 'User', login: 'user', isActive: true },
+        createdAt: '2024-01-01',
+        updatedAt: '2024-01-02',
+      };
+
+      vi.mocked(mockTransitionIssueOperation.execute).mockResolvedValue(mockResult);
+
+      const result = await facade.transitionIssue(issueKey, transitionId, transitionData);
+
+      expect(mockTransitionIssueOperation.execute).toHaveBeenCalledWith(
+        issueKey,
+        transitionId,
+        transitionData
+      );
+      expect(result).toEqual(mockResult);
+    });
+
+    it('должна обрабатывать ошибки от TransitionIssueOperation', async () => {
+      const issueKey = 'TEST-123';
+      const transitionId = 'trans1';
+      const error = new Error('Transition failed');
+      vi.mocked(mockTransitionIssueOperation.execute).mockRejectedValue(error);
+
+      await expect(facade.transitionIssue(issueKey, transitionId)).rejects.toThrow(
+        'Transition failed'
+      );
     });
   });
 
