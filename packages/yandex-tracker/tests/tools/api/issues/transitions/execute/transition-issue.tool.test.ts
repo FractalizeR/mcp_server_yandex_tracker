@@ -3,10 +3,10 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { TransitionIssueTool } from '../../../src/mcp/tools/api/issues/transitions/execute/index.js';
-import type { YandexTrackerFacade } from '../../../src/tracker_api/facade/yandex-tracker.facade.js';
+import { TransitionIssueTool } from '@tools/api/issues/transitions/execute/index.js';
+import type { YandexTrackerFacade } from '@tracker_api/facade/yandex-tracker.facade.js';
 import type { Logger } from '@mcp-framework/infrastructure/logging/index.js';
-import type { IssueWithUnknownFields } from '../../../src/tracker_api/entities/index.js';
+import type { IssueWithUnknownFields } from '@tracker_api/entities/index.js';
 
 describe('TransitionIssueTool', () => {
   let mockTrackerFacade: YandexTrackerFacade;
@@ -56,7 +56,7 @@ describe('TransitionIssueTool', () => {
     it('должен вернуть корректное определение инструмента', () => {
       const definition = tool.getDefinition();
 
-      expect(definition.name).toBe('fractalizer_mcp_yandex_tracker_transition_issue');
+      expect(definition.name).toBe('transition_issue');
       expect(definition.description).toContain('переход');
       expect(definition.description).toContain('статус');
       expect(definition.inputSchema.type).toBe('object');

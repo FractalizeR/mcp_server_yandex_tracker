@@ -3,10 +3,10 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { GetIssuesTool } from '../../../src/mcp/tools/api/issues/get/index.js';
-import type { YandexTrackerFacade } from '../../../src/tracker_api/facade/yandex-tracker.facade.js';
+import { GetIssuesTool } from '@tools/api/issues/get/index.js';
+import type { YandexTrackerFacade } from '@tracker_api/facade/yandex-tracker.facade.js';
 import type { Logger } from '@mcp-framework/infrastructure/logging/index.js';
-import type { IssueWithUnknownFields } from '../../../src/tracker_api/entities/index.js';
+import type { IssueWithUnknownFields } from '@tracker_api/entities/index.js';
 
 describe('GetIssuesTool', () => {
   let mockTrackerFacade: YandexTrackerFacade;
@@ -89,7 +89,7 @@ describe('GetIssuesTool', () => {
     it('должен вернуть корректное определение инструмента', () => {
       const definition = tool.getDefinition();
 
-      expect(definition.name).toBe('fractalizer_mcp_yandex_tracker_get_issues');
+      expect(definition.name).toBe('get_issues');
       expect(definition.description).toContain('Получение информации о задачах');
       expect(definition.description).toContain('Batch-режим');
       expect(definition.inputSchema.type).toBe('object');

@@ -1,23 +1,23 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import type { Container } from 'inversify';
-import { YandexTrackerFacade } from '../../../src/tracker_api/facade/yandex-tracker.facade.js';
-import type { PingResult } from '../../../src/tracker_api/api_operations/user/ping.operation.js';
-import type { BatchIssueResult } from '../../../src/tracker_api/api_operations/issue/get-issues.operation.js';
-import type { FindIssuesResult } from '../../../src/tracker_api/api_operations/issue/find/index.js';
-import type { User } from '../../../src/tracker_api/entities/user.entity.js';
-import type { Issue, IssueWithUnknownFields } from '../../../src/tracker_api/entities/issue.entity.js';
-import type { Queue } from '../../../src/tracker_api/entities/queue.entity.js';
-import type { Status } from '../../../src/tracker_api/entities/status.entity.js';
+import { YandexTrackerFacade } from '@tracker_api/facade/yandex-tracker.facade.js';
+import type { PingResult } from '@tracker_api/api_operations/user/ping.operation.js';
+import type { BatchIssueResult } from '@tracker_api/api_operations/issue/get-issues.operation.js';
+import type { FindIssuesResult } from '@tracker_api/api_operations/issue/find/index.js';
+import type { User } from '@tracker_api/entities/user.entity.js';
+import type { Issue, IssueWithUnknownFields } from '@tracker_api/entities/issue.entity.js';
+import type { Queue } from '@tracker_api/entities/queue.entity.js';
+import type { Status } from '@tracker_api/entities/status.entity.js';
 import type {
   FindIssuesInputDto,
   CreateIssueDto,
   UpdateIssueDto,
   ExecuteTransitionDto,
-} from '../../../src/tracker_api/dto/index.js';
+} from '@tracker_api/dto/index.js';
 import type {
   ChangelogEntryWithUnknownFields,
   TransitionWithUnknownFields,
-} from '../../../src/tracker_api/entities/index.js';
+} from '@tracker_api/entities/index.js';
 
 describe('YandexTrackerFacade', () => {
   let facade: YandexTrackerFacade;

@@ -3,10 +3,10 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { DemoTool } from '../../../src/mcp/tools/helpers/demo/demo.tool.js';
-import { ToolCategory } from '../../core/src/tools/base/tool-metadata.js';
+import { DemoTool } from '@tools/helpers/demo/demo.tool.js';
+import { ToolCategory } from '@mcp-framework/core';
 import type { Logger } from '@mcp-framework/infrastructure/logging/logger.js';
-import type { YandexTrackerFacade } from '../../../src/tracker_api/facade/yandex-tracker.facade.js';
+import type { YandexTrackerFacade } from '@tracker_api/facade/yandex-tracker.facade.js';
 
 describe('DemoTool', () => {
   let tool: DemoTool;
@@ -175,7 +175,7 @@ describe('DemoTool', () => {
   describe('METADATA', () => {
     it('должен иметь статические метаданные', () => {
       expect(DemoTool.METADATA).toBeDefined();
-      expect(DemoTool.METADATA.name).toBe('fractalizer_mcp_yandex_tracker_demo');
+      expect(DemoTool.METADATA.name).toBe('demo');
       expect(DemoTool.METADATA.description).toBe('Демонстрационный инструмент для тестирования');
       expect(DemoTool.METADATA.category).toBe(ToolCategory.DEMO);
       expect(DemoTool.METADATA.tags).toContain('demo');

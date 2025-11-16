@@ -1,22 +1,22 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { ToolRegistry } from '../../../src/mcp/tool-registry.js';
+import { ToolRegistry } from '@mcp-framework/core/tool-registry.js';
 import type { Container } from 'inversify';
-import type { YandexTrackerFacade } from '../../../src/tracker_api/facade/yandex-tracker.facade.js';
+import type { YandexTrackerFacade } from '@tracker_api/facade/yandex-tracker.facade.js';
 import type { Logger } from '@mcp-framework/infrastructure/logging/index.js';
 import type { ToolCallParams } from '@mcp-framework/infrastructure/types.js';
-import type { PingResult } from '../../../src/tracker_api/api_operations/user/ping.operation.js';
-import type { BatchIssueResult } from '../../../src/tracker_api/api_operations/issue/get-issues.operation.js';
-import type { IssueWithUnknownFields } from '../../../src/tracker_api/entities/index.js';
-import { PingTool } from '../../../src/mcp/tools/ping.tool.js';
-import { GetIssuesTool } from '../../../src/mcp/tools/api/issues/get/index.js';
-import { CreateIssueTool } from '../../../src/mcp/tools/api/issues/create/index.js';
-import { UpdateIssueTool } from '../../../src/mcp/tools/api/issues/update/index.js';
-import { FindIssuesTool } from '../../../src/mcp/tools/api/issues/find/index.js';
-import { GetIssueChangelogTool } from '../../../src/mcp/tools/api/issues/changelog/index.js';
-import { GetIssueTransitionsTool } from '../../../src/mcp/tools/api/issues/transitions/get/index.js';
-import { TransitionIssueTool } from '../../../src/mcp/tools/api/issues/transitions/execute/index.js';
-import { IssueUrlTool } from '../../../src/mcp/tools/helpers/issue-url/index.js';
-import { DemoTool } from '../../../src/mcp/tools/helpers/demo/index.js';
+import type { PingResult } from '@tracker_api/api_operations/user/ping.operation.js';
+import type { BatchIssueResult } from '@tracker_api/api_operations/issue/get-issues.operation.js';
+import type { IssueWithUnknownFields } from '@tracker_api/entities/index.js';
+import { PingTool } from '@tools/ping.tool.js';
+import { GetIssuesTool } from '@tools/api/issues/get/index.js';
+import { CreateIssueTool } from '@tools/api/issues/create/index.js';
+import { UpdateIssueTool } from '@tools/api/issues/update/index.js';
+import { FindIssuesTool } from '@tools/api/issues/find/index.js';
+import { GetIssueChangelogTool } from '@tools/api/issues/changelog/index.js';
+import { GetIssueTransitionsTool } from '@tools/api/issues/transitions/get/index.js';
+import { TransitionIssueTool } from '@tools/api/issues/transitions/execute/index.js';
+import { IssueUrlTool } from '@tools/helpers/issue-url/index.js';
+import { DemoTool } from '@tools/helpers/demo/index.js';
 
 describe('ToolRegistry', () => {
   let registry: ToolRegistry;
@@ -81,7 +81,7 @@ describe('ToolRegistry', () => {
           // Mock SearchToolsTool (имеет другой конструктор)
           return {
             getDefinition: () => ({
-              name: 'fractalizer_mcp_yandex_tracker_search_tools',
+              name: 'search_tools',
               description: 'Search tools',
               inputSchema: { type: 'object', properties: {}, required: [] },
             }),
@@ -95,7 +95,20 @@ describe('ToolRegistry', () => {
       }),
     } as unknown as Container;
 
-    registry = new ToolRegistry(mockContainer, mockLogger);
+    const toolClasses = [
+      PingTool,
+      GetIssuesTool,
+      CreateIssueTool,
+      UpdateIssueTool,
+      FindIssuesTool,
+      GetIssueChangelogTool,
+      GetIssueTransitionsTool,
+      TransitionIssueTool,
+      IssueUrlTool,
+      DemoTool,
+    ];
+
+    registry = new ToolRegistry(mockContainer, mockLogger, toolClasses);
   });
 
   afterEach(() => {
@@ -109,13 +122,13 @@ describe('ToolRegistry', () => {
 
       // Assert - теперь у нас 11 tools (Ping, GetIssues, CreateIssue, UpdateIssue, FindIssues, GetIssueChangelog, GetIssueTransitions, TransitionIssue, IssueUrl, Demo, SearchTools)
       expect(mockLogger.debug).toHaveBeenCalledWith(
-        'Зарегистрирован инструмент: fractalizer_mcp_yandex_tracker_ping'
+        'Зарегистрирован инструмент: ping'
       );
       expect(mockLogger.debug).toHaveBeenCalledWith(
-        'Зарегистрирован инструмент: fractalizer_mcp_yandex_tracker_get_issues'
+        'Зарегистрирован инструмент: get_issues'
       );
-      expect(mockLogger.debug).toHaveBeenCalledWith('Зарегистрировано инструментов: 11');
-      expect(definitions.length).toBe(11);
+      expect(mockLogger.debug).toHaveBeenCalledWith('Зарегистрировано инструментов: 10');
+      expect(definitions.length).toBe(10);
     });
   });
 
@@ -125,11 +138,11 @@ describe('ToolRegistry', () => {
       const definitions = registry.getDefinitions();
 
       // Assert - теперь 11 tools
-      expect(definitions).toHaveLength(11);
+      expect(definitions).toHaveLength(10);
 
-      const pingDef = definitions.find((d) => d.name === 'fractalizer_mcp_yandex_tracker_ping');
+      const pingDef = definitions.find((d) => d.name === 'ping');
       const getIssuesDef = definitions.find(
-        (d) => d.name === 'fractalizer_mcp_yandex_tracker_get_issues'
+        (d) => d.name === 'get_issues'
       );
       const demoDef = definitions.find((d) => d.name === 'demo');
 
@@ -160,11 +173,11 @@ describe('ToolRegistry', () => {
   describe('getTool', () => {
     it('должна вернуть tool по имени', () => {
       // Act
-      const tool = registry.getTool('fractalizer_mcp_yandex_tracker_ping');
+      const tool = registry.getTool('ping');
 
       // Assert
       expect(tool).toBeDefined();
-      expect(tool?.getDefinition().name).toBe('fractalizer_mcp_yandex_tracker_ping');
+      expect(tool?.getDefinition().name).toBe('ping');
     });
 
     it('должна вернуть undefined для несуществующего tool', () => {
@@ -182,7 +195,7 @@ describe('ToolRegistry', () => {
       const tools = registry.getAllTools();
 
       // Assert
-      expect(tools).toHaveLength(11);
+      expect(tools).toHaveLength(10);
       expect(tools.every((t) => t.getDefinition)).toBe(true);
     });
   });
@@ -199,7 +212,7 @@ describe('ToolRegistry', () => {
       vi.mocked(mockFacade.ping).mockResolvedValue(mockPingResult);
 
       // Act
-      const result = await registry.execute('fractalizer_mcp_yandex_tracker_ping', params);
+      const result = await registry.execute('ping', params);
 
       // Assert
       expect(result.isError).toBeUndefined();
@@ -207,10 +220,10 @@ describe('ToolRegistry', () => {
       expect(result.content[0]!.type).toBe('text');
 
       expect(mockLogger.info).toHaveBeenCalledWith(
-        'Вызов инструмента: fractalizer_mcp_yandex_tracker_ping'
+        'Вызов инструмента: ping'
       );
       expect(mockLogger.info).toHaveBeenCalledWith(
-        'Инструмент fractalizer_mcp_yandex_tracker_ping выполнен успешно'
+        'Инструмент ping выполнен успешно'
       );
       expect(mockLogger.debug).toHaveBeenCalledWith('Параметры:', params);
     });
@@ -242,12 +255,12 @@ describe('ToolRegistry', () => {
       vi.mocked(mockFacade.getIssues).mockResolvedValue(mockResults);
 
       // Act
-      const result = await registry.execute('fractalizer_mcp_yandex_tracker_get_issues', params);
+      const result = await registry.execute('get_issues', params);
 
       // Assert
       expect(result.isError).toBeUndefined();
       expect(mockLogger.info).toHaveBeenCalledWith(
-        'Инструмент fractalizer_mcp_yandex_tracker_get_issues выполнен успешно'
+        'Инструмент get_issues выполнен успешно'
       );
     });
 
@@ -266,8 +279,8 @@ describe('ToolRegistry', () => {
       const content = JSON.parse(result.content[0]!.text);
       expect(content.success).toBe(false);
       expect(content.message).toContain('не найден');
-      expect(content.availableTools).toContain('fractalizer_mcp_yandex_tracker_ping');
-      expect(content.availableTools).toContain('fractalizer_mcp_yandex_tracker_get_issues');
+      expect(content.availableTools).toContain('ping');
+      expect(content.availableTools).toContain('get_issues');
 
       expect(mockLogger.error).toHaveBeenCalledWith('Инструмент не найден: non_existent_tool');
     });
@@ -280,7 +293,7 @@ describe('ToolRegistry', () => {
       vi.mocked(mockFacade.ping).mockRejectedValue(error);
 
       // Act
-      const result = await registry.execute('fractalizer_mcp_yandex_tracker_ping', params);
+      const result = await registry.execute('ping', params);
 
       // Assert
       expect(result.isError).toBe(true);
@@ -303,7 +316,7 @@ describe('ToolRegistry', () => {
       vi.mocked(mockFacade.ping).mockRejectedValue(error);
 
       // Act
-      await registry.execute('fractalizer_mcp_yandex_tracker_ping', params);
+      await registry.execute('ping', params);
 
       // Assert - проверяем что логируется ошибка с правильными параметрами
       const errorCalls = vi.mocked(mockLogger.error).mock.calls;
@@ -320,7 +333,7 @@ describe('ToolRegistry', () => {
       vi.mocked(mockFacade.ping).mockRejectedValue('String error');
 
       // Act
-      const result = await registry.execute('fractalizer_mcp_yandex_tracker_ping', params);
+      const result = await registry.execute('ping', params);
 
       // Assert
       expect(result.isError).toBe(true);
@@ -340,7 +353,7 @@ describe('ToolRegistry', () => {
       vi.mocked(mockFacade.ping).mockResolvedValue(mockPingResult);
 
       // Act
-      await registry.execute('fractalizer_mcp_yandex_tracker_ping', params);
+      await registry.execute('ping', params);
 
       // Assert
       expect(mockLogger.debug).toHaveBeenCalledWith('Параметры:', params);

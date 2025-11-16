@@ -20,6 +20,9 @@ export default defineConfig({
   resolve: {
     alias: {
       'mcp-server-yandex-tracker': path.resolve(__dirname, './src'),
+      '@tracker_api': path.resolve(__dirname, './src/tracker_api'),
+      '@tools': path.resolve(__dirname, './src/tools'),
+      '@composition-root': path.resolve(__dirname, './src/composition-root'),
       '@mcp-framework/search': path.resolve(__dirname, '../search/src'),
       '@mcp-framework/core': path.resolve(__dirname, '../core/src'),
       '@mcp-framework/infrastructure': path.resolve(__dirname, '../infrastructure/src'),

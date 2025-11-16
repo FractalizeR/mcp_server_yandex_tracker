@@ -14,7 +14,7 @@ import {
   createFindIssuesByQueue,
   createExecuteTransitionDto,
   createEmptyExecuteTransitionDto,
-} from '../../../src/tracker_api/dto/issue/dto.factories.js';
+} from '@tracker_api/dto/issue/dto.factories.js';
 
 describe('DTO Factories', () => {
   describe('createMinimalCreateIssueDto', () => {
