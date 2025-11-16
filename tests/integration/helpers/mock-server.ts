@@ -24,6 +24,12 @@ export class MockServer {
     // Отключаем реальные HTTP запросы
     nock.disableNetConnect();
 
+    // Очищаем все предыдущие моки
+    nock.cleanAll();
+
+    // Создаём scope БЕЗ порта
+    // Nock автоматически нормализует URL и будет перехватывать запросы
+    // как с явным портом :443, так и без него
     this.scope = nock(TRACKER_API_BASE);
   }
 

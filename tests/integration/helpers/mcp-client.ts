@@ -77,6 +77,10 @@ export class TestMCPClient {
 export async function createTestClient(
   configOverrides: Partial<ServerConfig> = {}
 ): Promise<TestMCPClient> {
+  // ВАЖНО: Отключаем HTTP keep-alive для совместимости с nock
+  // Nock может не перехватывать запросы с переиспользуемыми соединениями
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'; // Для тестов
+
   const defaultConfig: ServerConfig = {
     apiBase: 'https://api.tracker.yandex.net',
     orgId: 'test-org-id',
