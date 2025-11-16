@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { EntityCacheKey, EntityType } from '@infrastructure/cache/entity-cache-key.js';
+import { EntityCacheKey, EntityType } from '@mcp-framework/infrastructure/cache/entity-cache-key.js';
 
 describe('EntityCacheKey', () => {
   describe('createKey', () => {

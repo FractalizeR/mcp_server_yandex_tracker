@@ -3,8 +3,8 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { ExponentialBackoffStrategy } from '@infrastructure/http/retry/exponential-backoff.strategy.js';
-import type { ApiError } from '@types';
+import { ExponentialBackoffStrategy } from '@mcp-framework/infrastructure/http/retry/exponential-backoff.strategy.js';
+import type { ApiError } from '@mcp-framework/infrastructure/types.js';
 
 describe('ExponentialBackoffStrategy', () => {
   describe('constructor', () => {

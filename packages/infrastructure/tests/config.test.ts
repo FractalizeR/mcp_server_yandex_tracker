@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { loadConfig } from '@infrastructure/config.js';
+import { loadConfig } from '@mcp-framework/infrastructure/config.js';
 
 describe('loadConfig', () => {
   const originalEnv = process.env;
