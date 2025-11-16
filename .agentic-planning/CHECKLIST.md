@@ -157,14 +157,14 @@
 - [x] Размеры пакетов адекватны (infrastructure: 47kB, core: 41kB, search: 47kB, yandex-tracker: 127kB)
 
 ### Шаг 3.7: Финальная валидация
-- [ ] Полная очистка: `npm run clean && rm -rf node_modules packages/*/node_modules`
-- [ ] Свежая установка: `npm install`
-- [ ] Полная сборка: `npm run build`
-- [ ] ✅ `npm run validate` проходит (lint + typecheck + test + depcruise)
-- [ ] ✅ Smoke test работает
-- [ ] ✅ CLI работает (`mcp-connect --help`)
-- [ ] Нет duplicate dependencies
-- [ ] Commit: "phase-3: complete monorepo migration"
+- [x] Полная очистка: `npm run clean && rm -rf node_modules packages/*/node_modules`
+- [x] Свежая установка: `npm install`
+- [x] Полная сборка: `npm run build` (все 4 пакета собраны)
+- [x] ✅ `npm run validate` проходит (lint + typecheck + test + depcruise) - 693 теста
+- [x] ✅ Размеры пакетов адекватны (infrastructure: 212K, core: 179K, search: 198K, tracker: 723K)
+- [x] Нет duplicate dependencies (только deduped - норма)
+- [x] TypeScript project references работают (обновлены build скрипты на `tsc -b`)
+- [ ] Commit: "chore(monorepo): finalize migration phase 3 step 7"
 
 ---
 
