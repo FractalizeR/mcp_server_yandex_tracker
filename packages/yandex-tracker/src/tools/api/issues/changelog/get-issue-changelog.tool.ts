@@ -8,6 +8,7 @@
  */
 
 import { BaseTool, ToolCategory } from '@mcp-framework/core';
+import type { YandexTrackerFacade } from '@tracker_api/facade/index.js';
 import type { ToolDefinition } from '@mcp-framework/core';
 import type { ToolCallParams, ToolResult } from '@mcp-framework/infrastructure';
 import { ResponseFieldFilter, ResultLogger } from '@mcp-framework/core';
@@ -63,7 +64,7 @@ export class GetIssueChangelogTool extends BaseTool<YandexTrackerFacade> {
       ResultLogger.logOperationStart(this.logger, 'Получение истории изменений задачи', 1, fields);
 
       // 3. API v3: получение истории изменений
-      const changelog = await this.trackerFacade.getIssueChangelog(issueKey);
+      const changelog = await this.facade.getIssueChangelog(issueKey);
 
       // 4. Фильтрация полей если указаны
       const filteredChangelog = fields

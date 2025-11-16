@@ -8,6 +8,7 @@
  */
 
 import { BaseTool, ToolCategory } from '@mcp-framework/core';
+import type { YandexTrackerFacade } from '@tracker_api/facade/index.js';
 import type { ToolDefinition } from '@mcp-framework/core';
 import type { ToolCallParams, ToolResult } from '@mcp-framework/infrastructure';
 import { ResponseFieldFilter, ResultLogger } from '@mcp-framework/core';
@@ -76,7 +77,7 @@ export class FindIssuesTool extends BaseTool<YandexTrackerFacade> {
 
       // 3. API v3: поиск задач через findIssues
       // Строим объект с условным добавлением свойств для совместимости с exactOptionalPropertyTypes
-      const issues = await this.trackerFacade.findIssues({
+      const issues = await this.facade.findIssues({
         ...(searchParams.query && { query: searchParams.query }),
         ...(searchParams.filter && { filter: searchParams.filter }),
         ...(searchParams.keys && { keys: searchParams.keys }),

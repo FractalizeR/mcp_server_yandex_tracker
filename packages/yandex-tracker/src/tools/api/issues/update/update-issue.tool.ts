@@ -8,6 +8,7 @@
  */
 
 import { BaseTool, ToolCategory } from '@mcp-framework/core';
+import type { YandexTrackerFacade } from '@tracker_api/facade/index.js';
 import type { ToolDefinition } from '@mcp-framework/core';
 import type { ToolCallParams, ToolResult } from '@mcp-framework/infrastructure';
 import { ResponseFieldFilter, ResultLogger } from '@mcp-framework/core';
@@ -90,7 +91,7 @@ export class UpdateIssueTool extends BaseTool<YandexTrackerFacade> {
       );
 
       // 4. API v3: обновление задачи
-      const updatedIssue = await this.trackerFacade.updateIssue(issueKey, updateData);
+      const updatedIssue = await this.facade.updateIssue(issueKey, updateData);
 
       // 5. Фильтрация полей если указаны
       const filteredIssue = fields

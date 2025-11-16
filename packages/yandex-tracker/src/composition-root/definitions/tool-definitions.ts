@@ -17,7 +17,6 @@ import { GetIssueTransitionsTool } from '@tools/api/issues/transitions/get/index
 import { TransitionIssueTool } from '@tools/api/issues/transitions/execute/index.js';
 import { IssueUrlTool } from '@tools/helpers/issue-url/index.js';
 import { DemoTool } from '@tools/helpers/demo/index.js';
-import { SearchToolsTool } from '@tools/helpers/search/index.js';
 
 /**
  * Массив всех Tool классов в проекте
@@ -31,6 +30,9 @@ import { SearchToolsTool } from '@tools/helpers/search/index.js';
  * 1. Импортируй класс
  * 2. Добавь в массив TOOL_CLASSES
  * 3. ВСЁ! (DI регистрация, ToolRegistry, TYPES — автоматически)
+ *
+ * ПРИМЕЧАНИЕ: SearchToolsTool регистрируется отдельно через container.ts,
+ * так как не наследует от BaseTool<YandexTrackerFacade>
  */
 export const TOOL_CLASSES = [
   PingTool,
@@ -43,7 +45,6 @@ export const TOOL_CLASSES = [
   TransitionIssueTool,
   IssueUrlTool,
   DemoTool,
-  SearchToolsTool, // ← Helper tool для поиска других инструментов
 ] as const;
 
 /**

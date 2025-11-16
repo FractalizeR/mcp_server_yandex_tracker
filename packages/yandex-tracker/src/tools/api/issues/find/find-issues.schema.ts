@@ -22,7 +22,7 @@ export const FindIssuesParamsSchema = z
      * Фильтр по полям (объект key-value)
      * Пример: { queue: "PROJ", status: "open" }
      */
-    filter: z.record(z.unknown()).optional(),
+    filter: z.record(z.string(), z.unknown()).optional(),
 
     /**
      * Список ключей задач

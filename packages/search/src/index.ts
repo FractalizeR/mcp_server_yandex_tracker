@@ -42,3 +42,6 @@ export * from './tools/search-tools.schema.js';
 
 // Constants
 export * from './constants.js';
+
+// Generated index
+export { TOOL_SEARCH_INDEX } from './generated-index.js';

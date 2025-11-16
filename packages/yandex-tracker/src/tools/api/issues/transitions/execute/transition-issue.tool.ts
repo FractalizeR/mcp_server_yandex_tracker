@@ -8,6 +8,7 @@
  */
 
 import { BaseTool, ToolCategory } from '@mcp-framework/core';
+import type { YandexTrackerFacade } from '@tracker_api/facade/index.js';
 import type { ToolDefinition } from '@mcp-framework/core';
 import type { ToolCallParams, ToolResult } from '@mcp-framework/infrastructure';
 import { ResponseFieldFilter } from '@mcp-framework/core';
@@ -79,11 +80,7 @@ export class TransitionIssueTool extends BaseTool<YandexTrackerFacade> {
           : undefined;
 
       // 4. API v3: выполнение перехода
-      const issue = await this.trackerFacade.transitionIssue(
-        issueKey,
-        transitionId,
-        transitionData
-      );
+      const issue = await this.facade.transitionIssue(issueKey, transitionId, transitionData);
 
       // 5. Фильтрация полей если указаны
       const filteredIssue = fields

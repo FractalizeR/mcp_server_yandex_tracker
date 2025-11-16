@@ -8,6 +8,7 @@
  */
 
 import { BaseTool, ToolCategory } from '@mcp-framework/core';
+import type { YandexTrackerFacade } from '@tracker_api/facade/index.js';
 import type { ToolDefinition } from '@mcp-framework/core';
 import type { ToolCallParams, ToolResult } from '@mcp-framework/infrastructure';
 import { ResponseFieldFilter, BatchResultProcessor, ResultLogger } from '@mcp-framework/core';
@@ -63,7 +64,7 @@ export class GetIssuesTool extends BaseTool<YandexTrackerFacade> {
       ResultLogger.logOperationStart(this.logger, 'Получение задач', issueKeys.length, fields);
 
       // 3. API v3: получение задач через batch-метод
-      const results = await this.trackerFacade.getIssues(issueKeys);
+      const results = await this.facade.getIssues(issueKeys);
 
       // 4. Обработка результатов через BatchResultProcessor
       const processedResults = BatchResultProcessor.process(
