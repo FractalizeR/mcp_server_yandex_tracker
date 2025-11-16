@@ -17,6 +17,7 @@ import { GetIssueTransitionsTool } from '@tools/api/issues/transitions/get/index
 import { TransitionIssueTool } from '@tools/api/issues/transitions/execute/index.js';
 import { IssueUrlTool } from '@tools/helpers/issue-url/index.js';
 import { DemoTool } from '@tools/helpers/demo/index.js';
+import { SearchToolsTool } from '@mcp-framework/search';
 
 /**
  * Массив всех Tool классов в проекте
@@ -31,8 +32,8 @@ import { DemoTool } from '@tools/helpers/demo/index.js';
  * 2. Добавь в массив TOOL_CLASSES
  * 3. ВСЁ! (DI регистрация, ToolRegistry, TYPES — автоматически)
  *
- * ПРИМЕЧАНИЕ: SearchToolsTool регистрируется отдельно через container.ts,
- * так как не наследует от BaseTool<YandexTrackerFacade>
+ * ПРИМЕЧАНИЕ: SearchToolsTool требует специальной регистрации в container.ts,
+ * так как не наследует от BaseTool<YandexTrackerFacade> (принимает searchEngine, logger)
  */
 export const TOOL_CLASSES = [
   PingTool,
@@ -45,6 +46,7 @@ export const TOOL_CLASSES = [
   TransitionIssueTool,
   IssueUrlTool,
   DemoTool,
+  SearchToolsTool,
 ] as const;
 
 /**

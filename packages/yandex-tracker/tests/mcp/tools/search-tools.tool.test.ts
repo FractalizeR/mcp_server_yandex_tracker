@@ -81,7 +81,7 @@ describe('SearchToolsTool (E2E)', () => {
       descriptionShort: 'Проверка доступности API',
     },
     {
-      name: 'fractalizer_mcp_yandex_tracker_get_issues',
+      name: 'get_issues',
       category: ToolCategory.ISSUES,
       tags: ['issue', 'get', 'batch'],
       isHelper: false,
@@ -90,7 +90,7 @@ describe('SearchToolsTool (E2E)', () => {
       descriptionShort: 'Получить задачи по ключам',
     },
     {
-      name: 'fractalizer_mcp_yandex_tracker_find_issues',
+      name: 'find_issues',
       category: ToolCategory.ISSUES,
       tags: ['issue', 'find', 'search', 'jql'],
       isHelper: false,
@@ -99,7 +99,7 @@ describe('SearchToolsTool (E2E)', () => {
       descriptionShort: 'Найти задачи по JQL запросу',
     },
     {
-      name: 'fractalizer_mcp_yandex_tracker_search_tools',
+      name: 'search_tools',
       category: ToolCategory.SEARCH,
       tags: ['search', 'tools', 'discovery'],
       isHelper: true,
@@ -496,7 +496,7 @@ describe('SearchToolsTool (E2E)', () => {
   describe('METADATA', () => {
     it('должен содержать корректные статические метаданные', () => {
       expect(SearchToolsTool.METADATA).toBeDefined();
-      expect(SearchToolsTool.METADATA.name).toBe('fractalizer_mcp_yandex_tracker_search_tools');
+      expect(SearchToolsTool.METADATA.name).toBe('search_tools');
       expect(SearchToolsTool.METADATA.category).toBe(ToolCategory.SEARCH);
       expect(SearchToolsTool.METADATA.isHelper).toBe(true);
       expect(SearchToolsTool.METADATA.tags).toContain('search');

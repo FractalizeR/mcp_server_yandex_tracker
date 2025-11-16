@@ -16,10 +16,7 @@ export class WorkflowClient {
     summary: string;
     description?: string;
   }): Promise<string> {
-    const result = await this.client.callTool(
-      'fractalizer_mcp_yandex_tracker_create_issue',
-      params
-    );
+    const result = await this.client.callTool('create_issue', params);
 
     if (result.isError) {
       throw new Error(`Failed to create issue: ${result.content[0]?.text}`);
@@ -33,7 +30,7 @@ export class WorkflowClient {
    * Получить задачу по ключу
    */
   async getIssue(issueKey: string): Promise<unknown> {
-    const result = await this.client.callTool('fractalizer_mcp_yandex_tracker_get_issues', {
+    const result = await this.client.callTool('get_issues', {
       issueKeys: [issueKey],
     });
 
@@ -49,7 +46,7 @@ export class WorkflowClient {
    * Обновить задачу
    */
   async updateIssue(issueKey: string, updates: Record<string, unknown>): Promise<void> {
-    const result = await this.client.callTool('fractalizer_mcp_yandex_tracker_update_issue', {
+    const result = await this.client.callTool('update_issue', {
       issueKey,
       ...updates,
     });
@@ -63,7 +60,7 @@ export class WorkflowClient {
    * Перевести задачу в новый статус
    */
   async transitionIssue(issueKey: string, transitionId: string): Promise<void> {
-    const result = await this.client.callTool('fractalizer_mcp_yandex_tracker_transition_issue', {
+    const result = await this.client.callTool('transition_issue', {
       issueKey,
       transitionId,
     });
@@ -77,7 +74,7 @@ export class WorkflowClient {
    * Найти задачи по query
    */
   async findIssues(query: string): Promise<unknown[]> {
-    const result = await this.client.callTool('fractalizer_mcp_yandex_tracker_find_issues', {
+    const result = await this.client.callTool('find_issues', {
       query,
     });
 
@@ -93,10 +90,7 @@ export class WorkflowClient {
    * Получить changelog задачи
    */
   async getChangelog(issueKey: string): Promise<unknown[]> {
-    const result = await this.client.callTool(
-      'fractalizer_mcp_yandex_tracker_get_issue_changelog',
-      { issueKey }
-    );
+    const result = await this.client.callTool('get_issue_changelog', { issueKey });
 
     if (result.isError) {
       throw new Error(`Failed to get changelog: ${result.content[0]?.text}`);
@@ -110,10 +104,7 @@ export class WorkflowClient {
    * Получить доступные transitions для задачи
    */
   async getTransitions(issueKey: string): Promise<unknown[]> {
-    const result = await this.client.callTool(
-      'fractalizer_mcp_yandex_tracker_get_issue_transitions',
-      { issueKey }
-    );
+    const result = await this.client.callTool('get_issue_transitions', { issueKey });
 
     if (result.isError) {
       throw new Error(`Failed to get transitions: ${result.content[0]?.text}`);
