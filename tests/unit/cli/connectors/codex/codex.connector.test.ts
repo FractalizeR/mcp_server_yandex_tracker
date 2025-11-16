@@ -272,7 +272,7 @@ describe('CodexConnector', () => {
       await connector.connect(configWithPath);
 
       // Assert
-      const callArgs = CommandExecutor.execInteractive.mock.calls[0];
+      const callArgs = CommandExecutor.execInteractive.mock.calls[0]!;
       const args = callArgs[1];
       expect(args[args.length - 1]).toBe('/custom/path/to/project/dist/index.js');
     });
@@ -318,7 +318,7 @@ describe('CodexConnector', () => {
       expect(FileManager.readTOML).toHaveBeenCalled();
       expect(FileManager.writeTOML).toHaveBeenCalled();
 
-      const writeCall = FileManager.writeTOML.mock.calls[0];
+      const writeCall = FileManager.writeTOML.mock.calls[0]!;
       const writtenConfig = writeCall[1];
       expect(writtenConfig.mcp_servers[MCP_SERVER_NAME]).toBeUndefined();
       expect(writtenConfig.mcp_servers['other-server']).toBeDefined(); // Не удаляем другие серверы

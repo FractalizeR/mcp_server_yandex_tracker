@@ -32,3 +32,20 @@ export type {
 
 // Transition
 export type { Transition, TransitionWithUnknownFields } from './transition.entity.js';
+
+// Entity Factories (runtime code for coverage)
+export {
+  createUser,
+  createMinimalUser,
+  createQueue,
+  createStatus,
+  createPriority,
+  createIssueType,
+  createMinimalIssue,
+  createFullIssue,
+  createSimpleTransition,
+  createTransitionWithScreen,
+  createChangelogField,
+  createMinimalChangelogEntry,
+  createFullChangelogEntry,
+} from './entity.factories.js';

@@ -12,3 +12,17 @@ export type {
   FindIssuesInputDto,
   ExecuteTransitionDto,
 } from './issue/index.js';
+
+// DTO Factories (runtime code for coverage)
+export {
+  createMinimalCreateIssueDto,
+  createFullCreateIssueDto,
+  createUpdateIssueDto,
+  createSearchIssuesDto,
+  createFindIssuesByQuery,
+  createFindIssuesByFilter,
+  createFindIssuesByKeys,
+  createFindIssuesByQueue,
+  createExecuteTransitionDto,
+  createEmptyExecuteTransitionDto,
+} from './issue/index.js';
