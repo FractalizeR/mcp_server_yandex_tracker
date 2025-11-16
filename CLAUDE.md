@@ -61,7 +61,7 @@
 **Перед началом работы:**
 1. 📖 **Этот файл** (CLAUDE.md) — правила monorepo
 2. 📖 **[ARCHITECTURE.md](./ARCHITECTURE.md)** — понимание архитектуры monorepo
-3. 📖 **[packages/yandex-tracker/CLAUDE.md](./packages/yandex-tracker/CLAUDE.md)** — специфика Yandex Tracker
+3. 📖 **@DOCS.md** — навигация по всей документации проекта
 
 ---
 
