@@ -108,16 +108,16 @@
 - [ ] Исправлены все ошибки компиляции
 
 ### Шаг 3.2: Настройка тестов
-- [ ] Тесты перемещены в правильные пакеты:
-  - [ ] infrastructure tests
-  - [ ] core tests
-  - [ ] search tests
-  - [ ] cli tests
-  - [ ] yandex-tracker tests
-- [ ] Импорты в тестах обновлены на `@mcp-framework/*`
-- [ ] Создан `vitest.config.ts` для каждого пакета
-- [ ] ✅ `npm run test --workspaces` успешен
-- [ ] Coverage ≥80% (или близко)
+- [x] Тесты перемещены в правильные пакеты:
+  - [x] infrastructure tests
+  - [x] core tests
+  - [x] search tests
+  - [x] cli tests (нет тестов)
+  - [x] yandex-tracker tests
+- [x] Импорты в тестах обновлены на `@mcp-framework/*`
+- [x] Создан `vitest.config.ts` для каждого пакета
+- [x] ✅ `npm run test --workspaces` успешен (684 теста)
+- [x] Coverage ≥80% (core: 98%, infra: 93%, search: 96%, tracker: 99%)
 
 ### Шаг 3.3: Валидация архитектуры
 - [ ] `.dependency-cruiser.cjs` обновлён для monorepo
