@@ -81,17 +81,27 @@ done
 if [ ${#MISSING_TOOLS[@]} -gt 0 ]; then
     log_info "Установка: ${MISSING_TOOLS[*]}"
 
-    # Обновление списка пакетов (тихо)
-    apt-get update -qq || {
+    # Создаём временную директорию с правильными правами для apt
+    # Это необходимо из-за нестандартных прав на /tmp в контейнере
+    APT_TMP_DIR=$(mktemp -d)
+    chmod 1777 "$APT_TMP_DIR"  # Устанавливаем sticky bit как у стандартной /tmp
+
+    # Обновление списка пакетов (тихо) с использованием своей TMPDIR
+    TMPDIR="$APT_TMP_DIR" apt-get update -qq || {
         log_error "Не удалось обновить список пакетов"
+        rm -rf "$APT_TMP_DIR"
         exit 1
     }
 
     # Установка пакетов (тихо, без интерактивных промптов)
-    DEBIAN_FRONTEND=noninteractive apt-get install -y -qq "${MISSING_TOOLS[@]}" || {
+    TMPDIR="$APT_TMP_DIR" DEBIAN_FRONTEND=noninteractive apt-get install -y -qq "${MISSING_TOOLS[@]}" || {
         log_error "Не удалось установить пакеты: ${MISSING_TOOLS[*]}"
+        rm -rf "$APT_TMP_DIR"
         exit 1
     }
+
+    # Очистка временной директории
+    rm -rf "$APT_TMP_DIR"
 
     log_success "Установлено: ${MISSING_TOOLS[*]}"
 else
