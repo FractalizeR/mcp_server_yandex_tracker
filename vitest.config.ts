@@ -20,11 +20,11 @@ export default defineConfig({
     include: ['tests/**/*.test.ts', 'tests/**/*.spec.ts'],
 
     // Параллелизация тестов
-    pool: 'threads', // Использование worker threads для параллелизма
+    pool: 'forks', // Используем forks вместо threads для совместимости с nock
     maxWorkers: 8, // Максимальное количество worker threads
     maxConcurrency: 5, // Максимальное количество одновременно выполняемых тестов в одном worker
     fileParallelism: true, // Параллельное выполнение тестовых файлов
-    isolate: true, // Изолировать каждый тестовый файл в отдельной среде
+    isolate: false, // Отключаем изоляцию для совместимости с nock (глобальные моки HTTP)
 
     // Случайный порядок выполнения для обнаружения зависимостей между тестами
     sequence: {
