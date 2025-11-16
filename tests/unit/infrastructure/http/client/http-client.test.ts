@@ -146,6 +146,34 @@ describe('HttpClient', () => {
         expect(httpClient.get).toBeDefined();
         expect(typeof httpClient.get).toBe('function');
       });
+
+      it('должен отправлять GET запросы с query параметрами', async () => {
+        // Arrange
+        const mockResponse = { data: { id: '1', name: 'Test' } };
+        mockAxiosInstance.get.mockResolvedValue(mockResponse);
+
+        // Act
+        const result = await httpClient.get('/v3/issues/TEST-1', { expand: 'all' });
+
+        // Assert
+        expect(mockAxiosInstance.get).toHaveBeenCalledWith('/v3/issues/TEST-1', {
+          params: { expand: 'all' },
+        });
+        expect(result).toEqual(mockResponse.data);
+      });
+
+      it('должен возвращать response.data', async () => {
+        // Arrange
+        const mockData = { id: '1', key: 'TEST-1' };
+        const mockResponse = { data: mockData };
+        mockAxiosInstance.get.mockResolvedValue(mockResponse);
+
+        // Act
+        const result = await httpClient.get('/v3/issues/TEST-1');
+
+        // Assert
+        expect(result).toEqual(mockData);
+      });
     });
 
     describe('post', () => {
@@ -153,6 +181,33 @@ describe('HttpClient', () => {
         // Assert
         expect(httpClient.post).toBeDefined();
         expect(typeof httpClient.post).toBe('function');
+      });
+
+      it('должен отправлять POST запросы с body', async () => {
+        // Arrange
+        const postData = { queue: 'TEST', summary: 'New Issue' };
+        const mockResponse = { data: { id: '1', key: 'TEST-1' } };
+        mockAxiosInstance.post.mockResolvedValue(mockResponse);
+
+        // Act
+        const result = await httpClient.post('/v3/issues', postData);
+
+        // Assert
+        expect(mockAxiosInstance.post).toHaveBeenCalledWith('/v3/issues', postData);
+        expect(result).toEqual(mockResponse.data);
+      });
+
+      it('должен возвращать response.data для POST', async () => {
+        // Arrange
+        const mockData = { id: '1', key: 'TEST-1' };
+        const mockResponse = { data: mockData };
+        mockAxiosInstance.post.mockResolvedValue(mockResponse);
+
+        // Act
+        const result = await httpClient.post('/v3/issues', {});
+
+        // Assert
+        expect(result).toEqual(mockData);
       });
     });
 
@@ -162,6 +217,20 @@ describe('HttpClient', () => {
         expect(httpClient.patch).toBeDefined();
         expect(typeof httpClient.patch).toBe('function');
       });
+
+      it('должен отправлять PATCH запросы с body', async () => {
+        // Arrange
+        const patchData = { summary: 'Updated Summary' };
+        const mockResponse = { data: { id: '1', key: 'TEST-1', summary: 'Updated Summary' } };
+        mockAxiosInstance.patch.mockResolvedValue(mockResponse);
+
+        // Act
+        const result = await httpClient.patch('/v3/issues/TEST-1', patchData);
+
+        // Assert
+        expect(mockAxiosInstance.patch).toHaveBeenCalledWith('/v3/issues/TEST-1', patchData);
+        expect(result).toEqual(mockResponse.data);
+      });
     });
 
     describe('delete', () => {
@@ -169,6 +238,53 @@ describe('HttpClient', () => {
         // Assert
         expect(httpClient.delete).toBeDefined();
         expect(typeof httpClient.delete).toBe('function');
+      });
+
+      it('должен отправлять DELETE запросы', async () => {
+        // Arrange
+        const mockResponse = { data: { success: true } };
+        mockAxiosInstance.delete.mockResolvedValue(mockResponse);
+
+        // Act
+        const result = await httpClient.delete('/v3/issues/TEST-1');
+
+        // Assert
+        expect(mockAxiosInstance.delete).toHaveBeenCalledWith('/v3/issues/TEST-1');
+        expect(result).toEqual(mockResponse.data);
+      });
+    });
+
+    describe('error handling', () => {
+      it('должен обрабатывать network errors', async () => {
+        // Arrange
+        const networkError = new Error('Network Error');
+        mockAxiosInstance.get.mockRejectedValue(networkError);
+
+        // Act & Assert
+        await expect(httpClient.get('/v3/issues/TEST-1')).rejects.toThrow('Network Error');
+      });
+
+      it('должен обрабатывать timeout errors', async () => {
+        // Arrange
+        const timeoutError = { code: 'ECONNABORTED', message: 'timeout of 30000ms exceeded' };
+        mockAxiosInstance.get.mockRejectedValue(timeoutError);
+
+        // Act & Assert
+        await expect(httpClient.get('/v3/issues/TEST-1')).rejects.toMatchObject({
+          code: 'ECONNABORTED',
+        });
+      });
+
+      it('должен обрабатывать non-200 status codes через interceptor', async () => {
+        // Arrange
+        const error404 = {
+          response: { status: 404, statusText: 'Not Found' },
+          message: '404 Not Found',
+        };
+        mockAxiosInstance.get.mockRejectedValue(error404);
+
+        // Act & Assert
+        await expect(httpClient.get('/v3/issues/NOTFOUND-1')).rejects.toThrow();
       });
     });
   });
