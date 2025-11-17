@@ -36,36 +36,27 @@
 
 | Файл | Назначение | Размер |
 |------|-----------|--------|
-| **[src/mcp/README.md](./src/mcp/README.md)** | MCP Tools — конвенции, шаблоны, чек-листы |  |
-| **[src/mcp/search/README.md](./src/mcp/search/README.md)** | Tool Search System — compile-time индексирование | ~100 строк |
-| **[src/mcp/tools/common/README.md](./src/mcp/tools/common/README.md)** | Переиспользуемые утилиты — BaseTool, ResponseFieldFilter, BatchResultProcessor | ~190 строк |
+| **[packages/yandex-tracker/src/tools/README.md](./packages/yandex-tracker/src/tools/README.md)** | MCP Tools — конвенции, шаблоны, чек-листы |  |
 
 ### Tracker API слой
 
 | Файл | Назначение |
 |------|-----------|
-| **[src/tracker_api/api_operations/README.md](./src/tracker_api/api_operations/README.md)** | API Operations — конвенции, BaseOperation, batch-операции |
-| **[src/tracker_api/entities/README.md](./src/tracker_api/entities/README.md)** | Entities — WithUnknownFields, структура, правила |
-| **[src/tracker_api/dto/README.md](./src/tracker_api/dto/README.md)** | DTO — Input/Output паттерны, кастомные поля |
-
-### Infrastructure слой
-
-| Файл | Назначение | Размер |
-|------|-----------|--------|
-| **[src/infrastructure/README.md](./src/infrastructure/README.md)** | Infrastructure — HTTP, кеш, async, конфигурация | ~190 строк |
-| **[src/infrastructure/logging/README.md](./src/infrastructure/logging/README.md)** | Logging — Pino, ротация, structured JSON, alerting | ~220 строк |
+| **[packages/yandex-tracker/src/tracker_api/api_operations/README.md](./packages/yandex-tracker/src/tracker_api/api_operations/README.md)** | API Operations — конвенции, BaseOperation, batch-операции |
+| **[packages/yandex-tracker/src/tracker_api/entities/README.md](./packages/yandex-tracker/src/tracker_api/entities/README.md)** | Entities — WithUnknownFields, структура, правила |
+| **[packages/yandex-tracker/src/tracker_api/dto/README.md](./packages/yandex-tracker/src/tracker_api/dto/README.md)** | DTO — Input/Output паттерны, кастомные поля |
 
 ### Composition Root (DI)
 
 | Файл | Назначение |
 |------|-----------|
-| **[src/composition-root/README.md](./src/composition-root/README.md)** | Dependency Injection — Symbol-based tokens, автоматическая регистрация, примеры использования |
+| **[packages/yandex-tracker/src/composition-root/README.md](./packages/yandex-tracker/src/composition-root/README.md)** | Dependency Injection — Symbol-based tokens, автоматическая регистрация, примеры использования |
 
 ### CLI инструмент
 
 | Файл | Назначение | Размер |
 |------|-----------|--------|
-| **[src/cli/README.md](./src/cli/README.md)** | CLI — управление подключениями, connectors, архитектура | ~360 строк |
+| **[packages/yandex-tracker/src/cli/README.md](./packages/yandex-tracker/src/cli/README.md)** | CLI — управление подключениями, connectors, архитектура | ~360 строк |
 
 ---
 

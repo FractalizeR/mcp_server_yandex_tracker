@@ -23,6 +23,8 @@ export default defineConfig({
       '@tracker_api': path.resolve(__dirname, './src/tracker_api'),
       '@tools': path.resolve(__dirname, './src/tools'),
       '@composition-root': path.resolve(__dirname, './src/composition-root'),
+      '@cli': path.resolve(__dirname, './src/cli'),
+      '@constants': path.resolve(__dirname, './src/constants'),
       '@integration': path.resolve(__dirname, './tests/integration'),
       '@mcp-framework/search': path.resolve(__dirname, '../search/src'),
       '@mcp-framework/core': path.resolve(__dirname, '../core/src'),

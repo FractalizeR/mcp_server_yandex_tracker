@@ -9,7 +9,8 @@
     "paths": {
       "@tracker_api/*": ["./src/tracker_api/*"],
       "@tools/*": ["./src/tools/*"],
-      "@composition-root/*": ["./src/composition-root/*"]
+      "@composition-root/*": ["./src/composition-root/*"],
+      "@cli/*": ["./src/cli/*"]
     }
   },
   "references": [
