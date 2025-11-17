@@ -32,6 +32,10 @@
     "./config": {
       "types": "./dist/config.d.ts",
       "default": "./dist/config.js"
+    },
+    "./*": {
+      "types": "./dist/*.d.ts",
+      "default": "./dist/*.js"
     }
   },
   "main": "./dist/index.js",
