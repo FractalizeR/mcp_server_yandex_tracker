@@ -38,7 +38,7 @@ jobs:
       - name: Verify version matches tag
         run: |
           TAG_VERSION="${GITHUB_REF#refs/tags/v}"
-          PKG_VERSION=$(node -p "require('./package.json').version")
+          PKG_VERSION=$(node -p "require('./packages/servers/yandex-tracker/package.json').version")
           if [ "$TAG_VERSION" != "$PKG_VERSION" ]; then
             echo "❌ Error: Tag version ($TAG_VERSION) doesn't match package.json version ($PKG_VERSION)"
             exit 1
@@ -69,7 +69,9 @@ jobs:
         run: npm run build
 
       - name: Publish to NPM
-        run: npm publish --access public
+        run: |
+          cd packages/servers/yandex-tracker
+          npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         # Если NPM_TOKEN еще не настроен, этот шаг будет пропущен
@@ -104,18 +106,18 @@ jobs:
       - name: Create release archive
         run: |
           mkdir -p release
-          cp dist/bundle.js release/
-          cp package.json release/
-          cp README.md release/
+          cp packages/servers/yandex-tracker/dist/yandex-tracker.bundle.js release/
+          cp packages/servers/yandex-tracker/package.json release/
+          cp packages/servers/yandex-tracker/README.md release/
           cd release
-          tar -czf ../fractalizer_mcp_yandex_tracker-${{ steps.version.outputs.VERSION }}.tar.gz *
+          tar -czf ../mcp-server-yandex-tracker-${{ steps.version.outputs.VERSION }}.tar.gz *
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            fractalizer_mcp_yandex_tracker-${{ steps.version.outputs.VERSION }}.tar.gz
-            dist/bundle.js
+            mcp-server-yandex-tracker-${{ steps.version.outputs.VERSION }}.tar.gz
+            packages/servers/yandex-tracker/dist/yandex-tracker.bundle.js
           body: |
             ## 🚀 Release ${{ steps.version.outputs.VERSION }}
 
@@ -123,11 +125,11 @@ jobs:
 
             **NPM Registry:**
             ```bash
-            npm install -g fractalizer_mcp_yandex_tracker@${{ steps.version.outputs.VERSION }}
+            npm install -g @mcp-server/yandex-tracker@${{ steps.version.outputs.VERSION }}
             ```
 
             **MCPB Bundle (standalone):**
-            Download `fractalizer_mcp_yandex_tracker-${{ steps.version.outputs.VERSION }}.tar.gz` or `bundle.js`
+            Download `mcp-server-yandex-tracker-${{ steps.version.outputs.VERSION }}.tar.gz` or `yandex-tracker.bundle.js`
 
             ### Changes
             See [CHANGELOG.md](CHANGELOG.md) for details.

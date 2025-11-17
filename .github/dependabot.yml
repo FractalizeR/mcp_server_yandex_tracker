@@ -1,0 +1,41 @@
+version: 2
+updates:
+  # Root package (monorepo workspace)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+
+  # Framework packages
+  - package-ecosystem: "npm"
+    directory: "/packages/framework/infrastructure"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: "npm"
+    directory: "/packages/framework/core"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: "npm"
+    directory: "/packages/framework/search"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+
+  # Server packages
+  - package-ecosystem: "npm"
+    directory: "/packages/servers/yandex-tracker"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
