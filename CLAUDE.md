@@ -69,21 +69,23 @@
 
 ```
 packages/
-├── infrastructure/     → @mcp-framework/infrastructure
-│   └── HTTP, cache, logging, async utilities
-├── core/              → @mcp-framework/core
-│   └── BaseTool, registry, type system
-├── search/            → @mcp-framework/search
-│   └── Tool Search Engine (compile-time indexing)
-└── yandex-tracker/    → mcp-server-yandex-tracker
-    └── Yandex API, tools, operations, DI
+├── framework/              → MCP Framework (переиспользуемые пакеты)
+│   ├── infrastructure/     → @mcp-framework/infrastructure
+│   │   └── HTTP, cache, logging, async utilities
+│   ├── core/              → @mcp-framework/core
+│   │   └── BaseTool, registry, type system
+│   └── search/            → @mcp-framework/search
+│       └── Tool Search Engine (compile-time indexing)
+└── servers/               → MCP Servers (приложения)
+    └── yandex-tracker/    → @mcp-server/yandex-tracker
+        └── Yandex.Tracker API integration
 ```
 
 **Детали:**
-- **Infrastructure** — [packages/infrastructure/README.md](packages/infrastructure/README.md)
-- **Core** — [packages/core/README.md](packages/core/README.md)
-- **Search** — [packages/search/README.md](packages/search/README.md)
-- **Yandex Tracker** — [packages/yandex-tracker/README.md](packages/yandex-tracker/README.md)
+- **Infrastructure** — [packages/framework/infrastructure/README.md](packages/framework/infrastructure/README.md)
+- **Core** — [packages/framework/core/README.md](packages/framework/core/README.md)
+- **Search** — [packages/framework/search/README.md](packages/framework/search/README.md)
+- **Yandex Tracker** — [packages/servers/yandex-tracker/README.md](packages/servers/yandex-tracker/README.md)
 
 ---
 
@@ -92,19 +94,20 @@ packages/
 ### 1. Граф зависимостей (НЕ НАРУШАТЬ!)
 
 ```
-infrastructure (база для всех, 0 зависимостей)
+packages/framework/infrastructure (0 зависимостей)
     ↓
-core (зависит от infrastructure)
+packages/framework/core
     ↓
-search (зависит от core)
+packages/framework/search
     ↓
-yandex-tracker (зависит от всех framework пакетов)
+packages/servers/* (любой сервер может зависеть от framework)
 ```
 
 **Правила:**
 - ❌ **НЕЛЬЗЯ** обратные зависимости (core → infrastructure)
 - ❌ **НЕЛЬЗЯ** импорты вверх по графу
-- ❌ **НЕЛЬЗЯ** импорты из yandex-tracker в framework пакеты
+- ❌ **НЕЛЬЗЯ** импорты из servers/* в framework пакеты
+- ❌ **НЕЛЬЗЯ** зависимости между серверами (servers/a → servers/b)
 - ✅ **МОЖНО** добавлять зависимости вниз по графу
 
 **Проверка:** `npm run depcruise` (в корне) валидирует граф
@@ -207,10 +210,10 @@ npm run clean
 npm run build --workspace=@mcp-framework/core
 
 # Тесты одного пакета
-npm run test --workspace=mcp-server-yandex-tracker
+npm run test --workspace=@mcp-server/yandex-tracker
 
 # Все команды пакета
-cd packages/yandex-tracker
+cd packages/servers/yandex-tracker
 npm run <script>
 ```
 
@@ -252,15 +255,15 @@ npm run cpd:report
 
 ## 📖 Работа с конкретными компонентами
 
-**Framework пакеты (infrastructure, core, search):**
+**Framework пакеты (packages/framework/):**
 - Универсальные, переиспользуемые компоненты
-- НЕ должны зависеть от доменной логики (Yandex Tracker)
-- См. README.md в каждом пакете для API и примеров
+- НЕ должны зависеть от доменной логики серверов
+- См. README.md в каждом пакете для API
 
-**Yandex Tracker (packages/yandex-tracker):**
-- Доменная логика Яндекс.Трекера
-- MCP tools, API operations, entities, DTO
-- **ОБЯЗАТЕЛЬНО прочитай:** [packages/yandex-tracker/CLAUDE.md](packages/yandex-tracker/CLAUDE.md)
+**MCP Servers (packages/servers/):**
+- Готовые серверы для конкретных API
+- Yandex Tracker: [packages/servers/yandex-tracker/CLAUDE.md](packages/servers/yandex-tracker/CLAUDE.md)
+- (будущие: GitHub, Jira, etc.)
 
 ---
 
@@ -291,9 +294,9 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 - **Архитектура monorepo:** [ARCHITECTURE.md](./ARCHITECTURE.md)
 - **Migration guide v1 → v2:** [MIGRATION.md](./MIGRATION.md)
 - **Framework packages:**
-  - [Infrastructure API](packages/infrastructure/README.md)
-  - [Core API](packages/core/README.md)
-  - [Search System](packages/search/README.md)
+  - [Infrastructure API](packages/framework/infrastructure/README.md)
+  - [Core API](packages/framework/core/README.md)
+  - [Search System](packages/framework/search/README.md)
 - **Yandex Tracker:**
-  - [Yandex Tracker CLAUDE.md](packages/yandex-tracker/CLAUDE.md)
-  - [Yandex Tracker README.md](packages/yandex-tracker/README.md)
+  - [Yandex Tracker CLAUDE.md](packages/servers/yandex-tracker/CLAUDE.md)
+  - [Yandex Tracker README.md](packages/servers/yandex-tracker/README.md)

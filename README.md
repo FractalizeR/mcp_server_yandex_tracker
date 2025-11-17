@@ -17,15 +17,15 @@ This repository provides:
 
 | Package | Version | Description |
 |---------|---------|-------------|
-| [@mcp-framework/infrastructure](packages/infrastructure) | 0.1.0 | HTTP client, cache, logging, async utilities |
-| [@mcp-framework/core](packages/core) | 0.1.0 | Base classes, type system, tool registry |
-| [@mcp-framework/search](packages/search) | 0.1.0 | Advanced tool search engine with compile-time indexing |
+| [@mcp-framework/infrastructure](packages/framework/infrastructure) | 0.1.0 | HTTP client, cache, logging, async utilities |
+| [@mcp-framework/core](packages/framework/core) | 0.1.0 | Base classes, type system, tool registry |
+| [@mcp-framework/search](packages/framework/search) | 0.1.0 | Advanced tool search engine with compile-time indexing |
 
 ### Application Package
 
 | Package | Version | Description |
 |---------|---------|-------------|
-| [mcp-server-yandex-tracker](packages/yandex-tracker) | 0.1.0 | MCP server for Yandex.Tracker API v3 integration |
+| [@mcp-server/yandex-tracker](packages/servers/yandex-tracker) | 0.1.0 | MCP server for Yandex.Tracker API v3 integration |
 
 ---
 
@@ -33,25 +33,27 @@ This repository provides:
 
 ```
 packages/
-├── infrastructure/     → @mcp-framework/infrastructure
-│   └── HTTP, cache, logging, async utilities
-├── core/              → @mcp-framework/core
-│   └── BaseTool, registry, type system
-├── search/            → @mcp-framework/search
-│   └── Tool Search Engine (compile-time indexing)
-└── yandex-tracker/    → mcp-server-yandex-tracker
-    └── Yandex API, tools, operations, DI
+├── framework/              → MCP Framework (reusable packages)
+│   ├── infrastructure/     → @mcp-framework/infrastructure
+│   │   └── HTTP, cache, logging, async utilities
+│   ├── core/              → @mcp-framework/core
+│   │   └── BaseTool, registry, type system
+│   └── search/            → @mcp-framework/search
+│       └── Tool Search Engine (compile-time indexing)
+└── servers/               → MCP Servers (applications)
+    └── yandex-tracker/    → @mcp-server/yandex-tracker
+        └── Yandex.Tracker API integration
 ```
 
 **Dependency Graph:**
 ```
-infrastructure (0 dependencies)
+packages/framework/infrastructure (0 dependencies)
     ↓
-core (depends on infrastructure)
+packages/framework/core
     ↓
-search (depends on core)
+packages/framework/search
     ↓
-yandex-tracker (depends on all framework packages)
+packages/servers/* (any server can depend on framework)
 ```
 
 **Details:** [ARCHITECTURE.md](./ARCHITECTURE.md)
@@ -64,11 +66,11 @@ yandex-tracker (depends on all framework packages)
 
 **Install and run:**
 ```bash
-npm install -g mcp-server-yandex-tracker
+npm install -g @mcp-server/yandex-tracker
 ```
 
 **Connect to Claude Desktop:**
-Follow instructions in [packages/yandex-tracker/README.md](packages/yandex-tracker/README.md)
+Follow instructions in [packages/servers/yandex-tracker/README.md](packages/servers/yandex-tracker/README.md)
 
 ### For Framework Users
 
@@ -124,10 +126,10 @@ npm run clean
 npm run build --workspace=@mcp-framework/core
 
 # Test one package
-npm run test --workspace=mcp-server-yandex-tracker
+npm run test --workspace=@mcp-server/yandex-tracker
 
 # All package commands
-cd packages/yandex-tracker
+cd packages/servers/yandex-tracker
 npm run <script>
 ```
 
@@ -138,7 +140,7 @@ npm run <script>
 npm install axios --workspace=@mcp-framework/infrastructure
 
 # Add framework package to yandex-tracker
-cd packages/yandex-tracker
+cd packages/servers/yandex-tracker
 npm install @mcp-framework/core
 ```
 
@@ -155,10 +157,10 @@ npm install @mcp-framework/core
 
 ### Packages
 
-- **Infrastructure:** [packages/infrastructure/README.md](packages/infrastructure/README.md)
-- **Core:** [packages/core/README.md](packages/core/README.md)
-- **Search:** [packages/search/README.md](packages/search/README.md)
-- **Yandex Tracker:** [packages/yandex-tracker/README.md](packages/yandex-tracker/README.md)
+- **Infrastructure:** [packages/framework/infrastructure/README.md](packages/framework/infrastructure/README.md)
+- **Core:** [packages/framework/core/README.md](packages/framework/core/README.md)
+- **Search:** [packages/framework/search/README.md](packages/framework/search/README.md)
+- **Yandex Tracker:** [packages/servers/yandex-tracker/README.md](packages/servers/yandex-tracker/README.md)
 
 ---
 
@@ -181,7 +183,7 @@ npm run test --workspace=@mcp-framework/core
 
 **Watch mode:**
 ```bash
-cd packages/yandex-tracker
+cd packages/servers/yandex-tracker
 npm run test:watch
 ```
 
@@ -223,7 +225,7 @@ npm run knip              # Find unused files/exports/dependencies
 ## 📦 Publishing
 
 **Framework packages** (`@mcp-framework/*`) are published to npm registry.
-**Application package** (`mcp-server-yandex-tracker`) is published to npm registry.
+**Application package** (`@mcp-server/yandex-tracker`) is published to npm registry.
 
 **Version management:**
 - Using [Changesets](https://github.com/changesets/changesets)

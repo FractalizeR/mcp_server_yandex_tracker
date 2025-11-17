@@ -22,20 +22,36 @@
 
 ## 📦 Monorepo Structure
 
+### Package Categories
+
+**Framework (packages/framework/):**
+- Reusable, universal components
+- Can be used in any MCP servers
+- Domain-agnostic (no business logic)
+
+**Servers (packages/servers/):**
+- Ready-to-use MCP servers for specific APIs
+- Use framework packages
+- Contain domain logic and integrations
+
+### Directory Structure
+
 ```
 packages/
-├── infrastructure/     → @mcp-framework/infrastructure
-│   ├── http/, cache/, async/, logging/
-│   └── 0 dependencies
-├── core/              → @mcp-framework/core
-│   ├── tools/base/, utils/, tool-registry
-│   └── depends on: infrastructure
-├── search/            → @mcp-framework/search
-│   ├── engine/, strategies/, tools/
-│   └── depends on: core
-└── yandex-tracker/    → mcp-server-yandex-tracker
-    ├── api_operations/, entities/, mcp/, composition-root/
-    └── depends on: infrastructure, core, search
+├── framework/              → MCP Framework (reusable packages)
+│   ├── infrastructure/     → @mcp-framework/infrastructure
+│   │   ├── http/, cache/, async/, logging/
+│   │   └── 0 dependencies
+│   ├── core/              → @mcp-framework/core
+│   │   ├── tools/base/, utils/, tool-registry
+│   │   └── depends on: infrastructure
+│   └── search/            → @mcp-framework/search
+│       ├── engine/, strategies/, tools/
+│       └── depends on: core
+└── servers/               → MCP Servers (applications)
+    └── yandex-tracker/    → @mcp-server/yandex-tracker
+        ├── api_operations/, entities/, mcp/, composition-root/
+        └── depends on: infrastructure, core, search
 ```
 
 ---
@@ -43,29 +59,31 @@ packages/
 ## 🔗 Dependency Graph
 
 ```
-┌─────────────────┐
-│ infrastructure  │ ← Base layer (HTTP, logging, cache, async)
-└────────┬────────┘
-         │
-         ↓
-┌─────────────────┐
-│      core       │ ← Framework core (BaseTool, registry, utilities)
-└────────┬────────┘
-         │
-         ↓
-┌─────────────────┐
-│     search      │ ← Tool discovery (search engine, strategies)
-└────────┬────────┘
-         │
-         ↓
-┌─────────────────┐
-│ yandex-tracker  │ ← Application (Yandex.Tracker integration)
-└─────────────────┘
+┌──────────────────────────────────┐
+│ packages/framework/infrastructure│ ← Base layer (HTTP, logging, cache, async)
+└────────────────┬─────────────────┘
+                 │
+                 ↓
+┌──────────────────────────────────┐
+│    packages/framework/core       │ ← Framework core (BaseTool, registry, utilities)
+└────────────────┬─────────────────┘
+                 │
+                 ↓
+┌──────────────────────────────────┐
+│   packages/framework/search      │ ← Tool discovery (search engine, strategies)
+└────────────────┬─────────────────┘
+                 │
+                 ↓
+┌──────────────────────────────────┐
+│  packages/servers/*              │ ← Any MCP server (uses framework)
+│  (yandex-tracker, future servers)│
+└──────────────────────────────────┘
 ```
 
 **Rules:**
 - ❌ No reverse dependencies (core → infrastructure)
-- ❌ No imports from yandex-tracker to framework packages
+- ❌ No imports from servers/* to framework packages
+- ❌ Servers cannot depend on other servers
 - ✅ Dependencies flow top-down only
 
 **Validation:**
@@ -90,7 +108,7 @@ npm run depcruise  # Validates dependency graph
 
 **Key Principle:** Infrastructure does NOT know about domain (Yandex.Tracker, MCP)
 
-**Details:** [packages/infrastructure/README.md](packages/infrastructure/README.md)
+**Details:** [packages/framework/infrastructure/README.md](packages/framework/infrastructure/README.md)
 
 ### @mcp-framework/core
 
@@ -104,7 +122,7 @@ npm run depcruise  # Validates dependency graph
 
 **Key Principle:** Generic `BaseTool<TFacade>` — facade-agnostic design
 
-**Details:** [packages/core/README.md](packages/core/README.md)
+**Details:** [packages/framework/core/README.md](packages/framework/core/README.md)
 
 ### @mcp-framework/search
 
@@ -118,9 +136,9 @@ npm run depcruise  # Validates dependency graph
 
 **Key Principle:** Compile-time indexing (zero runtime overhead)
 
-**Details:** [packages/search/README.md](packages/search/README.md)
+**Details:** [packages/framework/search/README.md](packages/framework/search/README.md)
 
-### mcp-server-yandex-tracker
+### @mcp-server/yandex-tracker
 
 **Purpose:** Complete MCP server for Yandex.Tracker API v3
 
@@ -133,7 +151,7 @@ npm run depcruise  # Validates dependency graph
 
 **Key Principle:** Built on framework packages (infrastructure, core, search)
 
-**Details:** [packages/yandex-tracker/README.md](packages/yandex-tracker/README.md), [packages/yandex-tracker/CLAUDE.md](packages/yandex-tracker/CLAUDE.md)
+**Details:** [packages/servers/yandex-tracker/README.md](packages/servers/yandex-tracker/README.md), [packages/servers/yandex-tracker/CLAUDE.md](packages/servers/yandex-tracker/CLAUDE.md)
 
 ---
 
@@ -235,7 +253,7 @@ export interface UpdateIssueDto {
 
 **Purpose:** Type-safe requests
 
-**Details:** [packages/yandex-tracker/src/entities/README.md](packages/yandex-tracker/src/entities/README.md), [packages/yandex-tracker/src/dto/README.md](packages/yandex-tracker/src/dto/README.md)
+**Details:** [packages/servers/yandex-tracker/src/entities/README.md](packages/servers/yandex-tracker/src/entities/README.md), [packages/servers/yandex-tracker/src/dto/README.md](packages/servers/yandex-tracker/src/dto/README.md)
 
 ---
 
@@ -270,7 +288,7 @@ const results = await executor.execute(
 
 **Result Type:** `BatchResult<T>` (discriminated union: fulfilled | rejected)
 
-**Details:** [packages/infrastructure/README.md](packages/infrastructure/README.md#parallel-execution)
+**Details:** [packages/framework/infrastructure/README.md](packages/framework/infrastructure/README.md#parallel-execution)
 
 ---
 
@@ -280,7 +298,7 @@ const results = await executor.execute(
 
 **Structure:**
 ```
-packages/yandex-tracker/src/composition-root/
+packages/servers/yandex-tracker/src/composition-root/
 ├── types.ts           # Symbol tokens (TYPES.HttpClient, etc.)
 ├── container.ts       # Container configuration
 └── definitions/       # Declarative definitions
@@ -293,7 +311,7 @@ packages/yandex-tracker/src/composition-root/
 - Easy testing (rebind)
 - Explicit contracts
 
-**Details:** [packages/yandex-tracker/src/composition-root/README.md](packages/yandex-tracker/src/composition-root/README.md)
+**Details:** [packages/servers/yandex-tracker/src/composition-root/README.md](packages/servers/yandex-tracker/src/composition-root/README.md)
 
 ---
 
@@ -325,7 +343,7 @@ packages/yandex-tracker/src/composition-root/
    - Max 100 entries
    - Key: `${query}_${strategy}`
 
-**Details:** [packages/search/README.md](packages/search/README.md)
+**Details:** [packages/framework/search/README.md](packages/framework/search/README.md)
 
 ---
 
@@ -334,14 +352,15 @@ packages/yandex-tracker/src/composition-root/
 **Rules:**
 
 1. **Layered Architecture**
-   - `yandex-tracker` не импортирует в framework пакеты
-   - `infrastructure` не импортирует domain слои
+   - `servers/*` не импортируют в framework пакеты
+   - `framework/infrastructure` не импортирует domain слои
+   - Servers не зависят друг от друга
 
 2. **Package Boundaries**
    - Импорты между пакетами только через npm package names
    - Нет относительных путов между пакетами
 
-3. **MCP Isolation (yandex-tracker)**
+3. **MCP Isolation (servers/yandex-tracker)**
    - Tools используют только Facade, не Operations напрямую
    - Разрешены импорты entities/dto для типов
 
@@ -382,15 +401,34 @@ npm run test:coverage           # With coverage
 npm run test --workspace=@mcp-framework/core  # Single package
 ```
 
-**Details:** [packages/yandex-tracker/tests/README.md](packages/yandex-tracker/tests/README.md)
+**Details:** [packages/servers/yandex-tracker/tests/README.md](packages/servers/yandex-tracker/tests/README.md)
 
 ---
 
 ## 📋 Adding New Functionality
 
+### Adding New MCP Server
+
+Creating a new server (e.g., GitHub, Jira):
+
+1. Create `packages/servers/{server-name}/`
+2. Use `yandex-tracker` as template structure
+3. Add dependencies on `@mcp-framework/*` packages
+4. Use `tsup.config.base.ts` for build configuration
+5. Publish as `@mcp-server/{server-name}`
+6. Update root `package.json` workspaces
+7. Update root `tsconfig.json` references
+8. Update `.dependency-cruiser.cjs` rules
+9. Create README.md and CLAUDE.md
+
+**Each server gets:**
+- Separate bundle: `dist/{server-name}.bundle.js`
+- Independent versioning
+- Common framework capabilities
+
 ### Adding Framework Package
 
-1. Create `packages/new-package/`
+1. Create `packages/framework/new-package/`
 2. Add `package.json` with correct dependencies
 3. Add `tsconfig.json` with project references
 4. Update root `package.json` workspaces
@@ -399,11 +437,11 @@ npm run test --workspace=@mcp-framework/core  # Single package
 7. Create README.md
 8. `npm install && npm run build`
 
-### Adding MCP Tool (in yandex-tracker)
+### Adding MCP Tool (in servers/yandex-tracker)
 
 1. Create structure:
    ```
-   packages/yandex-tracker/src/mcp/tools/{api|helpers}/{feature}/{action}/
+   packages/servers/yandex-tracker/src/mcp/tools/{api|helpers}/{feature}/{action}/
    ├── {name}.schema.ts
    ├── {name}.definition.ts
    ├── {name}.tool.ts
@@ -412,7 +450,7 @@ npm run test --workspace=@mcp-framework/core  # Single package
 
 2. Add to registry:
    ```typescript
-   // packages/yandex-tracker/src/composition-root/definitions/tool-definitions.ts
+   // packages/servers/yandex-tracker/src/composition-root/definitions/tool-definitions.ts
    export const TOOL_CLASSES = [
      // ...
      NewTool,
@@ -421,17 +459,17 @@ npm run test --workspace=@mcp-framework/core  # Single package
 
 3. Tests + `npm run validate`
 
-**Details:** [packages/yandex-tracker/src/mcp/README.md](packages/yandex-tracker/src/mcp/README.md)
+**Details:** [packages/servers/yandex-tracker/src/mcp/README.md](packages/servers/yandex-tracker/src/mcp/README.md)
 
-### Adding API Operation (in yandex-tracker)
+### Adding API Operation (in servers/yandex-tracker)
 
-1. Create `packages/yandex-tracker/src/api_operations/{feature}/{action}/{name}.operation.ts`
+1. Create `packages/servers/yandex-tracker/src/api_operations/{feature}/{action}/{name}.operation.ts`
 2. Extend `BaseOperation`
 3. Add facade method
-4. Register in `packages/yandex-tracker/src/composition-root/definitions/operation-definitions.ts`
+4. Register in `packages/servers/yandex-tracker/src/composition-root/definitions/operation-definitions.ts`
 5. Tests + `npm run validate`
 
-**Details:** [packages/yandex-tracker/src/api_operations/README.md](packages/yandex-tracker/src/api_operations/README.md)
+**Details:** [packages/servers/yandex-tracker/src/api_operations/README.md](packages/servers/yandex-tracker/src/api_operations/README.md)
 
 ---
 
@@ -500,21 +538,22 @@ npm run validate
 
 ### Framework Packages
 
-- **[packages/infrastructure/README.md](packages/infrastructure/README.md)** — Infrastructure API
-- **[packages/core/README.md](packages/core/README.md)** — Core API
-- **[packages/search/README.md](packages/search/README.md)** — Search system
+- **[packages/framework/infrastructure/README.md](packages/framework/infrastructure/README.md)** — Infrastructure API
+- **[packages/framework/core/README.md](packages/framework/core/README.md)** — Core API
+- **[packages/framework/search/README.md](packages/framework/search/README.md)** — Search system
 
-### Yandex Tracker
+### MCP Servers
 
-- **[packages/yandex-tracker/README.md](packages/yandex-tracker/README.md)** — User guide
-- **[packages/yandex-tracker/CLAUDE.md](packages/yandex-tracker/CLAUDE.md)** — Developer rules
+**Yandex Tracker:**
+- **[packages/servers/yandex-tracker/README.md](packages/servers/yandex-tracker/README.md)** — User guide
+- **[packages/servers/yandex-tracker/CLAUDE.md](packages/servers/yandex-tracker/CLAUDE.md)** — Developer rules
 - **Module READMEs:**
-  - [src/mcp/README.md](packages/yandex-tracker/src/mcp/README.md)
-  - [src/api_operations/README.md](packages/yandex-tracker/src/api_operations/README.md)
-  - [src/entities/README.md](packages/yandex-tracker/src/entities/README.md)
-  - [src/dto/README.md](packages/yandex-tracker/src/dto/README.md)
-  - [src/composition-root/README.md](packages/yandex-tracker/src/composition-root/README.md)
-  - [tests/README.md](packages/yandex-tracker/tests/README.md)
+  - [src/mcp/README.md](packages/servers/yandex-tracker/src/mcp/README.md)
+  - [src/api_operations/README.md](packages/servers/yandex-tracker/src/api_operations/README.md)
+  - [src/entities/README.md](packages/servers/yandex-tracker/src/entities/README.md)
+  - [src/dto/README.md](packages/servers/yandex-tracker/src/dto/README.md)
+  - [src/composition-root/README.md](packages/servers/yandex-tracker/src/composition-root/README.md)
+  - [tests/README.md](packages/servers/yandex-tracker/tests/README.md)
 
 ---
 

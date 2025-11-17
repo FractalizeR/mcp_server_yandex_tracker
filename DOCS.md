@@ -22,41 +22,60 @@
 | **[README.md](./README.md)** | Общая документация — установка, использование, быстрый старт |
 | **[DOCS.md](./DOCS.md)** | 🗺️ Этот файл — навигация по всей документации |
 
-### Тесты
+---
+
+## 🔧 Framework пакеты
 
 | Файл | Назначение |
 |------|-----------|
-| **[tests/README.md](./packages/yandex-tracker/tests/README.md)** | Архитектура тестирования — типы тестов, helpers, изоляция |
+| **[packages/framework/infrastructure/README.md](packages/framework/infrastructure/README.md)** | HTTP, cache, logging, async |
+| **[packages/framework/core/README.md](packages/framework/core/README.md)** | BaseTool, registry, types |
+| **[packages/framework/search/README.md](packages/framework/search/README.md)** | Tool Search Engine |
 
 ---
 
-## 🔧 Модульная документация
+## 🖥️ MCP Servers
 
-### MCP слой
-
-| Файл | Назначение | Размер |
-|------|-----------|--------|
-| **[packages/yandex-tracker/src/tools/README.md](./packages/yandex-tracker/src/tools/README.md)** | MCP Tools — конвенции, шаблоны, чек-листы |  |
-
-### Tracker API слой
+### Yandex.Tracker
 
 | Файл | Назначение |
 |------|-----------|
-| **[packages/yandex-tracker/src/tracker_api/api_operations/README.md](./packages/yandex-tracker/src/tracker_api/api_operations/README.md)** | API Operations — конвенции, BaseOperation, batch-операции |
-| **[packages/yandex-tracker/src/tracker_api/entities/README.md](./packages/yandex-tracker/src/tracker_api/entities/README.md)** | Entities — WithUnknownFields, структура, правила |
-| **[packages/yandex-tracker/src/tracker_api/dto/README.md](./packages/yandex-tracker/src/tracker_api/dto/README.md)** | DTO — Input/Output паттерны, кастомные поля |
+| **[packages/servers/yandex-tracker/CLAUDE.md](packages/servers/yandex-tracker/CLAUDE.md)** | Yandex.Tracker MCP Server (главный файл) |
+| **[packages/servers/yandex-tracker/README.md](packages/servers/yandex-tracker/README.md)** | Установка и использование |
 
-### Composition Root (DI)
+#### Модульная документация
+
+**MCP слой:**
 
 | Файл | Назначение |
 |------|-----------|
-| **[packages/yandex-tracker/src/composition-root/README.md](./packages/yandex-tracker/src/composition-root/README.md)** | Dependency Injection — Symbol-based tokens, автоматическая регистрация, примеры использования |
+| **[packages/servers/yandex-tracker/src/tools/README.md](./packages/servers/yandex-tracker/src/tools/README.md)** | MCP Tools — конвенции, шаблоны, чек-листы |
 
-### CLI инструмент
+**Tracker API слой:**
+
+| Файл | Назначение |
+|------|-----------|
+| **[packages/servers/yandex-tracker/src/tracker_api/api_operations/README.md](./packages/servers/yandex-tracker/src/tracker_api/api_operations/README.md)** | API Operations — конвенции, BaseOperation, batch-операции |
+| **[packages/servers/yandex-tracker/src/tracker_api/entities/README.md](./packages/servers/yandex-tracker/src/tracker_api/entities/README.md)** | Entities — WithUnknownFields, структура, правила |
+| **[packages/servers/yandex-tracker/src/tracker_api/dto/README.md](./packages/servers/yandex-tracker/src/tracker_api/dto/README.md)** | DTO — Input/Output паттерны, кастомные поля |
+
+**Composition Root (DI):**
+
+| Файл | Назначение |
+|------|-----------|
+| **[packages/servers/yandex-tracker/src/composition-root/README.md](./packages/servers/yandex-tracker/src/composition-root/README.md)** | Dependency Injection — Symbol-based tokens, автоматическая регистрация, примеры использования |
+
+**CLI инструмент:**
 
 | Файл | Назначение | Размер |
 |------|-----------|--------|
-| **[packages/yandex-tracker/src/cli/README.md](./packages/yandex-tracker/src/cli/README.md)** | CLI — управление подключениями, connectors, архитектура | ~360 строк |
+| **[packages/servers/yandex-tracker/src/cli/README.md](./packages/servers/yandex-tracker/src/cli/README.md)** | CLI — управление подключениями, connectors, архитектура | ~360 строк |
+
+**Тесты:**
+
+| Файл | Назначение |
+|------|-----------|
+| **[tests/README.md](./packages/servers/yandex-tracker/tests/README.md)** | Архитектура тестирования — типы тестов, helpers, изоляция |
 
 ---
 

@@ -192,10 +192,10 @@ fi
 log_info "🔍 Проверка структуры проекта..."
 
 CRITICAL_DIRS=(
-    "packages/infrastructure"
-    "packages/core"
-    "packages/search"
-    "packages/yandex-tracker"
+    "packages/framework/infrastructure"
+    "packages/framework/core"
+    "packages/framework/search"
+    "packages/servers/yandex-tracker"
 )
 
 for dir in "${CRITICAL_DIRS[@]}"; do
