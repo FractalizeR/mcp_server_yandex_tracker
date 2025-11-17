@@ -154,7 +154,19 @@ module.exports = {
       severity: 'warn',
       comment: 'Циклические зависимости запрещены',
       from: {
-        pathNot: '^node_modules',
+        pathNot: [
+          '^node_modules',
+          // Исключения: намеренный паттерн Definition↔Tool (circular by design)
+          // BaseDefinition → ToolMetadata → BaseDefinition (framework pattern)
+          '^packages/core/src/tools/base/base-definition\\.ts$',
+          '^packages/core/src/tools/base/tool-metadata\\.ts$',
+          // SearchToolsDefinition ↔ SearchToolsTool (pairing pattern)
+          '^packages/search/src/tools/search-tools\\.definition\\.ts$',
+          '^packages/search/src/tools/search-tools\\.tool\\.ts$',
+          // DemoDefinition ↔ DemoTool (pairing pattern)
+          '^packages/yandex-tracker/src/tools/helpers/demo/demo\\.definition\\.ts$',
+          '^packages/yandex-tracker/src/tools/helpers/demo/demo\\.tool\\.ts$',
+        ],
       },
       to: {
         pathNot: '^node_modules',
