@@ -21,9 +21,21 @@
       "types": "./dist/engine/index.d.ts",
       "default": "./dist/engine/index.js"
     },
+    "./tool-search-engine.js": {
+      "types": "./dist/engine/tool-search-engine.d.ts",
+      "default": "./dist/engine/tool-search-engine.js"
+    },
     "./strategies": {
       "types": "./dist/strategies/index.d.ts",
       "default": "./dist/strategies/index.js"
+    },
+    "./strategies/*.js": {
+      "types": "./dist/strategies/*.d.ts",
+      "default": "./dist/strategies/*.js"
+    },
+    "./types.js": {
+      "types": "./dist/types.d.ts",
+      "default": "./dist/types.js"
     }
   },
   "main": "./dist/index.js",
