@@ -39,6 +39,7 @@ async function main(): Promise<void> {
         YANDEX_TRACKER_TOKEN: 'dummy-token',
         YANDEX_ORG_ID: '123456',
         PRETTY_LOGS: 'true', // Pretty-print для читаемости
+        LOGS_DIR: './logs-smoke-test', // ❗ Включаем логирование в файлы
       },
     });
 
@@ -147,14 +148,65 @@ async function main(): Promise<void> {
     // 6. Итоги
     console.log('\n6️⃣  Итоги:');
     if (!errorLog1) {
-      console.log('   ❌ ПРОБЛЕМА: Ошибка "tool not found" НЕ логируется!');
+      console.log('   ⚠️  STDERR: Ошибка "tool not found" НЕ видна в stderr');
     } else {
-      console.log('   ✅ Ошибка "tool not found" корректно логируется');
+      console.log('   ✅ STDERR: Ошибка "tool not found" корректно логируется');
     }
 
     if (errorLog1Name) {
       console.log('   ⚠️  ВАЖНО: Префикс "FractalizeR\'s Yandex Tracker MCP:" попадает в логи');
       console.log('      Это означает, что клиент передает ПОЛНОЕ имя с префиксом!');
+    }
+
+    // 7. Проверяем файлы логов
+    console.log('\n7️⃣  Проверка файлов логов (logs-smoke-test/):');
+    await sleep(1000); // Даем время на запись логов
+
+    const fs = await import('node:fs/promises');
+    const path = await import('node:path');
+
+    try {
+      const logsDir = './logs-smoke-test';
+      const combinedLogPath = path.join(logsDir, 'combined.log');
+      const errorLogPath = path.join(logsDir, 'error.log');
+
+      let combinedLogExists = false;
+      let errorLogExists = false;
+
+      try {
+        await fs.access(combinedLogPath);
+        combinedLogExists = true;
+      } catch {
+        // Файл не существует
+      }
+
+      try {
+        await fs.access(errorLogPath);
+        errorLogExists = true;
+      } catch {
+        // Файл не существует
+      }
+
+      console.log(`   - combined.log: ${combinedLogExists ? '✅ создан' : '❌ не создан'}`);
+      console.log(`   - error.log: ${errorLogExists ? '✅ создан' : '❌ не создан'}`);
+
+      if (combinedLogExists) {
+        const combinedContent = await fs.readFile(combinedLogPath, 'utf-8');
+        const hasErrorLog = combinedContent.includes('Инструмент не найден');
+        const hasNormalizedLog = combinedContent.includes('Убран префикс сервера');
+
+        console.log(`\n   📄 combined.log (${combinedContent.length} байт):`);
+        console.log(`      - "Инструмент не найден": ${hasErrorLog ? '✅ ДА' : '❌ НЕТ'}`);
+        console.log(`      - "Убран префикс сервера": ${hasNormalizedLog ? '✅ ДА' : '❌ НЕТ'}`);
+
+        if (hasErrorLog && hasNormalizedLog) {
+          console.log('\n   ✅ УСПЕХ: Оба исправления работают!');
+          console.log('      1. Logger пишет в файлы при PRETTY_LOGS=true');
+          console.log('      2. Префикс сервера корректно удаляется');
+        }
+      }
+    } catch (err) {
+      console.log(`   ❌ Ошибка при чтении логов: ${(err as Error).message}`);
     }
 
     console.log('\n✅ Тест завершен');
