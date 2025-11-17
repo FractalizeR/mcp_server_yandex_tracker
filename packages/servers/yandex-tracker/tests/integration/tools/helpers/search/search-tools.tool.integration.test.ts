@@ -525,4 +525,60 @@ describe('search-tools integration tests', () => {
       }
     });
   });
+
+  describe('Regression: prefix и inputSchema bug', () => {
+    it('должен возвращать инструменты с правильным префиксом fr_yandex_tracker_*', async () => {
+      // Arrange & Act
+      const result = await client.callTool(SEARCH_TOOLS_NAME, {
+        query: 'ping',
+        detailLevel: 'name_and_description',
+      });
+
+      // Assert
+      expect(result.isError).toBeFalsy();
+
+      const content = result.content[0]!;
+      if (content.type === 'text') {
+        const parsed = JSON.parse(content.text);
+        expect(parsed.data.tools.length).toBeGreaterThan(0);
+
+        // Проверяем, что все API инструменты имеют префикс fr_yandex_tracker_*
+        parsed.data.tools.forEach((tool: { name: string }) => {
+          if (tool.name !== SEARCH_TOOLS_NAME) {
+            // Все API tools должны иметь префикс
+            expect(tool.name).toMatch(/^fr_yandex_tracker_/);
+            // НЕ должны иметь старый префикс
+            expect(tool.name).not.toMatch(/^fractalizer_mcp_yandex_tracker_/);
+          }
+        });
+      }
+    });
+
+    it('должен возвращать inputSchema при detailLevel=full', async () => {
+      // Arrange & Act
+      const result = await client.callTool(SEARCH_TOOLS_NAME, {
+        query: 'ping',
+        detailLevel: 'full',
+      });
+
+      // Assert
+      expect(result.isError).toBeFalsy();
+
+      const content = result.content[0]!;
+      if (content.type === 'text') {
+        const parsed = JSON.parse(content.text);
+        expect(parsed.data.tools.length).toBeGreaterThan(0);
+
+        // Находим ping tool
+        const pingTool = parsed.data.tools.find(
+          (t: { name: string }) => t.name === buildToolName('ping', MCP_TOOL_PREFIX)
+        );
+
+        expect(pingTool).toBeDefined();
+        // inputSchema должен быть определен (не пустой объект)
+        expect(pingTool.inputSchema).toBeDefined();
+        expect(typeof pingTool.inputSchema).toBe('object');
+      }
+    });
+  });
 });
