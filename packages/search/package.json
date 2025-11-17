@@ -2,9 +2,16 @@
   "name": "@mcp-framework/search",
   "version": "0.1.0",
   "description": "Advanced tool search engine with compile-time indexing and 5 search strategies",
+  "keywords": [
+    "mcp",
+    "search",
+    "tool-discovery",
+    "fuzzy-search",
+    "ai"
+  ],
+  "license": "MIT",
+  "author": "Fractalizer",
   "type": "module",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -19,38 +26,31 @@
       "default": "./dist/strategies/index.js"
     }
   },
-  "scripts": {
-    "build": "tsc -b && tsc-alias",
-    "typecheck": "tsc --noEmit",
-    "test": "vitest run",
-    "test:watch": "vitest watch",
-    "test:coverage": "vitest run --coverage",
-    "clean": "rimraf dist"
-  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "files": [
     "dist",
     "scripts",
     "README.md",
     "CHANGELOG.md"
   ],
-  "keywords": [
-    "mcp",
-    "search",
-    "tool-discovery",
-    "fuzzy-search",
-    "ai"
-  ],
-  "author": "Fractalizer",
-  "license": "MIT",
+  "scripts": {
+    "build": "tsc -b && tsc-alias",
+    "clean": "rimraf dist",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest watch",
+    "typecheck": "tsc --noEmit"
+  },
   "dependencies": {
     "@mcp-framework/core": "*"
   },
   "devDependencies": {
     "@types/node": "^24.10.1",
-    "typescript": "^5.9.3",
-    "vitest": "^4.0.8",
     "tsc-alias": "^1.8.16",
-    "tsx": "^4.20.6"
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.8"
   },
   "publishConfig": {
     "access": "public"

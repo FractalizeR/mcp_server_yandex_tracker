@@ -2,22 +2,19 @@
   "name": "mcp-server-yandex-tracker",
   "version": "0.1.0",
   "description": "MCP Server for Yandex Tracker API integration",
+  "keywords": [
+    "mcp",
+    "yandex-tracker",
+    "project-management",
+    "api",
+    "claude"
+  ],
+  "license": "MIT",
+  "author": "Fractalizer",
   "type": "module",
   "main": "./dist/index.js",
   "bin": {
     "mcp-server-yandex-tracker": "./dist/index.js"
-  },
-  "scripts": {
-    "build": "tsc -b && tsc-alias",
-    "build:bundle": "esbuild src/index.ts --bundle --platform=node --format=esm --outfile=dist/bundle.js --external:@modelcontextprotocol/sdk --external:axios --external:inversify --external:p-limit --sourcemap",
-    "typecheck": "tsc --noEmit",
-    "test": "vitest run",
-    "test:watch": "vitest watch",
-    "test:coverage": "vitest run --coverage",
-    "test:smoke": "tsx scripts/smoke-test-server.ts",
-    "validate:tools": "tsx scripts/validate-tool-registration.ts",
-    "dev": "npm run build && node dist/index.js",
-    "clean": "rimraf dist"
   },
   "files": [
     "dist",
@@ -26,33 +23,36 @@
     "CLAUDE.md",
     "CHANGELOG.md"
   ],
-  "keywords": [
-    "mcp",
-    "yandex-tracker",
-    "project-management",
-    "api",
-    "claude"
-  ],
-  "author": "Fractalizer",
-  "license": "MIT",
+  "scripts": {
+    "build": "tsc -b && tsc-alias",
+    "build:bundle": "esbuild src/index.ts --bundle --platform=node --format=esm --outfile=dist/bundle.js --external:@modelcontextprotocol/sdk --external:axios --external:inversify --external:p-limit --sourcemap",
+    "clean": "rimraf dist",
+    "dev": "npm run build && node dist/index.js",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:smoke": "tsx scripts/smoke-test-server.ts",
+    "test:watch": "vitest watch",
+    "typecheck": "tsc --noEmit",
+    "validate:tools": "tsx scripts/validate-tool-registration.ts"
+  },
   "dependencies": {
     "@mcp-framework/core": "*",
-    "@mcp-framework/search": "*",
     "@mcp-framework/infrastructure": "*",
+    "@mcp-framework/search": "*",
     "@modelcontextprotocol/sdk": "^1.22.0",
-    "inversify": "^7.10.4",
-    "zod": "^3.25.76",
     "axios": "^1.7.9",
-    "pino": "^10.1.0"
+    "inversify": "^7.10.4",
+    "pino": "^10.1.0",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@types/node": "^24.10.1",
-    "typescript": "^5.9.3",
-    "vitest": "^4.0.8",
+    "axios-mock-adapter": "^2.1.0",
+    "esbuild": "^0.27.0",
     "tsc-alias": "^1.8.16",
     "tsx": "^4.20.6",
-    "esbuild": "^0.27.0",
-    "axios-mock-adapter": "^2.1.0"
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.8"
   },
   "publishConfig": {
     "access": "public"

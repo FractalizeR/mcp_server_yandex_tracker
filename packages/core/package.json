@@ -2,9 +2,16 @@
   "name": "@mcp-framework/core",
   "version": "0.1.0",
   "description": "Core framework for building MCP tools: base classes, utilities, registry",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "framework",
+    "tools",
+    "ai"
+  ],
+  "license": "MIT",
+  "author": "Fractalizer",
   "type": "module",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -19,43 +26,36 @@
       "default": "./dist/utils/index.js"
     }
   },
-  "scripts": {
-    "build": "tsc -b && tsc-alias",
-    "typecheck": "tsc --noEmit",
-    "test": "vitest run",
-    "test:watch": "vitest watch",
-    "test:coverage": "vitest run --coverage",
-    "clean": "rimraf dist"
-  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "files": [
     "dist",
     "README.md",
     "CHANGELOG.md"
   ],
-  "keywords": [
-    "mcp",
-    "model-context-protocol",
-    "framework",
-    "tools",
-    "ai"
-  ],
-  "author": "Fractalizer",
-  "license": "MIT",
+  "scripts": {
+    "build": "tsc -b && tsc-alias",
+    "clean": "rimraf dist",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest watch",
+    "typecheck": "tsc --noEmit"
+  },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.22.0",
-    "zod": "^3.25.76",
-    "pino": "^10.1.0"
-  },
-  "peerDependencies": {
-    "inversify": "^7.x"
+    "pino": "^10.1.0",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@types/node": "^24.10.1",
     "inversify": "^7.10.4",
-    "typescript": "^5.9.3",
-    "vitest": "^4.0.8",
+    "rimraf": "^6.1.0",
     "tsc-alias": "^1.8.16",
-    "rimraf": "^6.1.0"
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.8"
+  },
+  "peerDependencies": {
+    "inversify": "^7.x"
   },
   "publishConfig": {
     "access": "public"
