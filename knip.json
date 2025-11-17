@@ -5,7 +5,8 @@
   "ignore": [
     "tests/**",
     "**/*.test.ts",
-    "**/*.spec.ts"
+    "**/*.spec.ts",
+    "**/index.ts"
   ],
   "ignoreDependencies": [
     "@modelcontextprotocol/sdk",
