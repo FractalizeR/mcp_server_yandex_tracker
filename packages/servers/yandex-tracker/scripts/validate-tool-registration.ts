@@ -182,7 +182,7 @@ async function main(): Promise<void> {
     console.error('❌ Незарегистрированные Tools:');
     unregisteredTools.forEach((tool) => console.error(`   - ${tool}`));
     console.error(
-      '\n💡 Добавь их в packages/yandex-tracker/src/composition-root/definitions/tool-definitions.ts\n'
+      '\n💡 Добавь их в packages/servers/yandex-tracker/src/composition-root/definitions/tool-definitions.ts\n'
     );
   }
 
@@ -192,7 +192,7 @@ async function main(): Promise<void> {
     console.error('❌ Незарегистрированные Operations:');
     unregisteredOperations.forEach((op) => console.error(`   - ${op}`));
     console.error(
-      '\n💡 Добавь их в packages/yandex-tracker/src/composition-root/definitions/operation-definitions.ts\n'
+      '\n💡 Добавь их в packages/servers/yandex-tracker/src/composition-root/definitions/operation-definitions.ts\n'
     );
   }
 

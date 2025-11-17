@@ -1,10 +1,6 @@
 // tests/unit/helpers/mock-factories.test.ts
 import { describe, it, expect } from 'vitest';
-import {
-  createMockLogger,
-  createMockHttpClient,
-  createMockFacade,
-} from './mock-factories.js';
+import { createMockLogger, createMockHttpClient, createMockFacade } from './mock-factories.js';
 
 describe('Mock Factories', () => {
   describe('createMockLogger', () => {

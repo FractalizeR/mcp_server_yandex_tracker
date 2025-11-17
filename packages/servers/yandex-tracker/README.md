@@ -65,7 +65,7 @@ npm install
 npm run build
 
 # Собери только yandex-tracker
-cd packages/yandex-tracker
+cd packages/servers/yandex-tracker
 npm run build
 ```
 

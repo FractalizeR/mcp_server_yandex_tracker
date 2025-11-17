@@ -4,7 +4,7 @@
     { "path": "./packages/infrastructure" },
     { "path": "./packages/core" },
     { "path": "./packages/search" },
-    { "path": "./packages/yandex-tracker" },
+    { "path": "./packages/servers/yandex-tracker" },
     { "path": "./src/cli" }
   ]
 }

@@ -205,7 +205,7 @@ import { BaseTool } from '../../../core/src/tools/base/base-tool.js'; // WRONG!
 ## 📁 СТРУКТУРА ПАКЕТА
 
 ```
-packages/yandex-tracker/
+packages/servers/yandex-tracker/
 ├── src/
 │   ├── composition-root/    # DI контейнер (см. README.md)
 │   ├── api_operations/      # Operations, Facade

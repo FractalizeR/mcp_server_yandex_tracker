@@ -121,12 +121,8 @@ describe('ToolRegistry', () => {
       const definitions = registry.getDefinitions();
 
       // Assert - теперь у нас 11 tools (Ping, GetIssues, CreateIssue, UpdateIssue, FindIssues, GetIssueChangelog, GetIssueTransitions, TransitionIssue, IssueUrl, Demo, SearchTools)
-      expect(mockLogger.debug).toHaveBeenCalledWith(
-        'Зарегистрирован инструмент: ping'
-      );
-      expect(mockLogger.debug).toHaveBeenCalledWith(
-        'Зарегистрирован инструмент: get_issues'
-      );
+      expect(mockLogger.debug).toHaveBeenCalledWith('Зарегистрирован инструмент: ping');
+      expect(mockLogger.debug).toHaveBeenCalledWith('Зарегистрирован инструмент: get_issues');
       expect(mockLogger.debug).toHaveBeenCalledWith('Зарегистрировано инструментов: 10');
       expect(definitions.length).toBe(10);
     });
@@ -141,9 +137,7 @@ describe('ToolRegistry', () => {
       expect(definitions).toHaveLength(10);
 
       const pingDef = definitions.find((d) => d.name === 'ping');
-      const getIssuesDef = definitions.find(
-        (d) => d.name === 'get_issues'
-      );
+      const getIssuesDef = definitions.find((d) => d.name === 'get_issues');
       const demoDef = definitions.find((d) => d.name === 'demo');
 
       expect(pingDef).toBeDefined();
@@ -219,12 +213,8 @@ describe('ToolRegistry', () => {
       expect(result.content).toHaveLength(1);
       expect(result.content[0]!.type).toBe('text');
 
-      expect(mockLogger.info).toHaveBeenCalledWith(
-        'Вызов инструмента: ping'
-      );
-      expect(mockLogger.info).toHaveBeenCalledWith(
-        'Инструмент ping выполнен успешно'
-      );
+      expect(mockLogger.info).toHaveBeenCalledWith('Вызов инструмента: ping');
+      expect(mockLogger.info).toHaveBeenCalledWith('Инструмент ping выполнен успешно');
       expect(mockLogger.debug).toHaveBeenCalledWith('Параметры:', params);
     });
 
@@ -259,9 +249,7 @@ describe('ToolRegistry', () => {
 
       // Assert
       expect(result.isError).toBeUndefined();
-      expect(mockLogger.info).toHaveBeenCalledWith(
-        'Инструмент get_issues выполнен успешно'
-      );
+      expect(mockLogger.info).toHaveBeenCalledWith('Инструмент get_issues выполнен успешно');
     });
 
     it('должна вернуть ошибку для несуществующего инструмента', async () => {

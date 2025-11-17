@@ -1,5 +1,5 @@
 {
-  "extends": "../../tsconfig.base.json",
+  "extends": "../../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
@@ -14,9 +14,9 @@
     }
   },
   "references": [
-    { "path": "../core" },
-    { "path": "../search" },
-    { "path": "../infrastructure" }
+    { "path": "../../core" },
+    { "path": "../../search" },
+    { "path": "../../infrastructure" }
   ],
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"]
