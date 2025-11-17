@@ -14,9 +14,9 @@
     }
   },
   "references": [
-    { "path": "../../core" },
-    { "path": "../../search" },
-    { "path": "../../infrastructure" }
+    { "path": "../../framework/core" },
+    { "path": "../../framework/search" },
+    { "path": "../../framework/infrastructure" }
   ],
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"]
