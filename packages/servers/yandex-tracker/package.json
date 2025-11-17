@@ -54,7 +54,7 @@
     "inversify": "^7.10.4",
     "ora": "^8.1.1",
     "pino": "^10.1.0",
-    "zod": "^3.25.76"
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@anthropic-ai/mcpb": "^2.0.1",
