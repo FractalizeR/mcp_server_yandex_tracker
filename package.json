@@ -2,34 +2,37 @@
   "name": "mcp-framework-monorepo",
   "version": "0.0.0",
   "private": true,
+  "license": "MIT",
+  "author": "Fractalizer",
   "type": "module",
   "workspaces": [
     "packages/*"
   ],
   "scripts": {
-    "build": "npm run build --workspaces --if-present",
-    "test": "npm run test --workspaces --if-present",
-    "test:coverage": "npm run test:coverage --workspaces --if-present",
-    "test:smoke": "npm run test:smoke --workspaces --if-present",
-    "lint": "npm run lint --workspaces --if-present",
-    "typecheck": "npm run typecheck --workspaces --if-present",
-    "clean": "rimraf packages/*/dist packages/*/node_modules",
-    "validate": "npm run lint && npm run typecheck && npm run test && npm run test:smoke && npm run cpd",
-    "format": "prettier --write \"packages/**/src/**/*.ts\" \"packages/**/tests/**/*.ts\" \"scripts/**/*.ts\"",
-    "format:check": "prettier --check \"packages/**/src/**/*.ts\" \"packages/**/tests/**/*.ts\" \"scripts/**/*.ts\"",
-    "depcruise": "depcruise packages --validate",
-    "depcruise:graph": "depcruise packages --output-type dot | dot -T svg > dependency-graph.svg",
-    "knip": "knip --strict",
-    "cpd": "jscpd packages/*/src || true",
-    "cpd:report": "jscpd packages/*/src --reporters html,console",
-    "quality": "npm run cpd && npm run depcruise && npm run knip",
     "audit:lockfile": "npm ci --dry-run",
     "audit:secrets": "gitleaks detect --no-git --verbose --config .gitleaks.toml",
     "audit:socket": "npx --yes @socketsecurity/cli@latest audit --severity high || echo '⚠️  Socket.dev audit skipped (not logged in). Run: socket login'",
-    "validate:docs": "tsx scripts/validate-docs-size.ts",
-    "validate:security": "npm run knip && npm run audit:socket && npm run audit:lockfile && npm run audit:secrets",
+    "build": "npm run build --workspaces --if-present",
+    "clean": "rimraf packages/*/dist packages/*/node_modules",
+    "cpd": "jscpd packages/*/src || true",
+    "cpd:report": "jscpd packages/*/src --reporters html,console",
+    "depcruise": "depcruise packages --validate",
+    "depcruise:graph": "depcruise packages --output-type dot | dot -T svg > dependency-graph.svg",
+    "format": "npm run format:pkg && prettier --write \"packages/**/src/**/*.ts\" \"packages/**/tests/**/*.ts\" \"scripts/**/*.ts\"",
+    "format:check": "prettier --check \"packages/**/src/**/*.ts\" \"packages/**/tests/**/*.ts\" \"scripts/**/*.ts\"",
+    "format:pkg": "sort-package-json package.json packages/*/package.json",
     "postinstall": "./scripts/install-gitleaks.sh",
-    "prepare": "husky || true"
+    "knip": "knip --strict",
+    "lint": "npm run lint --workspaces --if-present",
+    "prepare": "husky || true",
+    "quality": "npm run cpd && npm run depcruise && npm run knip",
+    "test": "npm run test --workspaces --if-present",
+    "test:coverage": "npm run test:coverage --workspaces --if-present",
+    "test:smoke": "npm run test:smoke --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "validate": "npm run lint && npm run typecheck && npm run test && npm run test:smoke && npm run cpd",
+    "validate:docs": "tsx scripts/validate-docs-size.ts",
+    "validate:security": "npm run knip && npm run audit:socket && npm run audit:lockfile && npm run audit:secrets"
   },
   "devDependencies": {
     "@changesets/cli": "^2.29.7",
@@ -50,6 +53,7 @@
     "lint-staged": "^16.2.6",
     "prettier": "^3.6.2",
     "rimraf": "^6.1.0",
+    "sort-package-json": "^3.4.0",
     "tsc-alias": "^1.8.16",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3",
@@ -57,7 +61,5 @@
   },
   "engines": {
     "node": ">=22.0.0"
-  },
-  "author": "Fractalizer",
-  "license": "MIT"
+  }
 }
