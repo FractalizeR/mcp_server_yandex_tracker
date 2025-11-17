@@ -9,7 +9,6 @@
     "packages/infrastructure",
     "packages/core",
     "packages/search",
-    "packages/yandex-tracker",
     "packages/framework/*",
     "packages/servers/*"
   ],
