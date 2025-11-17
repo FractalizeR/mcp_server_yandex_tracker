@@ -360,4 +360,67 @@ describe('ToolRegistry', () => {
       expect(mockLogger.debug).toHaveBeenCalledWith('Параметры:', params);
     });
   });
+
+  describe('getEssentialDefinitions (regression: prefixed tool names)', () => {
+    it('должна корректно находить essential tools с префиксами', () => {
+      // Regression test для бага, где essentialTools содержал ['ping', 'search_tools']
+      // без префиксов, но реальные имена инструментов были 'fr_yandex_tracker_ping', 'search_tools'
+
+      // Arrange
+      const essentialToolsWithPrefixes = [
+        buildToolName('ping', MCP_TOOL_PREFIX), // 'fr_yandex_tracker_ping'
+        'search_tools', // без префикса (framework-level tool)
+      ];
+
+      // Act
+      const essentialDefs = registry.getEssentialDefinitions(essentialToolsWithPrefixes);
+
+      // Assert
+      expect(essentialDefs).toHaveLength(1); // Только ping, т.к. search_tools не зарегистрирован в этом тесте
+      expect(essentialDefs[0]?.name).toBe(buildToolName('ping', MCP_TOOL_PREFIX));
+    });
+
+    it('НЕ должна находить tools если имена без префиксов', () => {
+      // Демонстрация баги: если передать имена БЕЗ префиксов
+      // Arrange
+      const essentialToolsWithoutPrefixes = [
+        'ping', // БЕЗ префикса (как было в DEFAULT_ESSENTIAL_TOOLS)
+        'search_tools',
+      ];
+
+      // Act
+      const essentialDefs = registry.getEssentialDefinitions(essentialToolsWithoutPrefixes);
+
+      // Assert
+      expect(essentialDefs).toHaveLength(0); // НЕ находит 'ping', потому что в registry он как 'fr_yandex_tracker_ping'
+      // Это именно тот баг, который был исправлен!
+    });
+
+    it('должна находить tools в getDefinitionsByMode (lazy) с правильными префиксами', () => {
+      // Arrange
+      const essentialToolsWithPrefixes = [
+        buildToolName('ping', MCP_TOOL_PREFIX),
+        buildToolName('get_issues', MCP_TOOL_PREFIX),
+      ];
+
+      // Act
+      const definitions = registry.getDefinitionsByMode('lazy', essentialToolsWithPrefixes);
+
+      // Assert
+      expect(definitions).toHaveLength(2);
+      expect(definitions.map((d) => d.name)).toContain(buildToolName('ping', MCP_TOOL_PREFIX));
+      expect(definitions.map((d) => d.name)).toContain(
+        buildToolName('get_issues', MCP_TOOL_PREFIX)
+      );
+    });
+
+    it('должна возвращать все tools в getDefinitionsByMode (eager)', () => {
+      // Act
+      const definitions = registry.getDefinitionsByMode('eager');
+
+      // Assert
+      expect(definitions).toHaveLength(10);
+      expect(definitions.map((d) => d.name)).toContain(buildToolName('ping', MCP_TOOL_PREFIX));
+    });
+  });
 });
