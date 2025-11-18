@@ -20,3 +20,6 @@ export * from '@tracker_api/api_operations/link/index.js';
 
 // Comment operations
 export * from '@tracker_api/api_operations/comment/index.js';
+
+// Worklog operations
+export * from '@tracker_api/api_operations/worklog/index.js';

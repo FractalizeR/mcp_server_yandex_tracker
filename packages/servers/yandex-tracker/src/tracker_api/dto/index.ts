@@ -51,6 +51,14 @@ export type {
   CommentsListOutput,
 } from './comment/index.js';
 
+// Worklog DTO
+export type {
+  AddWorklogInput,
+  UpdateWorklogInput,
+  WorklogOutput,
+  WorklogsListOutput,
+} from './worklog/index.js';
+
 // DTO Factories (runtime code for coverage)
 export {
   // Issue factories
