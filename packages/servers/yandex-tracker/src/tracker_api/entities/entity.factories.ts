@@ -6,6 +6,7 @@
  */
 
 import type { User } from './user.entity.js';
+import type { UserRef } from './common/user-ref.entity.js';
 import type { Queue } from './queue.entity.js';
 import type { Status } from './status.entity.js';
 import type { Priority } from './priority.entity.js';
@@ -13,6 +14,7 @@ import type { IssueType } from './issue-type.entity.js';
 import type { Issue } from './issue.entity.js';
 import type { Transition } from './transition.entity.js';
 import type { ChangelogEntry, ChangelogField } from './changelog.entity.js';
+import type { Attachment } from './attachment.entity.js';
 
 /**
  * Создает валидный User entity
@@ -37,6 +39,18 @@ export function createMinimalUser(overrides?: Partial<User>): User {
     display: 'Test User',
     login: 'testuser',
     isActive: true,
+    ...overrides,
+  };
+}
+
+/**
+ * Создает валидный UserRef (облегченная версия User)
+ */
+export function createUserRef(overrides?: Partial<UserRef>): UserRef {
+  return {
+    self: 'https://api.tracker.yandex.net/v3/users/1234567890',
+    id: '1234567890',
+    display: 'Test User',
     ...overrides,
   };
 }
@@ -206,6 +220,41 @@ export function createFullChangelogEntry(overrides?: Partial<ChangelogEntry>): C
     type: 'IssueUpdated',
     transport: 'web',
     fields: [createChangelogField()],
+    ...overrides,
+  };
+}
+
+/**
+ * Создает валидный Attachment entity
+ */
+export function createAttachment(overrides?: Partial<Attachment>): Attachment {
+  return {
+    id: '1',
+    self: 'https://api.tracker.yandex.net/v2/issues/TEST-1/attachments/1',
+    name: 'test-file.pdf',
+    content: 'https://api.tracker.yandex.net/v2/issues/TEST-1/attachments/1/test-file.pdf',
+    createdBy: createUserRef(),
+    createdAt: '2024-01-01T00:00:00.000Z',
+    mimetype: 'application/pdf',
+    size: 1024,
+    ...overrides,
+  };
+}
+
+/**
+ * Создает Attachment entity с миниатюрой (для изображений)
+ */
+export function createAttachmentWithThumbnail(overrides?: Partial<Attachment>): Attachment {
+  return {
+    id: '1',
+    self: 'https://api.tracker.yandex.net/v2/issues/TEST-1/attachments/1',
+    name: 'screenshot.png',
+    content: 'https://api.tracker.yandex.net/v2/issues/TEST-1/attachments/1/screenshot.png',
+    thumbnail: 'https://api.tracker.yandex.net/v2/issues/TEST-1/thumbnails/1',
+    createdBy: createUserRef(),
+    createdAt: '2024-01-01T00:00:00.000Z',
+    mimetype: 'image/png',
+    size: 2048,
     ...overrides,
   };
 }

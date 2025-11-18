@@ -38,10 +38,14 @@ export type {
 // Transition
 export type { Transition, TransitionWithUnknownFields } from './transition.entity.js';
 
+// Attachment
+export type { Attachment, AttachmentWithUnknownFields } from './attachment.entity.js';
+
 // Entity Factories (runtime code for coverage)
 export {
   createUser,
   createMinimalUser,
+  createUserRef,
   createQueue,
   createStatus,
   createPriority,
@@ -53,4 +57,6 @@ export {
   createChangelogField,
   createMinimalChangelogEntry,
   createFullChangelogEntry,
+  createAttachment,
+  createAttachmentWithThumbnail,
 } from './entity.factories.js';
