@@ -83,3 +83,142 @@ export function createMockFile(options: { content: string; filename: string; mim
     size: buffer.length,
   };
 }
+
+/**
+ * Сравнить два Buffer на полное совпадение
+ *
+ * @param buffer1 - первый Buffer
+ * @param buffer2 - второй Buffer
+ * @returns true если содержимое идентично
+ *
+ * @example
+ * ```typescript
+ * const original = Buffer.from('test');
+ * const downloaded = Buffer.from('test');
+ * expect(compareBuffers(original, downloaded)).toBe(true);
+ * ```
+ */
+export function compareBuffers(buffer1: Buffer, buffer2: Buffer): boolean {
+  if (buffer1.length !== buffer2.length) {
+    return false;
+  }
+  return buffer1.equals(buffer2);
+}
+
+/**
+ * Создать тестовое изображение (1x1 PNG)
+ *
+ * @returns Buffer с минимальным валидным PNG
+ *
+ * @example
+ * ```typescript
+ * const image = createTestImage();
+ * // Используется для тестов загрузки/скачивания изображений
+ * ```
+ */
+export function createTestImage(): Buffer {
+  // Minimal valid PNG (1x1 red pixel)
+  return Buffer.from([
+    0x89,
+    0x50,
+    0x4e,
+    0x47,
+    0x0d,
+    0x0a,
+    0x1a,
+    0x0a, // PNG signature
+    0x00,
+    0x00,
+    0x00,
+    0x0d,
+    0x49,
+    0x48,
+    0x44,
+    0x52, // IHDR chunk
+    0x00,
+    0x00,
+    0x00,
+    0x01,
+    0x00,
+    0x00,
+    0x00,
+    0x01,
+    0x08,
+    0x02,
+    0x00,
+    0x00,
+    0x00,
+    0x90,
+    0x77,
+    0x53,
+    0xde,
+    0x00,
+    0x00,
+    0x00,
+    0x0c,
+    0x49,
+    0x44,
+    0x41,
+    0x54,
+    0x08,
+    0xd7,
+    0x63,
+    0xf8,
+    0xcf,
+    0xc0,
+    0x00,
+    0x00,
+    0x00,
+    0x03,
+    0x00,
+    0x01,
+    0xcc,
+    0xd1,
+    0x59,
+    0x66,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x49,
+    0x45,
+    0x4e,
+    0x44,
+    0xae,
+    0x42,
+    0x60,
+    0x82,
+  ]);
+}
+
+/**
+ * Конвертировать Buffer в base64 строку
+ *
+ * @param buffer - Buffer для конвертации
+ * @returns base64 строка
+ *
+ * @example
+ * ```typescript
+ * const buffer = Buffer.from('test');
+ * const base64 = bufferToBase64(buffer);
+ * ```
+ */
+export function bufferToBase64(buffer: Buffer): string {
+  return buffer.toString('base64');
+}
+
+/**
+ * Конвертировать base64 строку в Buffer
+ *
+ * @param base64 - base64 строка
+ * @returns Buffer
+ *
+ * @example
+ * ```typescript
+ * const base64 = 'dGVzdA==';
+ * const buffer = base64ToBuffer(base64);
+ * ```
+ */
+export function base64ToBuffer(base64: string): Buffer {
+  return Buffer.from(base64, 'base64');
+}
