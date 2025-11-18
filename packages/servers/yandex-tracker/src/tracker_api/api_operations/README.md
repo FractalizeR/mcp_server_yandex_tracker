@@ -38,6 +38,9 @@ src/tracker_api/api_operations/{feature}/
 - `cacheManager: CacheManager` — для кеширования
 - `logger: Logger` — для логирования
 - `withCache<T>(cacheKey, fn)` — helper метод для кеширования результата
+- `deleteRequest<T>(endpoint)` — DELETE запрос (v2.0+)
+- `uploadFile<T>(endpoint, formData)` — загрузка файлов (v2.0+)
+- `downloadFile(endpoint)` — скачивание файлов как Buffer (v2.0+)
 
 **Примечание:** `ParallelExecutor` создаётся в конкретных batch-операциях,
 не передаётся через BaseOperation.
@@ -50,6 +53,26 @@ export class GetIssuesOperation extends BaseOperation {
   }
 }
 ```
+
+### Новые методы BaseOperation (v2.0+)
+
+**DELETE запросы:**
+```typescript
+protected async deleteRequest<TResponse = void>(endpoint: string): Promise<TResponse>
+```
+Используется для удаления ресурсов (комментарии, связи, вложения).
+
+**Загрузка файлов:**
+```typescript
+protected async uploadFile<TResponse>(endpoint: string, formData: FormData): Promise<TResponse>
+```
+Используется для загрузки файлов через `multipart/form-data`.
+
+**Скачивание файлов:**
+```typescript
+protected async downloadFile(endpoint: string): Promise<Buffer>
+```
+Используется для скачивания файлов как `Buffer`.
 
 ---
 

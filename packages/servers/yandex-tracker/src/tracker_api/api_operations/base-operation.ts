@@ -56,4 +56,96 @@ export abstract class BaseOperation {
    * Если нужен retry для НЕ-HTTP операций, создайте отдельный метод с явным названием,
    * например: withExternalApiRetry() или withDatabaseRetry().
    */
+
+  /**
+   * Выполнить DELETE запрос
+   *
+   * Обертка над httpClient.delete с логированием.
+   * Используется для удаления ресурсов (комментарии, связи, вложения, etc).
+   *
+   * @param endpoint - путь к ресурсу (относительно baseURL)
+   * @returns результат выполнения DELETE запроса
+   *
+   * @example
+   * ```typescript
+   * await this.deleteRequest<void>('/v2/issues/TEST-1/comments/123');
+   * ```
+   */
+  protected async deleteRequest<TResponse = void>(endpoint: string): Promise<TResponse> {
+    this.logger.debug(`BaseOperation: DELETE ${endpoint}`);
+    return this.httpClient.delete<TResponse>(endpoint);
+  }
+
+  /**
+   * Загрузить файл на сервер (multipart/form-data)
+   *
+   * Используется для загрузки вложений в задачи.
+   *
+   * ВАЖНО: Метод использует FormData для отправки файла.
+   * HttpClient должен автоматически установить правильный Content-Type.
+   *
+   * @param endpoint - путь к ресурсу
+   * @param formData - FormData с файлом
+   * @returns результат загрузки
+   *
+   * @example
+   * ```typescript
+   * const formData = FileUploadUtil.prepareMultipartFormData(
+   *   buffer,
+   *   'document.pdf'
+   * );
+   * const attachment = await this.uploadFile<Attachment>(
+   *   '/v2/issues/TEST-1/attachments',
+   *   formData
+   * );
+   * ```
+   */
+  protected async uploadFile<TResponse>(endpoint: string, formData: FormData): Promise<TResponse> {
+    this.logger.debug(`BaseOperation: uploading file to ${endpoint}`);
+
+    // Получаем axios instance для прямого доступа
+    const axiosInstance = this.httpClient.getAxiosInstance();
+
+    // Выполняем POST запрос с FormData
+    const response = await axiosInstance.post<TResponse>(endpoint, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    return response.data;
+  }
+
+  /**
+   * Скачать файл с сервера
+   *
+   * Используется для скачивания вложений из задач.
+   *
+   * ВАЖНО: Метод возвращает файл как Buffer.
+   * Для больших файлов может потребоваться stream API.
+   *
+   * @param endpoint - путь к ресурсу
+   * @returns содержимое файла как Buffer
+   *
+   * @example
+   * ```typescript
+   * const fileBuffer = await this.downloadFile(
+   *   '/v2/issues/TEST-1/attachments/456'
+   * );
+   * ```
+   */
+  protected async downloadFile(endpoint: string): Promise<Buffer> {
+    this.logger.debug(`BaseOperation: downloading file from ${endpoint}`);
+
+    // Получаем axios instance для прямого доступа
+    const axiosInstance = this.httpClient.getAxiosInstance();
+
+    // Выполняем GET запрос с responseType: 'arraybuffer'
+    const response = await axiosInstance.get<ArrayBuffer>(endpoint, {
+      responseType: 'arraybuffer',
+    });
+
+    // Преобразуем ArrayBuffer в Buffer
+    return Buffer.from(response.data);
+  }
 }

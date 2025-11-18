@@ -5,6 +5,11 @@
 // Utility types
 export type { WithUnknownFields } from './types.js';
 
+// Common types (shared across multiple APIs)
+export type { PaginationParams, PaginatedResponse } from './common/pagination.entity.js';
+export type { UserRef, UserRefWithUnknownFields } from './common/user-ref.entity.js';
+export type { TimestampFields } from './common/timestamp.entity.js';
+
 // User
 export type { User, UserWithUnknownFields } from './user.entity.js';
 
