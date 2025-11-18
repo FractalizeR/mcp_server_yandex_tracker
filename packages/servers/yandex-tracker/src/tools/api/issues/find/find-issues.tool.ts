@@ -7,7 +7,7 @@
  * - Валидация через Zod
  */
 
-import { BaseTool, ToolCategory } from '@mcp-framework/core';
+import { BaseTool, ToolCategory, ToolPriority } from '@mcp-framework/core';
 import type { YandexTrackerFacade } from '@tracker_api/facade/index.js';
 import type { ToolDefinition } from '@mcp-framework/core';
 import type { ToolCallParams, ToolResult } from '@mcp-framework/infrastructure';
@@ -38,21 +38,11 @@ export class FindIssuesTool extends BaseTool<YandexTrackerFacade> {
    */
   static override readonly METADATA = {
     name: buildToolName('find_issues', MCP_TOOL_PREFIX),
-    description: 'Найти задачи по JQL запросу',
+    description: '[Issues/Read] Найти задачи по фильтру с сортировкой',
     category: ToolCategory.ISSUES,
-    tags: [
-      'issue',
-      'find',
-      'search',
-      'jql',
-      'query',
-      'filter',
-      'задача',
-      'найти',
-      'поиск',
-      'фильтр',
-      'запрос',
-    ],
+    subcategory: 'read',
+    priority: ToolPriority.CRITICAL,
+    tags: ['search', 'query', 'filter', 'issues'],
     isHelper: false,
   } as const;
 

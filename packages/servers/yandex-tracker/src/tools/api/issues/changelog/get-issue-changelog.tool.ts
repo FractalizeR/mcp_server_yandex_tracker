@@ -7,7 +7,7 @@
  * - Валидация через Zod
  */
 
-import { BaseTool, ToolCategory } from '@mcp-framework/core';
+import { BaseTool, ToolCategory, ToolPriority } from '@mcp-framework/core';
 import type { YandexTrackerFacade } from '@tracker_api/facade/index.js';
 import type { ToolDefinition } from '@mcp-framework/core';
 import type { ToolCallParams, ToolResult } from '@mcp-framework/infrastructure';
@@ -40,19 +40,11 @@ export class GetIssueChangelogTool extends BaseTool<YandexTrackerFacade> {
    */
   static override readonly METADATA = {
     name: buildToolName('get_issue_changelog', MCP_TOOL_PREFIX),
-    description: 'Получить историю изменений задачи',
+    description: '[Issues/Read] История изменений задачи',
     category: ToolCategory.ISSUES,
-    tags: [
-      'issue',
-      'changelog',
-      'history',
-      'read',
-      'changes',
-      'задача',
-      'история',
-      'изменения',
-      'журнал',
-    ],
+    subcategory: 'read',
+    priority: ToolPriority.HIGH,
+    tags: ['history', 'changelog', 'audit', 'read'],
     isHelper: false,
   } as const;
 

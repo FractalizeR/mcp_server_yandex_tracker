@@ -7,7 +7,7 @@
  * - Валидация через Zod
  */
 
-import { BaseTool, ToolCategory } from '@mcp-framework/core';
+import { BaseTool, ToolCategory, ToolPriority } from '@mcp-framework/core';
 import type { YandexTrackerFacade } from '@tracker_api/facade/index.js';
 import type { ToolDefinition } from '@mcp-framework/core';
 import type { ToolCallParams, ToolResult } from '@mcp-framework/infrastructure';
@@ -40,23 +40,11 @@ export class UpdateIssueTool extends BaseTool<YandexTrackerFacade> {
    */
   static override readonly METADATA = {
     name: buildToolName('update_issue', MCP_TOOL_PREFIX),
-    description: 'Обновить существующую задачу в Яндекс.Трекере',
+    description: '[Issues/Write] Обновить поля задачи',
     category: ToolCategory.ISSUES,
-    tags: [
-      'issue',
-      'update',
-      'write',
-      'modify',
-      'change',
-      'priority',
-      'assignee',
-      'description',
-      'задача',
-      'обновить',
-      'изменить',
-      'приоритет',
-      'исполнитель',
-    ],
+    subcategory: 'write',
+    priority: ToolPriority.CRITICAL,
+    tags: ['update', 'edit', 'modify', 'write'],
     isHelper: false,
     requiresExplicitUserConsent: true,
   } as const;

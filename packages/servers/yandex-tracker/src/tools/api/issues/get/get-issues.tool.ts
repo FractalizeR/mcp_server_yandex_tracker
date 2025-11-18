@@ -7,7 +7,7 @@
  * - Валидация через Zod
  */
 
-import { BaseTool, ToolCategory } from '@mcp-framework/core';
+import { BaseTool, ToolCategory, ToolPriority } from '@mcp-framework/core';
 import type { YandexTrackerFacade } from '@tracker_api/facade/index.js';
 import type { ToolDefinition } from '@mcp-framework/core';
 import type { ToolCallParams, ToolResult } from '@mcp-framework/infrastructure';
@@ -39,9 +39,11 @@ export class GetIssuesTool extends BaseTool<YandexTrackerFacade> {
    */
   static override readonly METADATA = {
     name: buildToolName('get_issues', MCP_TOOL_PREFIX),
-    description: 'Получить задачи по ключам (batch операция)',
+    description: '[Issues/Read] Получить задачи по ключам или ID',
     category: ToolCategory.ISSUES,
-    tags: ['issue', 'get', 'batch', 'read', 'retrieve', 'задача', 'получить', 'несколько', 'пакет'],
+    subcategory: 'read',
+    priority: ToolPriority.CRITICAL,
+    tags: ['read', 'get', 'fetch', 'issue'],
     isHelper: false,
   } as const;
 
