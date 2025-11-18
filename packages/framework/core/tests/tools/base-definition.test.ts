@@ -1,8 +1,8 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { BaseToolDefinition } from '../../src/tools/base/base-definition.js';
 import type { ToolDefinition } from '../../src/tools/base/base-definition.js';
 import type { StaticToolMetadata } from '../../src/tools/base/tool-metadata.js';
-import { ToolCategory } from '../../src/tools/base/tool-metadata.js';
+import { ToolCategory, ToolPriority } from '../../src/tools/base/tool-metadata.js';
 
 // Тестовая реализация BaseToolDefinition (безопасная)
 class TestToolDefinition extends BaseToolDefinition {
@@ -509,6 +509,146 @@ describe('BaseToolDefinition', () => {
       expect(toolDef.description).toBe('Test tool description');
       expect(toolDef.description).not.toContain('⚠️');
       expect(toolDef.description).not.toContain('КРИТИЧЕСКИ ВАЖНО');
+    });
+  });
+
+  describe('StaticToolMetadata - новые поля', () => {
+    it('должна содержать обязательное поле category', () => {
+      // Arrange
+      const metadata: StaticToolMetadata = {
+        name: 'test_tool',
+        description: 'Test description',
+        category: ToolCategory.ISSUES,
+        tags: ['test'],
+        isHelper: false,
+      };
+
+      // Assert
+      expect(metadata.category).toBe(ToolCategory.ISSUES);
+      expect(metadata.category).toBe('issues');
+    });
+
+    it('должна поддерживать опциональное поле subcategory', () => {
+      // Arrange
+      const metadataWithSubcategory: StaticToolMetadata = {
+        name: 'test_tool',
+        description: 'Test description',
+        category: ToolCategory.ISSUES,
+        subcategory: 'read',
+        tags: ['test'],
+        isHelper: false,
+      };
+
+      const metadataWithoutSubcategory: StaticToolMetadata = {
+        name: 'test_tool',
+        description: 'Test description',
+        category: ToolCategory.ISSUES,
+        tags: ['test'],
+        isHelper: false,
+      };
+
+      // Assert
+      expect(metadataWithSubcategory.subcategory).toBe('read');
+      expect(metadataWithoutSubcategory.subcategory).toBeUndefined();
+    });
+
+    it('должна поддерживать опциональное поле priority с корректными значениями', () => {
+      // Arrange
+      const criticalMetadata: StaticToolMetadata = {
+        name: 'critical_tool',
+        description: 'Critical tool',
+        category: ToolCategory.ISSUES,
+        priority: ToolPriority.CRITICAL,
+        tags: ['critical'],
+        isHelper: false,
+      };
+
+      const highMetadata: StaticToolMetadata = {
+        name: 'high_tool',
+        description: 'High priority tool',
+        category: ToolCategory.ISSUES,
+        priority: ToolPriority.HIGH,
+        tags: ['high'],
+        isHelper: false,
+      };
+
+      const normalMetadata: StaticToolMetadata = {
+        name: 'normal_tool',
+        description: 'Normal priority tool',
+        category: ToolCategory.ISSUES,
+        priority: ToolPriority.NORMAL,
+        tags: ['normal'],
+        isHelper: false,
+      };
+
+      const lowMetadata: StaticToolMetadata = {
+        name: 'low_tool',
+        description: 'Low priority tool',
+        category: ToolCategory.ISSUES,
+        priority: ToolPriority.LOW,
+        tags: ['low'],
+        isHelper: false,
+      };
+
+      const noPriorityMetadata: StaticToolMetadata = {
+        name: 'no_priority_tool',
+        description: 'No priority tool',
+        category: ToolCategory.ISSUES,
+        tags: ['test'],
+        isHelper: false,
+      };
+
+      // Assert
+      expect(criticalMetadata.priority).toBe(ToolPriority.CRITICAL);
+      expect(criticalMetadata.priority).toBe('critical');
+      expect(highMetadata.priority).toBe(ToolPriority.HIGH);
+      expect(highMetadata.priority).toBe('high');
+      expect(normalMetadata.priority).toBe(ToolPriority.NORMAL);
+      expect(normalMetadata.priority).toBe('normal');
+      expect(lowMetadata.priority).toBe(ToolPriority.LOW);
+      expect(lowMetadata.priority).toBe('low');
+      expect(noPriorityMetadata.priority).toBeUndefined();
+    });
+
+    it('должна поддерживать tags как readonly array', () => {
+      // Arrange
+      const tags: readonly string[] = ['read', 'issue', 'important'];
+      const metadata: StaticToolMetadata = {
+        name: 'test_tool',
+        description: 'Test description',
+        category: ToolCategory.ISSUES,
+        tags,
+        isHelper: false,
+      };
+
+      // Assert
+      expect(metadata.tags).toBe(tags);
+      expect(metadata.tags).toEqual(['read', 'issue', 'important']);
+      expect(Array.isArray(metadata.tags)).toBe(true);
+    });
+
+    it('должна поддерживать все новые поля одновременно', () => {
+      // Arrange
+      const metadata: StaticToolMetadata = {
+        name: 'comprehensive_tool',
+        description: 'Tool with all metadata fields',
+        category: ToolCategory.ISSUES,
+        subcategory: 'write',
+        priority: ToolPriority.HIGH,
+        tags: ['issue', 'create', 'important'],
+        isHelper: false,
+        examples: ['Example 1', 'Example 2'],
+        requiresExplicitUserConsent: true,
+      };
+
+      // Assert
+      expect(metadata.category).toBe(ToolCategory.ISSUES);
+      expect(metadata.subcategory).toBe('write');
+      expect(metadata.priority).toBe(ToolPriority.HIGH);
+      expect(metadata.tags).toEqual(['issue', 'create', 'important']);
+      expect(metadata.isHelper).toBe(false);
+      expect(metadata.examples).toEqual(['Example 1', 'Example 2']);
+      expect(metadata.requiresExplicitUserConsent).toBe(true);
     });
   });
 });

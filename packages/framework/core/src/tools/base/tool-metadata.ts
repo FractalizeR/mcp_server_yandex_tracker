@@ -31,6 +31,22 @@ export enum ToolCategory {
 }
 
 /**
+ * Приоритеты инструментов для сортировки
+ *
+ * Используются для определения порядка отображения tools в MCP
+ */
+export enum ToolPriority {
+  /** Критически важные инструменты (показываются первыми) */
+  CRITICAL = 'critical',
+  /** Высокий приоритет (часто используемые) */
+  HIGH = 'high',
+  /** Нормальный приоритет (по умолчанию) */
+  NORMAL = 'normal',
+  /** Низкий приоритет (редко используемые) */
+  LOW = 'low',
+}
+
+/**
  * Метаданные инструмента для поиска
  *
  * Расширяет ToolDefinition дополнительной информацией
@@ -41,6 +57,12 @@ export interface ToolMetadata {
 
   /** Категория инструмента */
   category: ToolCategory;
+
+  /** Подкатегория для детальной группировки (опционально) */
+  subcategory?: string;
+
+  /** Приоритет инструмента для сортировки (по умолчанию: NORMAL) */
+  priority?: ToolPriority;
 
   /** Теги для поиска */
   tags: readonly string[];
@@ -68,6 +90,12 @@ export interface StaticToolMetadata {
 
   /** Категория */
   category: ToolCategory;
+
+  /** Подкатегория для детальной группировки (опционально) */
+  subcategory?: string;
+
+  /** Приоритет инструмента для сортировки (по умолчанию: NORMAL) */
+  priority?: ToolPriority;
 
   /** Теги для поиска */
   tags: readonly string[];
