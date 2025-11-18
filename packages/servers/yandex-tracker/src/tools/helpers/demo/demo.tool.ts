@@ -9,7 +9,7 @@
  * 3. Всё остальное происходит АВТОМАТИЧЕСКИ
  */
 
-import { BaseTool, ToolCategory } from '@mcp-framework/core';
+import { BaseTool, ToolCategory, ToolPriority } from '@mcp-framework/core';
 import type { YandexTrackerFacade } from '@tracker_api/facade/index.js';
 import type { ToolCallParams, ToolResult } from '@mcp-framework/infrastructure';
 import { DemoDefinition } from './demo.definition.js';
@@ -24,9 +24,11 @@ export class DemoTool extends BaseTool<YandexTrackerFacade> {
    */
   static override readonly METADATA = {
     name: buildToolName('demo', MCP_TOOL_PREFIX),
-    description: 'Демонстрационный инструмент для тестирования',
-    category: ToolCategory.DEMO,
-    tags: ['demo', 'example', 'test', 'демо', 'пример', 'тест'],
+    description: '[Helpers/Demo] Демонстрационный инструмент для тестирования',
+    category: ToolCategory.HELPERS,
+    subcategory: 'demo',
+    priority: ToolPriority.LOW,
+    tags: ['demo', 'example', 'test'],
     isHelper: true,
   } as const;
 

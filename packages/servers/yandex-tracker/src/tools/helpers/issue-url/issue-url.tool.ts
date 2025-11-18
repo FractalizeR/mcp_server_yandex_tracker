@@ -8,7 +8,7 @@
  * - Batch-режим: обработка нескольких задач одновременно
  */
 
-import { BaseTool, ToolCategory } from '@mcp-framework/core';
+import { BaseTool, ToolCategory, ToolPriority } from '@mcp-framework/core';
 import type { YandexTrackerFacade } from '@tracker_api/facade/index.js';
 import type { ToolDefinition } from '@mcp-framework/core';
 import type { ToolCallParams, ToolResult } from '@mcp-framework/infrastructure';
@@ -33,21 +33,11 @@ export class IssueUrlTool extends BaseTool<YandexTrackerFacade> {
    */
   static override readonly METADATA = {
     name: buildToolName('get_issue_urls', MCP_TOOL_PREFIX),
-    description: 'Получить URL задач в Яндекс.Трекере',
-    category: ToolCategory.URL_GENERATION,
-    tags: [
-      'url',
-      'link',
-      'helper',
-      'issue',
-      'batch',
-      'web',
-      'browser',
-      'ссылка',
-      'задача',
-      'адрес',
-      'веб',
-    ],
+    description: '[Helpers/URL] Получить URL задачи в веб-интерфейсе',
+    category: ToolCategory.HELPERS,
+    subcategory: 'url',
+    priority: ToolPriority.NORMAL,
+    tags: ['url', 'link', 'helper'],
     isHelper: true,
   } as const;
 

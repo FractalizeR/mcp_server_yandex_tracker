@@ -7,7 +7,7 @@
  * - Получение информации о текущем пользователе
  */
 
-import { BaseTool, ToolCategory, buildToolName } from '@mcp-framework/core';
+import { BaseTool, ToolCategory, ToolPriority, buildToolName } from '@mcp-framework/core';
 import type { ToolDefinition } from '@mcp-framework/core';
 import type { ToolCallParams, ToolResult } from '@mcp-framework/infrastructure';
 import type { YandexTrackerFacade } from '@tracker_api/facade/index.js';
@@ -23,21 +23,11 @@ export class PingTool extends BaseTool<YandexTrackerFacade> {
    */
   static override readonly METADATA = {
     name: buildToolName('ping', MCP_TOOL_PREFIX),
-    description:
-      'Проверка доступности API Яндекс.Трекера и валидности OAuth токена. Возвращает информацию о текущем пользователе. Не требует параметров.',
-    category: ToolCategory.USERS,
-    tags: [
-      'ping',
-      'health',
-      'check',
-      'connection',
-      'diagnostics',
-      'test',
-      'проверка',
-      'соединение',
-      'подключение',
-      'диагностика',
-    ],
+    description: '[System/Health] Проверка доступности сервера',
+    category: ToolCategory.SYSTEM,
+    subcategory: 'health',
+    priority: ToolPriority.NORMAL,
+    tags: ['ping', 'health', 'status'],
     isHelper: false,
   } as const;
 
