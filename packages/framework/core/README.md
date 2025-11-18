@@ -146,20 +146,29 @@ class GetItemDefinition extends BaseDefinition {
 **Key features:**
 - ✅ Lazy initialization (tools created on-demand)
 - ✅ Type-safe tool registration
+- ✅ **Priority-based sorting** (critical → high → normal → low)
 - ✅ Automatic name mapping
 - ✅ Error handling for unknown tools
+
+**Priority-based sorting:**
+
+ToolRegistry automatically sorts tools by priority when returning definitions:
+1. **critical** — shown first (frequently used operations)
+2. **high** — important operations
+3. **normal** — regular operations (default)
+4. **low** — shown last (debug, demo tools)
+
+Within same priority, tools are sorted alphabetically by name.
 
 **Usage:**
 ```typescript
 import { ToolRegistry } from '@mcp-framework/core';
 
-const registry = new ToolRegistry(logger);
+const registry = new ToolRegistry(container, logger, toolClasses);
 
-// Register tools
-registry.registerTool('get_item', (facade) => new GetItemTool(facade, logger));
-
-// List all tools
-const tools = registry.listTools();
+// Get sorted tool definitions (by priority)
+const definitions = registry.getDefinitions();
+// Returns: [critical tools...] → [high tools...] → [normal tools...] → [low tools...]
 
 // Execute tool
 const result = await registry.executeTool('get_item', { id: '123' });
@@ -267,18 +276,52 @@ const id = params.id; // Unsafe!
 ### 3. Use METADATA for tool discovery
 
 ```typescript
-// ✅ CORRECT
-static readonly METADATA: StaticToolMetadata = {
+// ✅ CORRECT — Extended metadata with categorization
+static readonly METADATA: ToolMetadata = {
   name: 'my_tool',
-  category: 'api',
-  description: 'Tool description',
+  description: '[Category/Action] Brief description',
+  category: 'api',              // REQUIRED
+  subcategory: 'read',          // Optional (read/write/workflow)
+  priority: 'critical',         // Optional (critical/high/normal/low)
+  tags: ['tag1', 'tag2'],       // Optional (for search)
   requiresExplicitUserConsent: false, // or true for write operations
+  inputSchema: {...}
 };
 
-// ❌ WRONG (no metadata)
-class MyTool extends BaseTool<TFacade> {
-  // No METADATA — tool won't be discoverable
-}
+// ❌ WRONG (missing required category)
+static readonly METADATA = {
+  name: 'my_tool',
+  description: 'Tool description',
+  // Missing category — will fail type check
+};
+```
+
+**Tool Categorization & Priority:**
+
+**Priority levels** (for sorting in tools/list):
+- `critical` — Frequently used, key operations (shown first)
+- `high` — Important but not critical
+- `normal` — Regular operations (default)
+- `low` — Rarely used, debug tools (shown last)
+
+**Tools are sorted:** critical → high → normal → low → alphabetically
+
+**Description convention:** `[Category/Subcategory] Brief description`
+- Keep descriptions concise (≤80 chars)
+- Use category prefix for structure
+- Details go in inputSchema parameter descriptions
+
+**Example:**
+```typescript
+static readonly METADATA: ToolMetadata = {
+  name: 'create_issue',
+  description: '[Issues/Write] Create new issue',
+  category: 'issues',
+  subcategory: 'write',
+  priority: 'critical',
+  tags: ['create', 'new', 'write', 'issue'],
+  inputSchema: {...}
+};
 ```
 
 ### 4. Filter fields before returning

@@ -1,0 +1,220 @@
+import { describe, it, expect } from 'vitest';
+import { TOOL_CLASSES } from '@composition-root/definitions/tool-definitions.js';
+
+describe('Tool Metadata Validation', () => {
+  describe('Required fields', () => {
+    it('все инструменты должны иметь обязательное поле category', () => {
+      for (const ToolClass of TOOL_CLASSES) {
+        const metadata = (ToolClass as any).METADATA;
+
+        expect(metadata.category, `Tool ${metadata.name} должен иметь category`).toBeDefined();
+        expect(typeof metadata.category, `category должна быть строкой для ${metadata.name}`).toBe(
+          'string'
+        );
+        expect(
+          metadata.category.length,
+          `category не должна быть пустой для ${metadata.name}`
+        ).toBeGreaterThan(0);
+      }
+    });
+
+    it('все инструменты должны иметь name', () => {
+      for (const ToolClass of TOOL_CLASSES) {
+        const metadata = (ToolClass as any).METADATA;
+
+        expect(metadata.name, `Tool должен иметь name`).toBeDefined();
+        expect(typeof metadata.name, `name должно быть строкой`).toBe('string');
+        expect(metadata.name.length, `name не должно быть пустым`).toBeGreaterThan(0);
+      }
+    });
+
+    it('все инструменты должны иметь description', () => {
+      for (const ToolClass of TOOL_CLASSES) {
+        const metadata = (ToolClass as any).METADATA;
+
+        expect(
+          metadata.description,
+          `Tool ${metadata.name} должен иметь description`
+        ).toBeDefined();
+        expect(
+          typeof metadata.description,
+          `description должно быть строкой для ${metadata.name}`
+        ).toBe('string');
+        expect(
+          metadata.description.length,
+          `description не должно быть пустым для ${metadata.name}`
+        ).toBeGreaterThan(0);
+      }
+    });
+
+    it('все инструменты должны иметь inputSchema (в METADATA или через definition)', () => {
+      for (const ToolClass of TOOL_CLASSES) {
+        const metadata = (ToolClass as any).METADATA;
+
+        // inputSchema может быть либо в METADATA (новый стиль),
+        // либо генерироваться через buildDefinition() (старый стиль)
+        // Проверяем что хотя бы одно из двух есть
+        const hasInputSchemaInMetadata = metadata.inputSchema !== undefined;
+        const hasBuildDefinitionMethod = ToolClass.prototype.buildDefinition !== undefined;
+
+        expect(
+          hasInputSchemaInMetadata || hasBuildDefinitionMethod,
+          `Tool ${metadata.name} должен иметь inputSchema в METADATA или метод buildDefinition()`
+        ).toBe(true);
+      }
+    });
+  });
+
+  describe('Description format', () => {
+    it('все descriptions должны иметь префикс категории [Category] или [Category/Subcategory]', () => {
+      for (const ToolClass of TOOL_CLASSES) {
+        const metadata = (ToolClass as any).METADATA;
+        const description = metadata.description;
+
+        // Проверяем формат: [Category] или [Category/Subcategory]
+        expect(
+          description,
+          `Description для ${metadata.name} должно начинаться с префикса категории`
+        ).toMatch(/^\[[\w/]+\]/);
+      }
+    });
+
+    it('все descriptions должны быть достаточно краткими (≤80 символов)', () => {
+      for (const ToolClass of TOOL_CLASSES) {
+        const metadata = (ToolClass as any).METADATA;
+        const description = metadata.description;
+
+        expect(
+          description.length,
+          `Description для ${metadata.name} слишком длинное: ${description.length} символов (лимит 80)`
+        ).toBeLessThanOrEqual(80);
+      }
+    });
+  });
+
+  describe('Priority validation', () => {
+    it('priority должно быть из валидного enum', () => {
+      const validPriorities = ['critical', 'high', 'normal', 'low', undefined];
+
+      for (const ToolClass of TOOL_CLASSES) {
+        const metadata = (ToolClass as any).METADATA;
+
+        expect(
+          validPriorities,
+          `Tool ${metadata.name} имеет невалидный priority: ${metadata.priority}`
+        ).toContain(metadata.priority);
+      }
+    });
+
+    it('critical priority должен быть назначен только ключевым инструментам', () => {
+      // Это скорее рекомендация, чем жёсткое правило
+      // Проверим что critical инструментов не слишком много
+      const criticalCount = TOOL_CLASSES.filter(
+        (ToolClass) => (ToolClass as any).METADATA.priority === 'critical'
+      ).length;
+
+      // Не больше 50% инструментов должны быть critical
+      expect(criticalCount).toBeLessThanOrEqual(Math.ceil(TOOL_CLASSES.length / 2));
+    });
+  });
+
+  describe('Tags validation', () => {
+    it('tags должны быть массивом строк если указаны', () => {
+      for (const ToolClass of TOOL_CLASSES) {
+        const metadata = (ToolClass as any).METADATA;
+
+        if (metadata.tags !== undefined) {
+          expect(
+            Array.isArray(metadata.tags),
+            `tags для ${metadata.name} должны быть массивом`
+          ).toBe(true);
+          for (const tag of metadata.tags) {
+            expect(typeof tag, `все tags для ${metadata.name} должны быть строками`).toBe('string');
+          }
+        }
+      }
+    });
+
+    it('tags не должны быть пустым массивом', () => {
+      for (const ToolClass of TOOL_CLASSES) {
+        const metadata = (ToolClass as any).METADATA;
+
+        if (metadata.tags !== undefined) {
+          expect(
+            metadata.tags.length,
+            `tags для ${metadata.name} не должны быть пустым массивом`
+          ).toBeGreaterThan(0);
+        }
+      }
+    });
+  });
+
+  describe('Subcategory validation', () => {
+    it('subcategory должна быть строкой если указана', () => {
+      for (const ToolClass of TOOL_CLASSES) {
+        const metadata = (ToolClass as any).METADATA;
+
+        if (metadata.subcategory !== undefined) {
+          expect(
+            typeof metadata.subcategory,
+            `subcategory для ${metadata.name} должна быть строкой`
+          ).toBe('string');
+          expect(
+            metadata.subcategory.length,
+            `subcategory для ${metadata.name} не должна быть пустой`
+          ).toBeGreaterThan(0);
+        }
+      }
+    });
+
+    it('для subcategory рекомендуются стандартные значения (read/write/workflow)', () => {
+      const recommendedSubcategories = ['read', 'write', 'workflow', 'url', 'demo', 'health'];
+
+      for (const ToolClass of TOOL_CLASSES) {
+        const metadata = (ToolClass as any).METADATA;
+
+        if (metadata.subcategory !== undefined) {
+          // Это warning, а не ошибка - можно использовать кастомные subcategories
+          if (!recommendedSubcategories.includes(metadata.subcategory)) {
+            console.warn(
+              `⚠️  Tool ${metadata.name} использует нестандартную subcategory: ${metadata.subcategory}`
+            );
+          }
+        }
+      }
+    });
+  });
+
+  describe('Overall quality metrics', () => {
+    it('должно быть хотя бы несколько инструментов с разными приоритетами', () => {
+      const priorities = new Set(
+        TOOL_CLASSES.map((ToolClass) => (ToolClass as any).METADATA.priority || 'normal')
+      );
+
+      // Должно быть хотя бы 2 разных приоритета
+      expect(priorities.size).toBeGreaterThanOrEqual(2);
+    });
+
+    it('должно быть хотя бы несколько категорий', () => {
+      const categories = new Set(
+        TOOL_CLASSES.map((ToolClass) => (ToolClass as any).METADATA.category)
+      );
+
+      // Должно быть хотя бы 2 разные категории
+      expect(categories.size).toBeGreaterThanOrEqual(2);
+    });
+
+    it('средняя длина description должна быть в разумных пределах', () => {
+      const totalLength = TOOL_CLASSES.reduce(
+        (sum, ToolClass) => sum + (ToolClass as any).METADATA.description.length,
+        0
+      );
+
+      const avgLength = totalLength / TOOL_CLASSES.length;
+
+      // Средняя длина должна быть 30-60 символов (оптимально для экономии токенов)
+      expect(avgLength).toBeGreaterThan(20);
+      expect(avgLength).toBeLessThan(70);
+    });
+  });
+});

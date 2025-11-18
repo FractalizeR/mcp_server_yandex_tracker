@@ -73,12 +73,16 @@ execute() {
 
 **Каждый tool ДОЛЖЕН иметь:**
 
-1. **Static METADATA** — для Tool Search Engine
+1. **Static METADATA** — для Tool Search Engine + категоризация
 ```typescript
-static readonly METADATA: StaticToolMetadata = {
-  name: 'fyt_mcp_get_issues',
-  category: 'api',
-  tags: ['issues', 'tracker', 'read'],
+static readonly METADATA: ToolMetadata = {
+  name: 'get_issues',
+  description: '[Issues/Read] Получить задачи по ключам',
+  category: 'issues',              // ОБЯЗАТЕЛЬНО
+  subcategory: 'read',             // Опционально (read/write/workflow)
+  priority: 'critical',            // Опционально (critical/high/normal/low)
+  tags: ['issues', 'read', 'get'], // Опционально
+  inputSchema: {...}
 };
 ```
 
@@ -103,6 +107,69 @@ getDefinition(): ToolDefinition {
 const filtered = ResponseFieldFilter.filter(data, params.fields);
 return this.formatSuccess({ issues: filtered });
 ```
+
+---
+
+## 🏷️ Категоризация инструментов
+
+### Обязательные метаданные
+
+**Каждый инструмент ДОЛЖЕН иметь:**
+- `category` (обязательно) — основная категория
+- `subcategory` (опционально) — подкатегория для группировки
+- `priority` (опционально, default: 'normal') — приоритет для сортировки
+- `tags` (опционально) — теги для поиска через search_tools
+
+### Категории и subcategories
+
+| Category | Описание | Subcategories |
+|----------|----------|---------------|
+| `issues` | Работа с задачами | `read`, `write`, `workflow` |
+| `helpers` | Вспомогательные инструменты | `url`, `demo`, `utils` |
+| `system` | Системные инструменты | `health`, `config` |
+
+### Приоритеты
+
+**Порядок в tools/list:** critical → high → normal → low → алфавит
+
+| Priority | Когда использовать | Примеры |
+|----------|-------------------|---------|
+| `critical` | Частое использование, ключевые операции | create_issue, find_issues, get_issues, update_issue |
+| `high` | Важные, но не критичные операции | transitions, changelog |
+| `normal` | Обычные операции | helpers, utilities |
+| `low` | Редкое использование, демо | demo, debug tools |
+
+### Description Convention
+
+**Формат:** `[Category/Subcategory] Краткое описание`
+
+**Правила:**
+- Префикс категории в квадратных скобках
+- Краткое описание (≤60 символов)
+- Без упоминания "Яндекс.Трекер" (контекст понятен)
+- Без дублирования информации из имени
+
+**Примеры:**
+```typescript
+✅ '[Issues/Write] Создать задачу'
+✅ '[Issues/Read] Найти задачи по фильтру'
+✅ '[Helpers/URL] Получить ссылку на задачу'
+✅ '[System/Health] Проверка доступности сервера'
+
+❌ 'Создать новую задачу в Яндекс.Трекере' // Нет префикса, многословно
+❌ '[Issues/Write] Создание новых задач с поддержкой...' // Длинно
+```
+
+### Чек-лист для нового инструмента
+
+При создании нового tool:
+- [ ] Определить `category` из существующих (или создать новую если нужно)
+- [ ] Определить `subcategory` (read/write/workflow/etc)
+- [ ] Определить `priority` на основе частоты использования
+- [ ] Добавить `tags` для поиска (3-5 тегов)
+- [ ] Написать краткий `description` с префиксом категории
+- [ ] Проверить длину: `description.length ≤ 80`
+- [ ] Добавить подробное описание параметров в `inputSchema`
 
 ---
 
@@ -228,10 +295,14 @@ export class GetIssuesDefinition {
 import { BaseTool } from '@mcp-framework/core';
 
 export class GetIssuesTool extends BaseTool<YandexTrackerFacade> {
-  static readonly METADATA: StaticToolMetadata = {
-    name: 'fyt_mcp_get_issues',
-    category: 'api',
-    tags: ['issues', 'tracker', 'read'],
+  static readonly METADATA: ToolMetadata = {
+    name: 'get_issues',
+    description: '[Issues/Read] Получить задачи по ключам',
+    category: 'issues',
+    subcategory: 'read',
+    priority: 'critical',
+    tags: ['issues', 'read', 'get', 'fetch'],
+    inputSchema: zodToJsonSchema(GetIssuesParamsSchema),
   };
 
   getDefinition(): ToolDefinition {
