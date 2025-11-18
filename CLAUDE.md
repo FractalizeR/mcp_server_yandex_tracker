@@ -203,18 +203,20 @@ npm run depcruise
 npm run clean
 ```
 
-**Работа с отдельным пакетом:**
+**Работа с отдельным пакетом (из корня monorepo):**
 ```bash
 # Сборка одного пакета
 npm run build --workspace=@mcp-framework/core
 
 # Тесты одного пакета
-npm run test --workspace=mcp-server-yandex-tracker
+npm run test --workspace=@mcp-server/yandex-tracker
 
-# Все команды пакета
+# Из директории пакета
 cd packages/servers/yandex-tracker
-npm run <script>
+npm test
 ```
+
+**ВАЖНО:** Команды с `--workspace` работают только из корня monorepo!
 
 ---
 
