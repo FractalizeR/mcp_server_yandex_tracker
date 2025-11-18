@@ -15,6 +15,9 @@ export type {
   ExecuteTransitionDto,
 } from './issue/index.js';
 
+// Link DTO
+export type { CreateLinkDto } from './link/index.js';
+
 // Attachment DTO
 export type {
   UploadAttachmentInput,
