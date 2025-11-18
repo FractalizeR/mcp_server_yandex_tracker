@@ -23,7 +23,11 @@ export enum ToolCategory {
   SPRINTS = 'sprints',
   COMMENTS = 'comments',
 
+  // Системные инструменты
+  SYSTEM = 'system',
+
   // Helper инструменты
+  HELPERS = 'helpers',
   SEARCH = 'search',
   URL_GENERATION = 'url-generation',
   VALIDATION = 'validation',
