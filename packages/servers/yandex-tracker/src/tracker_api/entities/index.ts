@@ -69,6 +69,9 @@ export type { Attachment, AttachmentWithUnknownFields } from './attachment.entit
 // Comment
 export type { Comment, CommentWithUnknownFields, CommentAttachment } from './comment/index.js';
 
+// Worklog
+export type { Worklog, WorklogWithUnknownFields } from './worklog.entity.js';
+
 // Entity Factories (runtime code for coverage)
 export {
   createUser,
