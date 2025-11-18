@@ -16,14 +16,34 @@ class TestOperation extends BaseOperation {
   async executeWithCache<T>(key: string, fn: () => Promise<T>): Promise<T> {
     return this.withCache(key, fn);
   }
+
+  async executeDeleteRequest<T>(endpoint: string): Promise<T> {
+    return this.deleteRequest<T>(endpoint);
+  }
+
+  async executeUploadFile<T>(endpoint: string, formData: FormData): Promise<T> {
+    return this.uploadFile<T>(endpoint, formData);
+  }
+
+  async executeDownloadFile(endpoint: string): Promise<Buffer> {
+    return this.downloadFile(endpoint);
+  }
 }
 
 function createMockHttpClient(): HttpClient {
+  const mockAxiosInstance = {
+    get: vi.fn(),
+    post: vi.fn(),
+    patch: vi.fn(),
+    delete: vi.fn(),
+  };
+
   return {
     get: vi.fn(),
     post: vi.fn(),
     patch: vi.fn(),
     delete: vi.fn(),
+    getAxiosInstance: vi.fn(() => mockAxiosInstance),
   } as unknown as HttpClient;
 }
 
@@ -110,4 +130,96 @@ describe('BaseOperation', () => {
   // DEPRECATED: withRetry() метод удалён из BaseOperation
   // Retry логика теперь только внутри HttpClient методов
   // describe('withRetry', () => { ... });
+
+  describe('deleteRequest', () => {
+    it('должен выполнить DELETE запрос через httpClient', async () => {
+      const endpoint = '/v2/issues/TEST-1/comments/123';
+      const expectedResponse = { success: true };
+
+      (mockHttpClient.delete as Mock).mockResolvedValue(expectedResponse);
+
+      const result = await operation.executeDeleteRequest(endpoint);
+
+      expect(result).toEqual(expectedResponse);
+      expect(mockHttpClient.delete).toHaveBeenCalledWith(endpoint);
+      expect(mockLogger.debug).toHaveBeenCalledWith(expect.stringContaining(`DELETE ${endpoint}`));
+    });
+
+    it('должен возвращать void для DELETE без тела ответа', async () => {
+      const endpoint = '/v2/issues/TEST-1/attachments/456';
+
+      (mockHttpClient.delete as Mock).mockResolvedValue(undefined);
+
+      const result = await operation.executeDeleteRequest<void>(endpoint);
+
+      expect(result).toBeUndefined();
+      expect(mockHttpClient.delete).toHaveBeenCalledWith(endpoint);
+    });
+  });
+
+  describe('uploadFile', () => {
+    it('должен загрузить файл через FormData', async () => {
+      const endpoint = '/v2/issues/TEST-1/attachments';
+      const formData = new FormData();
+      const expectedResponse = { id: '789', filename: 'test.pdf' };
+
+      const mockAxiosInstance = (mockHttpClient.getAxiosInstance as Mock)();
+      (mockAxiosInstance.post as Mock).mockResolvedValue({ data: expectedResponse });
+
+      const result = await operation.executeUploadFile(endpoint, formData);
+
+      expect(result).toEqual(expectedResponse);
+      expect(mockAxiosInstance.post).toHaveBeenCalledWith(endpoint, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      expect(mockLogger.debug).toHaveBeenCalledWith(
+        expect.stringContaining(`uploading file to ${endpoint}`)
+      );
+    });
+  });
+
+  describe('downloadFile', () => {
+    it('должен скачать файл как Buffer', async () => {
+      const endpoint = '/v2/issues/TEST-1/attachments/456';
+      const fileContent = 'file content';
+      const buffer = Buffer.from(fileContent, 'utf-8');
+      const arrayBuffer = buffer.buffer.slice(
+        buffer.byteOffset,
+        buffer.byteOffset + buffer.byteLength
+      );
+
+      const mockAxiosInstance = (mockHttpClient.getAxiosInstance as Mock)();
+      (mockAxiosInstance.get as Mock).mockResolvedValue({ data: arrayBuffer });
+
+      const result = await operation.executeDownloadFile(endpoint);
+
+      expect(result).toBeInstanceOf(Buffer);
+      expect(result.toString('utf-8')).toEqual(fileContent);
+      expect(mockAxiosInstance.get).toHaveBeenCalledWith(endpoint, {
+        responseType: 'arraybuffer',
+      });
+      expect(mockLogger.debug).toHaveBeenCalledWith(
+        expect.stringContaining(`downloading file from ${endpoint}`)
+      );
+    });
+
+    it('должен корректно обрабатывать пустой файл', async () => {
+      const endpoint = '/v2/issues/TEST-1/attachments/empty';
+      const emptyBuffer = Buffer.from([]);
+      const arrayBuffer = emptyBuffer.buffer.slice(
+        emptyBuffer.byteOffset,
+        emptyBuffer.byteOffset + emptyBuffer.byteLength
+      );
+
+      const mockAxiosInstance = (mockHttpClient.getAxiosInstance as Mock)();
+      (mockAxiosInstance.get as Mock).mockResolvedValue({ data: arrayBuffer });
+
+      const result = await operation.executeDownloadFile(endpoint);
+
+      expect(result).toBeInstanceOf(Buffer);
+      expect(result.length).toBe(0);
+    });
+  });
 });

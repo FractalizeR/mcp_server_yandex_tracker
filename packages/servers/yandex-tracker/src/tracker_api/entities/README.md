@@ -17,10 +17,74 @@
 
 ```
 src/tracker_api/entities/
-├── issue.entity.ts      # Issue + IssueWithUnknownFields
-├── user.entity.ts       # User + UserWithUnknownFields
-├── types.ts             # WithUnknownFields helper
-└── index.ts             # Экспорты
+├── common/                  # Общие типы (v2.0+)
+│   ├── pagination.entity.ts # PaginationParams, PaginatedResponse
+│   ├── user-ref.entity.ts   # UserRef (облегченная версия User)
+│   ├── timestamp.entity.ts  # TimestampFields (createdAt, updatedAt)
+│   └── index.ts             # Экспорты common types
+├── issue.entity.ts          # Issue + IssueWithUnknownFields
+├── user.entity.ts           # User + UserWithUnknownFields
+├── types.ts                 # WithUnknownFields helper
+└── index.ts                 # Экспорты
+
+```
+
+---
+
+## 🔧 Общие типы (Common Types, v2.0+)
+
+### UserRef — Референс на пользователя
+
+Облегченная версия `User` для ссылок в других объектах:
+```typescript
+interface UserRef {
+  readonly self: string;    // URL в API
+  readonly id: string;      // ID пользователя
+  readonly display: string; // Отображаемое имя
+}
+```
+
+**Используй вместо `User`:**
+- `Comment.createdBy` — автор комментария
+- `Attachment.createdBy` — кто прикрепил файл
+- `Worklog.createdBy` — кто записал время
+
+### PaginationParams — Параметры пагинации
+
+```typescript
+interface PaginationParams {
+  readonly perPage?: number; // Элементов на странице
+  readonly page?: number;    // Номер страницы
+}
+```
+
+### PaginatedResponse<T> — Ответ с пагинацией
+
+```typescript
+interface PaginatedResponse<T> {
+  readonly items: T[];       // Элементы текущей страницы
+  readonly total: number;    // Общее количество
+  readonly page: number;     // Текущая страница
+  readonly perPage: number;  // Элементов на странице
+}
+```
+
+### TimestampFields — Поля дат
+
+```typescript
+interface TimestampFields {
+  readonly createdAt: string;  // ISO 8601
+  readonly updatedAt: string;  // ISO 8601
+}
+```
+
+**Используй через composition:**
+```typescript
+interface Comment extends TimestampFields {
+  readonly id: string;
+  readonly text: string;
+  // createdAt и updatedAt наследуются
+}
 ```
 
 ---
