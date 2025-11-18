@@ -293,6 +293,66 @@ export class PingOperation extends BaseOperation {
 }
 ```
 
+### Операции с файлами (Attachments)
+
+**Эталон:** `src/tracker_api/api_operations/attachment/upload-attachment.operation.ts`
+
+```typescript
+export class UploadAttachmentOperation extends BaseOperation {
+  async execute(
+    issueId: string,
+    input: UploadAttachmentInput
+  ): Promise<AttachmentWithUnknownFields> {
+    const { filename, file, mimetype } = input;
+
+    // Конвертация base64 в Buffer если нужно
+    const buffer = typeof file === 'string' ? Buffer.from(file, 'base64') : file;
+
+    // Валидация размера и имени файла
+    FileUploadUtil.validateFilename(filename);
+    FileUploadUtil.validateFileSize(buffer.length, this.maxFileSize);
+
+    // Подготовка FormData для multipart/form-data
+    const formData = FileUploadUtil.prepareMultipartFormData(buffer, filename);
+
+    // Загрузка через BaseOperation.uploadFile()
+    const attachment = await this.uploadFile<AttachmentWithUnknownFields>(
+      `/v2/issues/${issueId}/attachments`,
+      formData
+    );
+
+    // Инвалидация кеша списка файлов
+    const listCacheKey = EntityCacheKey.createKey(EntityType.ATTACHMENT, `list:${issueId}`);
+    this.cacheManager.delete(listCacheKey);
+
+    return attachment;
+  }
+}
+```
+
+**Эталон:** `src/tracker_api/api_operations/attachment/download-attachment.operation.ts`
+
+```typescript
+export class DownloadAttachmentOperation extends BaseOperation {
+  async execute(issueId: string, attachmentId: string, filename: string): Promise<Buffer> {
+    // Используем BaseOperation.downloadFile() для получения бинарных данных
+    const buffer = await this.downloadFile(
+      `/v2/issues/${issueId}/attachments/${attachmentId}/${encodeURIComponent(filename)}`
+    );
+
+    this.logger.info(`Файл ${filename} скачан, размер=${buffer.length} байт`);
+    return buffer;
+  }
+}
+```
+
+**Особенности работы с файлами:**
+- `uploadFile()` — для multipart/form-data загрузки
+- `downloadFile()` — для скачивания бинарных данных
+- Валидация через `FileUploadUtil` (размер, имя файла, MIME type)
+- Инвалидация кеша после модификаций (upload, delete)
+- Кодирование имени файла через `encodeURIComponent()` в URL
+
 ---
 
 ## 🔗 См. также
