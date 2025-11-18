@@ -9,14 +9,14 @@
  */
 export interface UpdateChecklistItemInput {
   /** Текст элемента чеклиста */
-  text?: string;
+  text?: string | undefined;
 
   /** Статус выполнения элемента */
-  checked?: boolean;
+  checked?: boolean | undefined;
 
   /** ID назначенного лица */
-  assignee?: string;
+  assignee?: string | undefined;
 
   /** Дедлайн в формате ISO 8601 */
-  deadline?: string;
+  deadline?: string | undefined;
 }

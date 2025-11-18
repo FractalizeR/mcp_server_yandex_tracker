@@ -48,7 +48,6 @@ export class IssueUrlTool extends BaseTool<YandexTrackerFacade> {
     return this.definition.build();
   }
 
-  // eslint-disable-next-line @typescript-eslint/require-await -- синхронная операция, но возвращает Promise по контракту
   async execute(params: ToolCallParams): Promise<ToolResult> {
     // 1. Валидация параметров через BaseTool
     const validation = this.validateParams(params, IssueUrlParamsSchema);

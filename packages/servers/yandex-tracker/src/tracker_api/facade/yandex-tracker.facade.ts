@@ -360,9 +360,9 @@ export class YandexTrackerFacade {
   async createComponent(params: {
     queueId: string;
     name: string;
-    description?: string;
-    lead?: string;
-    assignAuto?: boolean;
+    description?: string | undefined;
+    lead?: string | undefined;
+    assignAuto?: boolean | undefined;
   }): Promise<ComponentOutput> {
     const { queueId, ...componentData } = params;
     const operation = this.getOperation<{
@@ -379,10 +379,10 @@ export class YandexTrackerFacade {
    */
   async updateComponent(params: {
     componentId: string;
-    name?: string;
-    description?: string;
-    lead?: string;
-    assignAuto?: boolean;
+    name?: string | undefined;
+    description?: string | undefined;
+    lead?: string | undefined;
+    assignAuto?: boolean | undefined;
   }): Promise<ComponentOutput> {
     const { componentId, ...componentData } = params;
     const operation = this.getOperation<{

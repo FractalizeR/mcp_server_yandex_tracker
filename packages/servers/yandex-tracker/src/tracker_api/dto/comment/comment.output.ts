@@ -19,5 +19,5 @@ export interface CommentOutput {
  */
 export interface CommentsListOutput {
   comments: Comment[];
-  total?: number;
+  total?: number | undefined;
 }

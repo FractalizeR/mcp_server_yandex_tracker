@@ -20,10 +20,10 @@ export interface CreateQueueDto {
   defaultPriority: string;
 
   /** Описание очереди */
-  description?: string;
+  description?: string | undefined;
 
   /** Массив ID доступных типов задач */
-  issueTypes?: string[];
+  issueTypes?: string[] | undefined;
 
   /** Дополнительные поля */
   [key: string]: unknown;

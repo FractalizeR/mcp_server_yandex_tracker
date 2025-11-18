@@ -18,7 +18,7 @@ export interface DownloadAttachmentInput {
    * @example "/downloads/report.pdf"
    * @example "./attachments/screenshot.png"
    */
-  saveToPath?: string;
+  saveToPath?: string | undefined;
 
   /**
    * Вернуть данные как base64 строку вместо Buffer (опционально)
@@ -28,5 +28,5 @@ export interface DownloadAttachmentInput {
    *
    * @default false
    */
-  returnBase64?: boolean;
+  returnBase64?: boolean | undefined;
 }

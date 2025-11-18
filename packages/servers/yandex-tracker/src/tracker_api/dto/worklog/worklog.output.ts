@@ -19,5 +19,5 @@ export interface WorklogOutput {
  */
 export interface WorklogsListOutput {
   worklogs: Worklog[];
-  total?: number;
+  total?: number | undefined;
 }

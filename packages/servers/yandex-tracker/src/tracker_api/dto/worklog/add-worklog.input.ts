@@ -40,5 +40,5 @@ export interface AddWorklogInput {
    * @example "Работал над реализацией API"
    * @example "Код ревью и тестирование"
    */
-  comment?: string;
+  comment?: string | undefined;
 }

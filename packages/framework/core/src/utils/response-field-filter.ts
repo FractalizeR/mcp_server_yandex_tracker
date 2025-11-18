@@ -27,7 +27,7 @@ export class ResponseFieldFilter {
    */
   static filter<T>(data: T, fields: string[]): T {
     // Валидация: fields должен содержать минимум 1 элемент
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+
     if (!fields || fields.length === 0) {
       throw new Error('Параметр fields обязателен и должен содержать хотя бы один элемент');
     }
@@ -130,7 +130,6 @@ export class ResponseFieldFilter {
    * @throws Error если после нормализации массив пустой
    */
   static normalizeFields(fields: string[]): string[] {
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (!fields || fields.length === 0) {
       throw new Error('Параметр fields обязателен и должен содержать хотя бы один элемент');
     }
@@ -155,7 +154,6 @@ export class ResponseFieldFilter {
    * @returns Ошибка валидации или undefined
    */
   static validateFields(fields: string[]): string | undefined {
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (!fields || fields.length === 0) {
       return 'Параметр fields обязателен и должен содержать хотя бы один элемент';
     }

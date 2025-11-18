@@ -5,22 +5,22 @@
  */
 export interface UpdateQueueDto {
   /** Название очереди */
-  name?: string;
+  name?: string | undefined;
 
   /** ID или login руководителя очереди */
-  lead?: string;
+  lead?: string | undefined;
 
   /** ID типа задачи по умолчанию */
-  defaultType?: string;
+  defaultType?: string | undefined;
 
   /** ID приоритета по умолчанию */
-  defaultPriority?: string;
+  defaultPriority?: string | undefined;
 
   /** Описание очереди */
-  description?: string;
+  description?: string | undefined;
 
   /** Массив ID доступных типов задач */
-  issueTypes?: string[];
+  issueTypes?: string[] | undefined;
 
   /** Дополнительные поля */
   [key: string]: unknown;

@@ -6,22 +6,22 @@
  */
 export interface SearchIssuesDto {
   /** Очередь */
-  queue?: string;
+  queue?: string | undefined;
 
   /** Статус */
-  status?: string;
+  status?: string | undefined;
 
   /** Исполнитель */
-  assignee?: string;
+  assignee?: string | undefined;
 
   /** Автор */
-  createdBy?: string;
+  createdBy?: string | undefined;
 
   /** Приоритет */
-  priority?: string;
+  priority?: string | undefined;
 
   /** Текст для поиска */
-  query?: string;
+  query?: string | undefined;
 
   /** Дополнительные фильтры */
   [key: string]: unknown;
