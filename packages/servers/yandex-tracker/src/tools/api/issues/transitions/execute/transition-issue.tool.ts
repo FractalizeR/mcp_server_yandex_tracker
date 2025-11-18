@@ -7,7 +7,7 @@
  * - Валидация через Zod
  */
 
-import { BaseTool, ToolCategory } from '@mcp-framework/core';
+import { BaseTool, ToolCategory, ToolPriority } from '@mcp-framework/core';
 import type { YandexTrackerFacade } from '@tracker_api/facade/index.js';
 import type { ToolDefinition } from '@mcp-framework/core';
 import type { ToolCallParams, ToolResult } from '@mcp-framework/infrastructure';
@@ -40,21 +40,11 @@ export class TransitionIssueTool extends BaseTool<YandexTrackerFacade> {
    */
   static override readonly METADATA = {
     name: buildToolName('transition_issue', MCP_TOOL_PREFIX),
-    description: 'Выполнить переход задачи в другой статус',
+    description: '[Issues/Workflow] Выполнить переход задачи',
     category: ToolCategory.ISSUES,
-    tags: [
-      'issue',
-      'transition',
-      'workflow',
-      'write',
-      'status',
-      'change-status',
-      'задача',
-      'переход',
-      'статус',
-      'сменить статус',
-      'изменить статус',
-    ],
+    subcategory: 'workflow',
+    priority: ToolPriority.HIGH,
+    tags: ['transition', 'status', 'workflow', 'write'],
     isHelper: false,
     requiresExplicitUserConsent: true,
   } as const;

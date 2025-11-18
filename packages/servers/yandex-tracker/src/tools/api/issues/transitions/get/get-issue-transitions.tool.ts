@@ -7,7 +7,7 @@
  * - Валидация через Zod
  */
 
-import { BaseTool, ToolCategory } from '@mcp-framework/core';
+import { BaseTool, ToolCategory, ToolPriority } from '@mcp-framework/core';
 import type { YandexTrackerFacade } from '@tracker_api/facade/index.js';
 import type { ToolDefinition } from '@mcp-framework/core';
 import type { ToolCallParams, ToolResult } from '@mcp-framework/infrastructure';
@@ -40,20 +40,11 @@ export class GetIssueTransitionsTool extends BaseTool<YandexTrackerFacade> {
    */
   static override readonly METADATA = {
     name: buildToolName('get_issue_transitions', MCP_TOOL_PREFIX),
-    description: 'Получить доступные переходы статусов задачи',
+    description: '[Issues/Workflow] Доступные переходы для задачи',
     category: ToolCategory.ISSUES,
-    tags: [
-      'issue',
-      'transitions',
-      'workflow',
-      'read',
-      'status',
-      'available-statuses',
-      'задача',
-      'переходы',
-      'статусы',
-      'доступные статусы',
-    ],
+    subcategory: 'workflow',
+    priority: ToolPriority.HIGH,
+    tags: ['transitions', 'statuses', 'workflow', 'read'],
     isHelper: false,
   } as const;
 
