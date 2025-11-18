@@ -30,9 +30,16 @@ src/tools/
 │   │   │   ├── get-issues.schema.ts
 │   │   │   └── get-issues.tool.ts
 │   │   ├── create/
-│   │   └── update/
+│   │   ├── update/
+│   │   ├── links/                # Связи между задачами
+│   │   ├── comments/             # Комментарии к задачам
+│   │   └── attachments/          # Файловые вложения
+│   │       ├── get/
+│   │       ├── upload/
+│   │       ├── download/
+│   │       ├── delete/
+│   │       └── thumbnail/
 │   ├── projects/
-│   ├── comments/
 │   └── queues/
 ├── helpers/                      # Вспомогательные tools
 │   ├── ping/
@@ -441,6 +448,100 @@ ESSENTIAL_TOOLS=ping,search_tools
 3. Вызывает найденный tool
 
 **Когда использовать:** Claude Desktop, 30+ tools
+
+---
+
+## 📚 Примеры: Attachment Tools
+
+### Upload Attachment Tool
+
+**Файл:** `src/tools/api/issues/attachments/upload/upload-attachment.tool.ts`
+
+```typescript
+export class UploadAttachmentTool extends BaseTool<YandexTrackerFacade> {
+  static override readonly METADATA = {
+    name: buildToolName('upload_attachment', MCP_TOOL_PREFIX),
+    description: '[Issues/Attachments] Загрузить файл в задачу',
+    category: ToolCategory.ISSUES,
+    subcategory: 'attachments',
+    priority: ToolPriority.HIGH,
+    tags: ['attachments', 'upload', 'files', 'write'],
+    requiresExplicitUserConsent: true, // ВАЖНО: модифицирует данные!
+    isHelper: false,
+  } as const;
+
+  async execute(params: ToolCallParams): Promise<ToolResult> {
+    const validation = this.validateParams(params, UploadAttachmentParamsSchema);
+    if (!validation.success) return validation.error;
+
+    const { issueId, filename, fileContent, filePath } = validation.data;
+
+    // Поддержка base64 и file path
+    let fileBuffer: Buffer;
+    if (fileContent) {
+      fileBuffer = Buffer.from(fileContent, 'base64');
+    } else if (filePath) {
+      fileBuffer = await readFile(filePath);
+    }
+
+    const attachment = await this.facade.uploadAttachment(issueId, {
+      filename,
+      file: fileBuffer,
+    });
+
+    return this.formatSuccess({ issueId, attachment });
+  }
+}
+```
+
+### Download Attachment Tool
+
+**Файл:** `src/tools/api/issues/attachments/download/download-attachment.tool.ts`
+
+```typescript
+export class DownloadAttachmentTool extends BaseTool<YandexTrackerFacade> {
+  async execute(params: ToolCallParams): Promise<ToolResult> {
+    const validation = this.validateParams(params, DownloadAttachmentParamsSchema);
+    if (!validation.success) return validation.error;
+
+    const { issueId, attachmentId, filename, saveToPath } = validation.data;
+
+    // Скачать файл (Buffer или base64)
+    const result = await this.facade.downloadAttachment(
+      issueId,
+      attachmentId,
+      filename,
+      { returnBase64: !saveToPath }
+    );
+
+    // Опционально сохранить в файл
+    if (saveToPath && result.content instanceof Buffer) {
+      await writeFile(saveToPath, result.content);
+      return this.formatSuccess({ issueId, attachmentId, savedTo: saveToPath });
+    }
+
+    // Вернуть base64 для MCP response
+    const base64 = typeof result.content === 'string'
+      ? result.content
+      : result.content.toString('base64');
+
+    return this.formatSuccess({
+      issueId,
+      attachmentId,
+      filename,
+      size: result.metadata.size,
+      base64,
+    });
+  }
+}
+```
+
+**Ключевые особенности Attachment Tools:**
+- **Upload:** Поддержка base64 и file path для гибкости
+- **Download:** Возврат base64 для MCP или сохранение в файл
+- **File Size Limits:** Валидация через `FileUploadUtil.validateFileSize()`
+- **Thumbnail:** Только для изображений (проверка через `supportsThumbnail()`)
+- **Safety:** `requiresExplicitUserConsent: true` для upload/delete
 
 ---
 
