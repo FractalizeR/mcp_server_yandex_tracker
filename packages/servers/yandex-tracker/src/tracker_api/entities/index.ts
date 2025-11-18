@@ -63,6 +63,9 @@ export type { Link, LinkWithUnknownFields, LinkRelationship } from './link.entit
 // LinkType
 export type { LinkType, LinkTypeWithUnknownFields } from './link-type.entity.js';
 
+// Attachment
+export type { Attachment, AttachmentWithUnknownFields } from './attachment.entity.js';
+
 // Entity Factories (runtime code for coverage)
 export {
   createUser,
@@ -84,4 +87,6 @@ export {
   createChangelogField,
   createMinimalChangelogEntry,
   createFullChangelogEntry,
+  createAttachment,
+  createAttachmentWithThumbnail,
 } from './entity.factories.js';

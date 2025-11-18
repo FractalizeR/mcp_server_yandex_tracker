@@ -22,6 +22,7 @@ export enum EntityType {
   COMMENT = 'comment',
   SPRINT = 'sprint',
   PROJECT = 'project',
+  ATTACHMENT = 'attachment',
 }
 
 export class EntityCacheKey {
