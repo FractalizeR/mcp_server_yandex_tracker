@@ -293,66 +293,6 @@ export class PingOperation extends BaseOperation {
 }
 ```
 
-### Операции с файлами (Attachments)
-
-**Эталон:** `src/tracker_api/api_operations/attachment/upload-attachment.operation.ts`
-
-```typescript
-export class UploadAttachmentOperation extends BaseOperation {
-  async execute(
-    issueId: string,
-    input: UploadAttachmentInput
-  ): Promise<AttachmentWithUnknownFields> {
-    const { filename, file, mimetype } = input;
-
-    // Конвертация base64 в Buffer если нужно
-    const buffer = typeof file === 'string' ? Buffer.from(file, 'base64') : file;
-
-    // Валидация размера и имени файла
-    FileUploadUtil.validateFilename(filename);
-    FileUploadUtil.validateFileSize(buffer.length, this.maxFileSize);
-
-    // Подготовка FormData для multipart/form-data
-    const formData = FileUploadUtil.prepareMultipartFormData(buffer, filename);
-
-    // Загрузка через BaseOperation.uploadFile()
-    const attachment = await this.uploadFile<AttachmentWithUnknownFields>(
-      `/v2/issues/${issueId}/attachments`,
-      formData
-    );
-
-    // Инвалидация кеша списка файлов
-    const listCacheKey = EntityCacheKey.createKey(EntityType.ATTACHMENT, `list:${issueId}`);
-    this.cacheManager.delete(listCacheKey);
-
-    return attachment;
-  }
-}
-```
-
-**Эталон:** `src/tracker_api/api_operations/attachment/download-attachment.operation.ts`
-
-```typescript
-export class DownloadAttachmentOperation extends BaseOperation {
-  async execute(issueId: string, attachmentId: string, filename: string): Promise<Buffer> {
-    // Используем BaseOperation.downloadFile() для получения бинарных данных
-    const buffer = await this.downloadFile(
-      `/v2/issues/${issueId}/attachments/${attachmentId}/${encodeURIComponent(filename)}`
-    );
-
-    this.logger.info(`Файл ${filename} скачан, размер=${buffer.length} байт`);
-    return buffer;
-  }
-}
-```
-
-**Особенности работы с файлами:**
-- `uploadFile()` — для multipart/form-data загрузки
-- `downloadFile()` — для скачивания бинарных данных
-- Валидация через `FileUploadUtil` (размер, имя файла, MIME type)
-- Инвалидация кеша после модификаций (upload, delete)
-- Кодирование имени файла через `encodeURIComponent()` в URL
-
 ---
 
 ## 📎 Attachment Operations (Complete API)
@@ -490,6 +430,56 @@ await deleteCommentOp.execute('QUEUE-123', 'comment-456');
 - **Версионность:** Поле `version` используется для оптимистичной блокировки
 - **Transport:** Комментарии могут быть созданы через UI ('internal') или email ('email')
 - **Кеш:** Список комментариев кешируется, инвалидируется при add/edit/delete
+
+---
+
+## 🗂️ Queue Operations (Complete API)
+
+**6 операций для работы с очередями:**
+
+### 1. GetQueueOperation
+**API:** `GET /v3/queues/{queueId}`
+**Назначение:** Получение одной очереди по ID или ключу
+- Кеш: ✅ (по ключу очереди)
+- Параметр `expand` для дополнительных полей
+
+### 2. GetQueuesOperation
+**API:** `GET /v3/queues/`
+**Назначение:** Получение списка всех очередей
+- Кеш: ✅
+- Параметры: `expand`, `perPage`, `page`
+
+### 3. CreateQueueOperation
+**API:** `POST /v3/queues/`
+**Назначение:** Создание новой очереди
+- Администраторская операция
+- Валидация ключа: `^[A-Z]{2,10}$`
+- Кеш: создаёт cache entry для новой очереди
+
+### 4. UpdateQueueOperation
+**API:** `PATCH /v3/queues/{queueId}`
+**Назначение:** Обновление настроек очереди
+- Кеш: ❌ инвалидирует cache для очереди
+- Поддержка версионности (optimistic locking)
+
+### 5. GetQueueFieldsOperation
+**API:** `GET /v3/queues/{queueId}/fields`
+**Назначение:** Получение списка полей очереди
+- Кеш: ✅
+- Возвращает настраиваемые поля очереди
+
+### 6. ManageQueueAccessOperation
+**API:** `POST /v3/queues/{queueId}/permissions`
+**Назначение:** Управление доступом к очереди
+- Кеш: ❌ инвалидирует permissions cache
+- Роли: queue-lead, team-member, follower, access
+- Batch операция для добавления/удаления прав
+
+**Ключевые аспекты:**
+- **Админ права:** create/update/manage-access требуют администраторских прав
+- **Версионность:** `version` поле для оптимистичных блокировок
+- **Кеш:** Очереди кешируются по ключу, инвалидируются при изменениях
+- **Batch:** GetQueuesOperation поддерживает пагинацию
 
 ---
 

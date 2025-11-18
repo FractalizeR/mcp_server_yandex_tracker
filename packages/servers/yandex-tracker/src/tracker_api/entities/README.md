@@ -317,166 +317,48 @@ export type StatusWithUnknownFields = WithUnknownFields<Status>;
 
 **Файл:** `src/tracker_api/entities/issue.entity.ts`
 
-```typescript
-import type { WithUnknownFields } from './types.js';
-import type { User } from './user.entity.js';
-import type { Queue } from './queue.entity.js';
-import type { Status } from './status.entity.js';
-import type { Priority } from './priority.entity.js';
-import type { IssueType } from './issue-type.entity.js';
-
-export interface Issue {
-  /** Идентификатор задачи (всегда присутствует) */
-  readonly id: string;
-
-  /** Уникальный ключ задачи (QUEUE-123) (всегда присутствует) */
-  readonly key: string;
-
-  /** Краткое описание */
-  readonly summary: string;
-
-  // Вложенные entities
-  /** Очередь задачи */
-  readonly queue: Queue;
-
-  /** Текущий статус */
-  readonly status: Status;
-
-  /** Автор задачи */
-  readonly createdBy: User;
-
-  /** Исполнитель задачи */
-  readonly assignee?: User;
-
-  // Даты
-  /** Дата создания (ISO 8601) */
-  readonly createdAt: string;
-
-  /** Дата последнего обновления (ISO 8601) */
-  readonly updatedAt: string;
-}
-
-export type IssueWithUnknownFields = WithUnknownFields<Issue>;
-```
+Использует вложенные entities (`Queue`, `Status`, `User`) для связанных объектов.
+См. полный код в файле выше.
 
 ### Entity для файловых вложений
 
 **Файл:** `src/tracker_api/entities/attachment.entity.ts`
 
-```typescript
-import type { WithUnknownFields } from './types.js';
-import type { UserRef } from './common/user-ref.entity.js';
-
-/**
- * Прикрепленный файл (вложение) в Яндекс.Трекере
- *
- * Представляет файл, прикрепленный к задаче.
- * Может быть изображением, документом или любым другим типом файла.
- */
-export interface Attachment {
-  /** Уникальный идентификатор файла (всегда присутствует) */
-  readonly id: string;
-
-  /** URL ресурса для self-reference (всегда присутствует) */
-  readonly self: string;
-
-  /** Имя файла (всегда присутствует) */
-  readonly name: string;
-
-  /** URL для скачивания файла (всегда присутствует) */
-  readonly content: string;
-
-  /** URL миниатюры изображения (присутствует только для изображений) */
-  readonly thumbnail?: string;
-
-  /** Автор загрузки файла (всегда присутствует) */
-  readonly createdBy: UserRef;
-
-  /** Дата создания (ISO 8601) (всегда присутствует) */
-  readonly createdAt: string;
-
-  /** MIME тип файла (всегда присутствует) */
-  readonly mimetype: string;
-
-  /** Размер файла в байтах (всегда присутствует) */
-  readonly size: number;
-}
-
-export type AttachmentWithUnknownFields = WithUnknownFields<Attachment>;
-```
-
-**Особенности:**
-- Использует `UserRef` вместо полного `User` для оптимизации
-- Опциональное поле `thumbnail` присутствует только для изображений
-- Поле `content` содержит URL для скачивания, а не само содержимое файла
-- Поле `size` указывает размер в байтах для валидации перед скачиванием
+- Использует `UserRef` для оптимизации
+- Поле `content` — URL скачивания, `thumbnail` — опциональная миниатюра
+- Поля `size` и `mimetype` для метаданных
 
 ### Entity для комментариев
 
 **Файл:** `src/tracker_api/entities/comment/comment.entity.ts`
 
-```typescript
-import type { WithUnknownFields } from '../types.js';
-import type { UserRef } from '../common/user-ref.entity.js';
+- Использует `UserRef` для авторов, поддерживает вложения
+- Поле `version` для оптимистичных блокировок
+- Поле `transport` определяет способ доставки: 'internal' или 'email'
 
-/**
- * Вложение в комментарии
- */
-export interface CommentAttachment {
-  /** Идентификатор вложения */
-  readonly id: string;
+### Entity для очередей
 
-  /** Имя файла */
-  readonly name: string;
+**Файл:** `src/tracker_api/entities/queue.entity.ts`
 
-  /** Размер файла в байтах */
-  readonly size: number;
-}
+- Использует `UserRef` для руководителя, `QueueDictionaryRef` для справочников
+- Поле `version` для оптимистичных блокировок
+- Поле `assignAuto` контролирует автоназначение исполнителей
 
-/**
- * Комментарий к задаче
- */
-export interface Comment {
-  /** Идентификатор комментария (всегда присутствует) */
-  readonly id: string;
+### Entity для полей очереди
 
-  /** URL ссылка на комментарий в API (всегда присутствует) */
-  readonly self: string;
+**Файл:** `src/tracker_api/entities/queue-field.entity.ts`
 
-  /** Текст комментария (всегда присутствует) */
-  readonly text: string;
+- Описывает настраиваемые поля очереди
+- Поле `required` определяет обязательность при создании задач
+- Поле `type`: строка, пользователь, дата, число, select, array
 
-  /** Автор комментария (всегда присутствует) */
-  readonly createdBy: UserRef;
+### Entity для прав доступа
 
-  /** Дата создания комментария в формате ISO 8601 (всегда присутствует) */
-  readonly createdAt: string;
+**Файл:** `src/tracker_api/entities/queue-permission.entity.ts`
 
-  /** Пользователь, который последним изменил комментарий */
-  readonly updatedBy?: UserRef;
-
-  /** Дата последнего изменения в формате ISO 8601 */
-  readonly updatedAt?: string;
-
-  /** Версия комментария (для оптимистичной блокировки) */
-  readonly version?: number;
-
-  /** Способ доставки комментария */
-  readonly transport?: 'internal' | 'email';
-
-  /** Вложения в комментарии */
-  readonly attachments?: readonly CommentAttachment[];
-}
-
-export type CommentWithUnknownFields = WithUnknownFields<Comment>;
-```
-
-**Особенности:**
-- Использует `UserRef` для автора и редактора комментария
-- Поддерживает вложения через `CommentAttachment`
-- Поле `transport` указывает способ доставки: 'internal' (через UI) или 'email'
-- Поле `version` используется для контроля конкурентных изменений
-- Опциональные поля `updatedBy` и `updatedAt` присутствуют только для отредактированных комментариев
+- Описывает права доступа к очереди
+- `QueueRole`: queue-lead, team-member, follower, access
+- Минималистичная структура — логика в API операциях
 
 ---
 
