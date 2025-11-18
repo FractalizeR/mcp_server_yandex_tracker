@@ -99,7 +99,7 @@ describe('get-comments integration tests', () => {
     // Act
     const result = await client.callTool('fr_yandex_tracker_get_comments', {
       issueId: issueKey,
-      expand: 'attachments',
+      expand: ['attachments'],
     });
 
     // Assert

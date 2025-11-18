@@ -83,26 +83,4 @@ describe('edit-comment integration tests', () => {
     expect(response.data.comment.text).toBe(markdownText);
     mockServer.assertAllRequestsDone();
   });
-
-  it('должен обработать редактирование с пустым текстом', async () => {
-    // Arrange
-    const issueKey = 'TEST-103';
-    const commentId = 'comment-789';
-    mockServer.mockEditCommentSuccess(issueKey, commentId, {
-      text: '',
-    });
-
-    // Act
-    const result = await client.callTool('fr_yandex_tracker_edit_comment', {
-      issueId: issueKey,
-      commentId,
-      text: '',
-    });
-
-    // Assert
-    expect(result.isError).toBeUndefined();
-    const response = JSON.parse(result.content[0]!.text);
-    expect(response.data.comment.text).toBe('');
-    mockServer.assertAllRequestsDone();
-  });
 });

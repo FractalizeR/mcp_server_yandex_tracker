@@ -894,7 +894,9 @@ export class MockServer {
       generateComment({ overrides: { text: 'Second comment' } }),
     ];
     const mockKey = `GET ${TRACKER_API_V3}/issues/${issueKey}/comments`;
-    this.mockAdapter.onGet(`${TRACKER_API_V3}/issues/${issueKey}/comments`).reply(() => {
+    // Используем RegExp для поддержки query параметров (perPage, page, expand)
+    const urlPattern = new RegExp(`^${TRACKER_API_V3}/issues/${issueKey}/comments(\\?.*)?$`);
+    this.mockAdapter.onGet(urlPattern).reply(() => {
       const index = this.pendingMocks.indexOf(mockKey);
       if (index !== -1) {
         this.pendingMocks.splice(index, 1);
