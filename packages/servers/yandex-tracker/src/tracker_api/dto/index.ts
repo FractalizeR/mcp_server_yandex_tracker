@@ -5,6 +5,8 @@
  * Содержат known поля + index signature [key: string]: unknown
  * для поддержки кастомных полей Яндекс.Трекера.
  */
+
+// Issue DTO
 export type {
   CreateIssueDto,
   UpdateIssueDto,
@@ -13,7 +15,17 @@ export type {
   ExecuteTransitionDto,
 } from './issue/index.js';
 
+// Link DTO
 export type { CreateLinkDto } from './link/index.js';
+
+// Attachment DTO
+export type {
+  UploadAttachmentInput,
+  DownloadAttachmentInput,
+  AttachmentOutput,
+  AttachmentsListOutput,
+  DownloadAttachmentOutput,
+} from './attachment/index.js';
 
 // DTO Factories (runtime code for coverage)
 export {
