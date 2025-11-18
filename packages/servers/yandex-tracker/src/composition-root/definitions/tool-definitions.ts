@@ -23,6 +23,9 @@ import {
   GetQueueFieldsTool,
   ManageQueueAccessTool,
 } from '@tools/api/queues/index.js';
+import { GetIssueLinksTool } from '@tools/api/issues/links/get/index.js';
+import { CreateLinkTool } from '@tools/api/issues/links/create/index.js';
+import { DeleteLinkTool } from '@tools/api/issues/links/delete/index.js';
 import { IssueUrlTool } from '@tools/helpers/issue-url/index.js';
 import { DemoTool } from '@tools/helpers/demo/index.js';
 
@@ -57,6 +60,9 @@ export const TOOL_CLASSES = [
   UpdateQueueTool,
   GetQueueFieldsTool,
   ManageQueueAccessTool,
+  GetIssueLinksTool,
+  CreateLinkTool,
+  DeleteLinkTool,
   IssueUrlTool,
   DemoTool,
 ] as const;

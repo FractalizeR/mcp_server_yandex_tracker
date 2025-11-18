@@ -25,6 +25,11 @@ import {
   GetQueueFieldsOperation,
   ManageQueueAccessOperation,
 } from '@tracker_api/api_operations/queue/index.js';
+import {
+  GetIssueLinksOperation,
+  CreateLinkOperation,
+  DeleteLinkOperation,
+} from '@tracker_api/api_operations/link/index.js';
 
 /**
  * Массив всех Operation классов в проекте
@@ -49,6 +54,9 @@ export const OPERATION_CLASSES = [
   UpdateQueueOperation,
   GetQueueFieldsOperation,
   ManageQueueAccessOperation,
+  GetIssueLinksOperation,
+  CreateLinkOperation,
+  DeleteLinkOperation,
 ] as const;
 
 /**

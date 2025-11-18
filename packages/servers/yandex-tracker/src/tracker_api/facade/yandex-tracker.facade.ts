@@ -33,11 +33,13 @@ import type {
   QueuesListOutput,
   QueueFieldsOutput,
   QueuePermissionsOutput,
+  CreateLinkDto,
 } from '@tracker_api/dto/index.js';
 import type {
   IssueWithUnknownFields,
   ChangelogEntryWithUnknownFields,
   TransitionWithUnknownFields,
+  LinkWithUnknownFields,
 } from '@tracker_api/entities/index.js';
 import type {
   UpdateQueueParams,
@@ -243,5 +245,44 @@ export class YandexTrackerFacade {
       execute: (params: ManageQueueAccessParams) => Promise<QueuePermissionsOutput>;
     }>('ManageQueueAccessOperation');
     return operation.execute(params);
+  }
+
+  // === Issue Methods - Links ===
+
+  /**
+   * Получает все связи для указанной задачи
+   * @param issueId - ключ или ID задачи
+   * @returns массив связей задачи
+   */
+  async getIssueLinks(issueId: string): Promise<LinkWithUnknownFields[]> {
+    const operation = this.getOperation<{
+      execute: (id: string) => Promise<LinkWithUnknownFields[]>;
+    }>('GetIssueLinksOperation');
+    return operation.execute(issueId);
+  }
+
+  /**
+   * Создаёт связь между текущей и указанной задачей
+   * @param issueId - ключ или ID текущей задачи
+   * @param linkData - параметры связи (relationship и issue)
+   * @returns созданная связь
+   */
+  async createLink(issueId: string, linkData: CreateLinkDto): Promise<LinkWithUnknownFields> {
+    const operation = this.getOperation<{
+      execute: (id: string, data: CreateLinkDto) => Promise<LinkWithUnknownFields>;
+    }>('CreateLinkOperation');
+    return operation.execute(issueId, linkData);
+  }
+
+  /**
+   * Удаляет связь между задачами
+   * @param issueId - ключ или ID задачи
+   * @param linkId - ID связи для удаления
+   */
+  async deleteLink(issueId: string, linkId: string): Promise<void> {
+    const operation = this.getOperation<{
+      execute: (id: string, linkId: string) => Promise<void>;
+    }>('DeleteLinkOperation');
+    return operation.execute(issueId, linkId);
   }
 }

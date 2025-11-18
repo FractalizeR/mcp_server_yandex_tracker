@@ -30,6 +30,9 @@ export type {
   QueuePermissionsOutput,
 } from './queue/index.js';
 
+// Link DTO
+export type { CreateLinkDto } from './link/index.js';
+
 // DTO Factories (runtime code for coverage)
 export {
   // Issue factories
