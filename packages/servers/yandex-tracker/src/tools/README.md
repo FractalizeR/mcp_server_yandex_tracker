@@ -119,64 +119,13 @@ return this.formatSuccess({ issues: filtered });
 
 ## 🏷️ Категоризация инструментов
 
-### Обязательные метаданные
+**Обязательные метаданные:**
+- `category` — основная категория (issues, helpers, system)
+- `subcategory` — read/write/workflow (опционально)
+- `priority` — critical/high/normal/low (опционально, default: normal)
+- `tags` — для поиска через search_tools (опционально)
 
-**Каждый инструмент ДОЛЖЕН иметь:**
-- `category` (обязательно) — основная категория
-- `subcategory` (опционально) — подкатегория для группировки
-- `priority` (опционально, default: 'normal') — приоритет для сортировки
-- `tags` (опционально) — теги для поиска через search_tools
-
-### Категории и subcategories
-
-| Category | Описание | Subcategories |
-|----------|----------|---------------|
-| `issues` | Работа с задачами | `read`, `write`, `workflow` |
-| `helpers` | Вспомогательные инструменты | `url`, `demo`, `utils` |
-| `system` | Системные инструменты | `health`, `config` |
-
-### Приоритеты
-
-**Порядок в tools/list:** critical → high → normal → low → алфавит
-
-| Priority | Когда использовать | Примеры |
-|----------|-------------------|---------|
-| `critical` | Частое использование, ключевые операции | create_issue, find_issues, get_issues, update_issue |
-| `high` | Важные, но не критичные операции | transitions, changelog |
-| `normal` | Обычные операции | helpers, utilities |
-| `low` | Редкое использование, демо | demo, debug tools |
-
-### Description Convention
-
-**Формат:** `[Category/Subcategory] Краткое описание`
-
-**Правила:**
-- Префикс категории в квадратных скобках
-- Краткое описание (≤60 символов)
-- Без упоминания "Яндекс.Трекер" (контекст понятен)
-- Без дублирования информации из имени
-
-**Примеры:**
-```typescript
-✅ '[Issues/Write] Создать задачу'
-✅ '[Issues/Read] Найти задачи по фильтру'
-✅ '[Helpers/URL] Получить ссылку на задачу'
-✅ '[System/Health] Проверка доступности сервера'
-
-❌ 'Создать новую задачу в Яндекс.Трекере' // Нет префикса, многословно
-❌ '[Issues/Write] Создание новых задач с поддержкой...' // Длинно
-```
-
-### Чек-лист для нового инструмента
-
-При создании нового tool:
-- [ ] Определить `category` из существующих (или создать новую если нужно)
-- [ ] Определить `subcategory` (read/write/workflow/etc)
-- [ ] Определить `priority` на основе частоты использования
-- [ ] Добавить `tags` для поиска (3-5 тегов)
-- [ ] Написать краткий `description` с префиксом категории
-- [ ] Проверить длину: `description.length ≤ 80`
-- [ ] Добавить подробное описание параметров в `inputSchema`
+**Description формат:** `[Category/Subcategory] Краткое описание` (≤80 символов)
 
 ---
 
@@ -451,396 +400,69 @@ ESSENTIAL_TOOLS=ping,search_tools
 
 ---
 
-## 📚 Attachments API — Complete Tools Documentation
+## 📚 Attachments API — Complete Tools
 
-**5 MCP Tools для работы с вложениями** (production ready ✅)
+**5 MCP Tools для работы с вложениями:**
+- `get_attachments` — список файлов задачи
+- `upload_attachment` — загрузка (base64 или file path, max 10MB)
+- `download_attachment` — скачивание файла
+- `delete_attachment` — удаление файла
+- `get_thumbnail` — миниатюра изображения
 
-### Полный список инструментов
+См. файлы в `src/tools/api/issues/attachments/` для деталей.
 
-| Tool | API Endpoint | Описание | Safety |
-|------|-------------|----------|--------|
-| `get_attachments` | GET /attachments | Список файлов задачи | Read-only |
-| `upload_attachment` | POST /attachments | Загрузка файла | ⚠️ Write |
-| `download_attachment` | GET /attachments/{id}/{name} | Скачивание файла | Read-only |
-| `delete_attachment` | DELETE /attachments/{id} | Удаление файла | ⚠️ Write |
-| `get_thumbnail` | GET /attachments/{id}/thumbnail | Миниатюра изображения | Read-only |
+## 💬 Comments API — Complete Tools
 
----
+**4 MCP Tools для работы с комментариями:**
+- `add_comment` — добавление комментария (markdown, attachments)
+- `get_comments` — список комментариев (пагинация)
+- `edit_comment` — редактирование комментария
+- `delete_comment` — удаление комментария
 
-### 1. Upload Attachment — Загрузка файлов
-
-**Tool:** `upload_attachment`
-**Safety:** `requiresExplicitUserConsent: true` ⚠️
-
-**Два способа загрузки:**
-
-#### Способ 1: Base64 (для MCP clients)
-```typescript
-// Claude отправляет файл как base64 строку
-{
-  "issueId": "QUEUE-123",
-  "filename": "report.pdf",
-  "fileContent": "JVBERi0xLjQKJeLjz9MK...", // base64
-  "mimetype": "application/pdf"  // опционально
-}
-```
-
-#### Способ 2: File Path (для локальных файлов)
-```typescript
-// Claude читает файл с диска
-{
-  "issueId": "QUEUE-123",
-  "filename": "screenshot.png",
-  "filePath": "/tmp/screenshot.png"
-}
-```
-
-**Лимиты:**
-- **Максимальный размер:** 10 MB (по умолчанию)
-- **Валидация имени:** Без спецсимволов `../, /, \`
-- **MIME type:** Автоопределение если не указан
-- **Форматы:** Любые файлы (PDF, PNG, DOCX, etc)
-
-**Пример реализации:**
-```typescript
-export class UploadAttachmentTool extends BaseTool<YandexTrackerFacade> {
-  static override readonly METADATA = {
-    name: 'fyt_mcp_upload_attachment',
-    description: '[Issues/Attachments] Загрузить файл в задачу',
-    requiresExplicitUserConsent: true, // ⚠️ Модификация данных
-  };
-
-  async execute(params: unknown): Promise<ToolResponse> {
-    const { issueId, filename, fileContent, filePath } = params;
-
-    // Поддержка обоих способов
-    const buffer = fileContent
-      ? Buffer.from(fileContent, 'base64')
-      : await readFile(filePath);
-
-    // Валидация через FileUploadUtil
-    FileUploadUtil.validateFilename(filename);
-    FileUploadUtil.validateFileSize(buffer.length, MAX_SIZE);
-
-    const attachment = await this.facade.uploadAttachment(issueId, {
-      filename,
-      file: buffer,
-    });
-
-    return this.formatSuccess({ issueId, attachment });
-  }
-}
-```
+См. файлы в `src/tools/api/issues/comments/` для деталей.
 
 ---
 
-### 2. Download Attachment — Скачивание файлов
+## 🗂️ Queues API — Complete Tools
 
-**Tool:** `download_attachment`
-**Safety:** Read-only ✅
+**6 MCP Tools для работы с очередями:**
 
-**Два режима:**
+### Read Operations
+- `get_queue` — получение одной очереди по ID/ключу
+  - Параметры: `queueId`, `expand` (optional)
+  - Кеширование: ✅
 
-#### Режим 1: Возврат base64 (default)
-```typescript
-{
-  "issueId": "QUEUE-123",
-  "attachmentId": "67890",
-  "filename": "report.pdf"
-}
-// Response: { base64: "JVBERi...", size: 245678, mimetype: "application/pdf" }
-```
+- `get_queues` — список всех очередей
+  - Параметры: `expand`, `perPage`, `page` (optional)
+  - Кеширование: ✅
 
-#### Режим 2: Сохранение в файл
-```typescript
-{
-  "issueId": "QUEUE-123",
-  "attachmentId": "67890",
-  "filename": "report.pdf",
-  "saveToPath": "/tmp/downloaded_report.pdf"
-}
-// Response: { savedTo: "/tmp/downloaded_report.pdf", size: 245678 }
-```
+- `get_queue_fields` — получение полей очереди
+  - Параметры: `queueId`
+  - Кеширование: ✅
 
-**Особенности:**
-- API требует filename в URL (получить из `get_attachments`)
-- Автоматическое кодирование filename через `encodeURIComponent()`
-- Поддержка больших файлов (streaming через Buffer)
+### Write Operations (Admin)
+- `create_queue` — создание новой очереди
+  - Параметры: `key` (A-Z, 2-10 символов), `name`, `lead`, `defaultType`, `defaultPriority`
+  - Safety: `requiresExplicitUserConsent: true` ⚠️
+  - Валидация ключа: `^[A-Z]{2,10}$`
 
----
+- `update_queue` — обновление настроек очереди
+  - Параметры: `queueId`, `name`, `lead`, `assignAuto`, etc.
+  - Safety: `requiresExplicitUserConsent: true` ⚠️
+  - Поддержка версионности (optimistic locking)
 
-### 3. Get Attachments — Список файлов
-
-**Tool:** `get_attachments`
-**Safety:** Read-only ✅
-
-```typescript
-{
-  "issueId": "QUEUE-123"
-}
-// Response: [
-//   { id: "67890", name: "report.pdf", size: 245678, mimetype: "application/pdf" },
-//   { id: "67891", name: "photo.jpg", size: 102400, thumbnail: "..." }
-// ]
-```
-
-**Кеширование:** ✅ Список кешируется, инвалидируется при upload/delete
-
----
-
-### 4. Delete Attachment — Удаление файла
-
-**Tool:** `delete_attachment`
-**Safety:** `requiresExplicitUserConsent: true` ⚠️
-
-```typescript
-{
-  "issueId": "QUEUE-123",
-  "attachmentId": "67890"
-}
-// Response: { deleted: true, issueId, attachmentId }
-```
-
-**Предупреждения:**
-- Операция необратима
-- Инвалидирует кеш списка файлов
-- Требует явного согласия пользователя
-
----
-
-### 5. Get Thumbnail — Миниатюра изображения
-
-**Tool:** `get_thumbnail`
-**Safety:** Read-only ✅
-
-```typescript
-{
-  "issueId": "QUEUE-123",
-  "attachmentId": "67891",
-  "filename": "photo.jpg"
-}
-// Response: { base64: "iVBORw0KG...", mimetype: "image/jpeg" }
-```
-
-**Ограничения:**
-- ✅ Только изображения (PNG, JPG, GIF)
-- ❌ Для документов вернет ошибку
-- Проверка через `attachment.thumbnail !== undefined`
-
----
-
-## 💬 Comments API — Complete Tools Documentation
-
-**4 инструмента для работы с комментариями к задачам**
-
-### 1. fr_yandex_tracker_add_comment
-
-**Категория:** `COMMENTS/write`
-**Назначение:** Добавить комментарий к задаче
-
-**Параметры:**
-- `issueId` (string, required) — ключ или ID задачи (например, TEST-123)
-- `text` (string, required) — текст комментария (поддерживает markdown)
-- `attachmentIds` (string[], optional) — массив ID прикрепленных файлов
-
-**Пример MCP запроса:**
-```json
-{
-  "name": "fr_yandex_tracker_add_comment",
-  "arguments": {
-    "issueId": "TEST-123",
-    "text": "## Обновление\n\nЗадача выполнена.",
-    "attachmentIds": ["att-1", "att-2"]
-  }
-}
-```
-
-**Пример ответа:**
-```json
-{
-  "data": {
-    "comment": {
-      "id": "comment-12345",
-      "self": "https://api.tracker.yandex.net/v2/issues/TEST-123/comments/comment-12345",
-      "text": "## Обновление\n\nЗадача выполнена.",
-      "createdBy": { "id": "user-1", "display": "John Doe" },
-      "createdAt": "2025-01-18T10:00:00.000+0000",
-      "version": 1,
-      "transport": "internal"
-    }
-  }
-}
-```
-
-### 2. fr_yandex_tracker_get_comments
-
-**Категория:** `COMMENTS/read`
-**Назначение:** Получить список комментариев задачи
-
-**Параметры:**
-- `issueId` (string, required) — ключ или ID задачи
-- `perPage` (number, optional) — количество комментариев на странице (default: 50)
-- `page` (number, optional) — номер страницы (начиная с 1)
-- `expand` (string, optional) — дополнительные поля ('attachments')
-
-**Пример MCP запроса:**
-```json
-{
-  "name": "fr_yandex_tracker_get_comments",
-  "arguments": {
-    "issueId": "TEST-123",
-    "perPage": 10,
-    "page": 1,
-    "expand": "attachments"
-  }
-}
-```
-
-**Пример ответа:**
-```json
-{
-  "data": {
-    "comments": [
-      {
-        "id": "comment-1",
-        "text": "First comment",
-        "createdBy": { "id": "user-1", "display": "John Doe" },
-        "createdAt": "2025-01-18T10:00:00.000+0000"
-      },
-      {
-        "id": "comment-2",
-        "text": "Second comment",
-        "createdBy": { "id": "user-2", "display": "Jane Smith" },
-        "createdAt": "2025-01-18T11:00:00.000+0000",
-        "attachments": [
-          { "id": "att-1", "name": "file.pdf", "size": 1024 }
-        ]
-      }
-    ]
-  }
-}
-```
-
-### 3. fr_yandex_tracker_edit_comment
-
-**Категория:** `COMMENTS/write`
-**Назначение:** Редактировать существующий комментарий
-
-**Параметры:**
-- `issueId` (string, required) — ключ или ID задачи
-- `commentId` (string, required) — ID комментария
-- `text` (string, required) — новый текст комментария
-
-**Пример MCP запроса:**
-```json
-{
-  "name": "fr_yandex_tracker_edit_comment",
-  "arguments": {
-    "issueId": "TEST-123",
-    "commentId": "comment-12345",
-    "text": "Обновленный текст комментария"
-  }
-}
-```
-
-**Пример ответа:**
-```json
-{
-  "data": {
-    "comment": {
-      "id": "comment-12345",
-      "text": "Обновленный текст комментария",
-      "createdBy": { "id": "user-1", "display": "John Doe" },
-      "createdAt": "2025-01-18T10:00:00.000+0000",
-      "updatedBy": { "id": "user-1", "display": "John Doe" },
-      "updatedAt": "2025-01-18T12:00:00.000+0000",
-      "version": 2
-    }
-  }
-}
-```
-
-### 4. fr_yandex_tracker_delete_comment
-
-**Категория:** `COMMENTS/write`
-**Назначение:** Удалить комментарий
-
-**Параметры:**
-- `issueId` (string, required) — ключ или ID задачи
-- `commentId` (string, required) — ID комментария
-
-**Пример MCP запроса:**
-```json
-{
-  "name": "fr_yandex_tracker_delete_comment",
-  "arguments": {
-    "issueId": "TEST-123",
-    "commentId": "comment-12345"
-  }
-}
-```
-
-**Пример ответа:**
-```json
-{
-  "data": {
-    "success": true,
-    "message": "Comment deleted successfully"
-  }
-}
-```
+- `manage_queue_access` — управление доступом к очереди
+  - Параметры: `queueId`, `role`, `add` (users/groups), `remove` (users/groups)
+  - Роли: `queue-lead`, `team-member`, `follower`, `access`
+  - Safety: `requiresExplicitUserConsent: true` ⚠️
 
 **Ключевые особенности:**
-- ✅ Markdown форматирование в тексте комментариев
-- ✅ Поддержка вложений (attachmentIds)
-- ✅ Пагинация для списка комментариев
-- ✅ Версионность для контроля конкурентных изменений
-- ❌ Удаленные комментарии восстановить нельзя
+- ✅ Админ права для create/update/manage-access
+- ✅ Версионность для оптимистичных блокировок
+- ✅ Кеширование очередей по ключу
+- ✅ Batch операции для manage_queue_access
 
----
-
-## 🔧 FileUploadUtil — Утилиты валидации
-
-**Методы:**
-
-```typescript
-// Валидация имени файла
-FileUploadUtil.validateFilename('report.pdf');  // true
-FileUploadUtil.validateFilename('../etc/passwd'); // false
-
-// Валидация размера
-FileUploadUtil.validateFileSize(buffer.length, 10_000_000); // true/false
-
-// Форматирование размера
-FileUploadUtil.formatFileSize(245678); // "239.92 KB"
-
-// MIME type
-FileUploadUtil.getMimeType('report.pdf'); // "application/pdf"
-
-// Multipart FormData
-FileUploadUtil.prepareMultipartFormData(buffer, filename);
-```
-
----
-
-## 📊 Integration Tests Coverage
-
-**Все 5 Attachments Tools покрыты integration тестами** (коммит c0f44c8):
-
-```bash
-✅ upload_attachment.integration.test.ts
-✅ download_attachment.integration.test.ts
-✅ get_attachments.integration.test.ts
-✅ delete_attachment.integration.test.ts
-✅ get_thumbnail.integration.test.ts
-```
-
-**Test scenarios:**
-- Upload: base64 + file path + валидация
-- Download: base64 + save to file
-- Get: список + пустой список
-- Delete: успех + 404
-- Thumbnail: изображение + ошибка для не-изображений
+См. файлы в `src/tools/api/queues/` для деталей.
 
 ---
 

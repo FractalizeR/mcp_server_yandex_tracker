@@ -33,7 +33,9 @@ describe('create-queue integration tests', () => {
       const result = await client.callTool('fr_yandex_tracker_create_queue', {
         key: 'NEWQ',
         name: 'New Queue',
-        leadLogin: 'testuser',
+        lead: 'testuser',
+        defaultType: 'task',
+        defaultPriority: 'normal',
       });
 
       // Assert
@@ -57,10 +59,10 @@ describe('create-queue integration tests', () => {
       const result = await client.callTool('fr_yandex_tracker_create_queue', {
         key: 'PROJ',
         name: 'Project Queue',
-        leadLogin: 'manager',
+        lead: 'manager',
+        defaultType: 'task',
+        defaultPriority: 'normal',
         description: 'Project queue description',
-        defaultTypeKey: 'task',
-        defaultPriorityKey: 'normal',
       });
 
       // Assert
@@ -81,7 +83,9 @@ describe('create-queue integration tests', () => {
       const result = await client.callTool('fr_yandex_tracker_create_queue', {
         key: 'NEWQ',
         name: 'New Queue',
-        leadLogin: 'testuser',
+        lead: 'testuser',
+        defaultType: 'task',
+        defaultPriority: 'normal',
       });
 
       // Assert
@@ -99,7 +103,9 @@ describe('create-queue integration tests', () => {
       const result = await client.callTool('fr_yandex_tracker_create_queue', {
         key: 'TEST',
         name: 'Test',
-        leadLogin: 'admin',
+        lead: 'admin',
+        defaultType: 'task',
+        defaultPriority: 'normal',
       });
 
       // Assert

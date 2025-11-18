@@ -31,7 +31,7 @@ describe('manage-queue-access integration tests', () => {
       const result = await client.callTool('fr_yandex_tracker_manage_queue_access', {
         queueId: queueKey,
         action: 'add',
-        userLogin: 'testuser',
+        subjects: ['testuser'],
         role: 'follower',
       });
 
@@ -52,7 +52,7 @@ describe('manage-queue-access integration tests', () => {
       const result = await client.callTool('fr_yandex_tracker_manage_queue_access', {
         queueId: queueKey,
         action: 'remove',
-        userLogin: 'testuser',
+        subjects: ['testuser'],
         role: 'follower',
       });
 
@@ -72,8 +72,8 @@ describe('manage-queue-access integration tests', () => {
       const result = await client.callTool('fr_yandex_tracker_manage_queue_access', {
         queueId: queueKey,
         action: 'add',
-        userLogin: 'developer',
-        role: 'teamMember',
+        subjects: ['developer'],
+        role: 'team-member',
       });
 
       // Assert
@@ -83,7 +83,7 @@ describe('manage-queue-access integration tests', () => {
       mockServer.assertAllRequestsDone();
     });
 
-    it('должен добавить доступ с ролью assignee', async () => {
+    it('должен добавить доступ с ролью access', async () => {
       // Arrange
       const queueKey = 'TEST';
       mockServer.mockManageQueueAccessSuccess(queueKey);
@@ -92,8 +92,8 @@ describe('manage-queue-access integration tests', () => {
       const result = await client.callTool('fr_yandex_tracker_manage_queue_access', {
         queueId: queueKey,
         action: 'add',
-        userLogin: 'assignee1',
-        role: 'assignee',
+        subjects: ['assignee1'],
+        role: 'access',
       });
 
       // Assert
@@ -114,7 +114,7 @@ describe('manage-queue-access integration tests', () => {
       const result = await client.callTool('fr_yandex_tracker_manage_queue_access', {
         queueId: queueKey,
         action: 'add',
-        userLogin: 'testuser',
+        subjects: ['testuser'],
         role: 'follower',
       });
 
