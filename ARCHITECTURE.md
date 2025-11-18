@@ -90,7 +90,7 @@ npm run depcruise  # Validates dependency graph
 
 **Key Principle:** Infrastructure does NOT know about domain (Yandex.Tracker, MCP)
 
-**Details:** [packages/infrastructure/README.md](packages/infrastructure/README.md)
+**Details:** [packages/framework/infrastructure/README.md](packages/framework/infrastructure/README.md)
 
 ### @mcp-framework/core
 
@@ -104,7 +104,7 @@ npm run depcruise  # Validates dependency graph
 
 **Key Principle:** Generic `BaseTool<TFacade>` — facade-agnostic design
 
-**Details:** [packages/core/README.md](packages/core/README.md)
+**Details:** [packages/framework/core/README.md](packages/framework/core/README.md)
 
 ### @mcp-framework/search
 
@@ -118,7 +118,7 @@ npm run depcruise  # Validates dependency graph
 
 **Key Principle:** Compile-time indexing (zero runtime overhead)
 
-**Details:** [packages/search/README.md](packages/search/README.md)
+**Details:** [packages/framework/search/README.md](packages/framework/search/README.md)
 
 ### mcp-server-yandex-tracker
 
@@ -270,7 +270,7 @@ const results = await executor.execute(
 
 **Result Type:** `BatchResult<T>` (discriminated union: fulfilled | rejected)
 
-**Details:** [packages/infrastructure/README.md](packages/infrastructure/README.md#parallel-execution)
+**Details:** [packages/framework/infrastructure/README.md](packages/framework/infrastructure/README.md#parallel-execution)
 
 ---
 
@@ -325,7 +325,7 @@ packages/servers/yandex-tracker/src/composition-root/
    - Max 100 entries
    - Key: `${query}_${strategy}`
 
-**Details:** [packages/search/README.md](packages/search/README.md)
+**Details:** [packages/framework/search/README.md](packages/framework/search/README.md)
 
 ---
 
@@ -500,9 +500,9 @@ npm run validate
 
 ### Framework Packages
 
-- **[packages/infrastructure/README.md](packages/infrastructure/README.md)** — Infrastructure API
-- **[packages/core/README.md](packages/core/README.md)** — Core API
-- **[packages/search/README.md](packages/search/README.md)** — Search system
+- **[packages/framework/infrastructure/README.md](packages/framework/infrastructure/README.md)** — Infrastructure API
+- **[packages/framework/core/README.md](packages/framework/core/README.md)** — Core API
+- **[packages/framework/search/README.md](packages/framework/search/README.md)** — Search system
 
 ### Yandex Tracker
 

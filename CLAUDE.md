@@ -80,9 +80,9 @@ packages/
 ```
 
 **Детали:**
-- **Infrastructure** — [packages/infrastructure/README.md](packages/infrastructure/README.md)
-- **Core** — [packages/core/README.md](packages/core/README.md)
-- **Search** — [packages/search/README.md](packages/search/README.md)
+- **Infrastructure** — [packages/framework/infrastructure/README.md](packages/framework/infrastructure/README.md)
+- **Core** — [packages/framework/core/README.md](packages/framework/core/README.md)
+- **Search** — [packages/framework/search/README.md](packages/framework/search/README.md)
 - **Yandex Tracker** — [packages/servers/yandex-tracker/README.md](packages/servers/yandex-tracker/README.md)
 
 ---
@@ -291,9 +291,9 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 - **Архитектура monorepo:** [ARCHITECTURE.md](./ARCHITECTURE.md)
 - **Migration guide v1 → v2:** [MIGRATION.md](./MIGRATION.md)
 - **Framework packages:**
-  - [Infrastructure API](packages/infrastructure/README.md)
-  - [Core API](packages/core/README.md)
-  - [Search System](packages/search/README.md)
+  - [Infrastructure API](packages/framework/infrastructure/README.md)
+  - [Core API](packages/framework/core/README.md)
+  - [Search System](packages/framework/search/README.md)
 - **Yandex Tracker:**
   - [Yandex Tracker CLAUDE.md](packages/servers/yandex-tracker/CLAUDE.md)
   - [Yandex Tracker README.md](packages/servers/yandex-tracker/README.md)

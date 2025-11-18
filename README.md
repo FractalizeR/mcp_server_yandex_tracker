@@ -155,9 +155,9 @@ npm install @mcp-framework/core
 
 ### Packages
 
-- **Infrastructure:** [packages/infrastructure/README.md](packages/infrastructure/README.md)
-- **Core:** [packages/core/README.md](packages/core/README.md)
-- **Search:** [packages/search/README.md](packages/search/README.md)
+- **Infrastructure:** [packages/framework/infrastructure/README.md](packages/framework/infrastructure/README.md)
+- **Core:** [packages/framework/core/README.md](packages/framework/core/README.md)
+- **Search:** [packages/framework/search/README.md](packages/framework/search/README.md)
 - **Yandex Tracker:** [packages/servers/yandex-tracker/README.md](packages/servers/yandex-tracker/README.md)
 
 ---

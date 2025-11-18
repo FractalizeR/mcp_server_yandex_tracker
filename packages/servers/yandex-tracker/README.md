@@ -298,7 +298,7 @@ npm run validate:tools     # Проверка регистрации tools/opera
 
 3. **Готово!** DI контейнер автоматически зарегистрирует инструмент.
 
-**Подробнее:** [src/mcp/README.md](src/mcp/README.md)
+**Подробнее:** [src/tools/README.md](src/tools/README.md)
 
 ### Технологический стек
 
@@ -317,9 +317,9 @@ npm run validate:tools     # Проверка регистрации tools/opera
 ### Для разработчиков
 
 - **[CLAUDE.md](./CLAUDE.md)** — правила для ИИ агентов и разработчиков
-- **[src/mcp/README.md](src/mcp/README.md)** — добавление MCP tools
-- **[src/api_operations/README.md](src/api_operations/README.md)** — API операции
-- **[src/entities/README.md](src/entities/README.md)** — domain entities
+- **[src/tools/README.md](src/tools/README.md)** — добавление MCP tools
+- **[src/tracker_api/api_operations/README.md](src/tracker_api/api_operations/README.md)** — API операции
+- **[src/tracker_api/entities/README.md](src/tracker_api/entities/README.md)** — domain entities
 - **[tests/README.md](tests/README.md)** — тестирование
 
 ### Monorepo

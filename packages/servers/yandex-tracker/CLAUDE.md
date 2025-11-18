@@ -182,10 +182,10 @@ ESSENTIAL_TOOLS=ping,search_tools
 
 **ОБЯЗАТЕЛЬНО прочитай перед работой с компонентом:**
 
-- **MCP Tools** — [src/mcp/README.md](src/mcp/README.md)
-- **API Operations** — [src/api_operations/README.md](src/api_operations/README.md)
-- **Entities** — [src/entities/README.md](src/entities/README.md)
-- **DTO** — [src/dto/README.md](src/dto/README.md)
+- **MCP Tools** — [src/tools/README.md](src/tools/README.md)
+- **API Operations** — [src/tracker_api/api_operations/README.md](src/tracker_api/api_operations/README.md)
+- **Entities** — [src/tracker_api/entities/README.md](src/tracker_api/entities/README.md)
+- **DTO** — [src/tracker_api/dto/README.md](src/tracker_api/dto/README.md)
 - **Dependency Injection** — [src/composition-root/README.md](src/composition-root/README.md)
 - **Тестирование** — [tests/README.md](tests/README.md)
 
@@ -197,7 +197,7 @@ ESSENTIAL_TOOLS=ping,search_tools
 
 ### Добавление MCP Tool
 
-- [ ] 📖 Прочитай [src/mcp/README.md](src/mcp/README.md)
+- [ ] 📖 Прочитай [src/tools/README.md](src/tools/README.md)
 - [ ] Создай структуру: `{feature}/{action}/{name}.schema.ts`, `.definition.ts`, `.tool.ts`, `index.ts`
 - [ ] Добавь `static readonly METADATA`:
   - [ ] ⚠️ Если tool ИЗМЕНЯЕТ данные → `requiresExplicitUserConsent: true`
