@@ -43,8 +43,12 @@
     "CHANGELOG.md"
   ],
   "scripts": {
-    "build": "tsc && tsc-alias",
+    "build": "tsc -b && tsc-alias",
     "clean": "rimraf dist",
+    "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\" \"tests/**/*.ts\"",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest watch",

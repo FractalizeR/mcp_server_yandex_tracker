@@ -141,6 +141,24 @@ import { BaseTool } from '@core/tools/base/base-tool.js';              // WRONG!
 - Каждый пакет имеет чёткую границу ответственности (см. README.md пакетов)
 - Не смешивай логику разных слоёв в одном файле
 
+### 5. Консистентность npm скриптов
+
+**Все workspaces ОБЯЗАНЫ иметь одинаковый набор базовых команд:**
+- `build` — `tsc -b && tsc-alias` (НЕ `tsc` без `-b`!)
+- `clean` — `rimraf dist` (только артефакты сборки)
+- `lint` — `eslint src --ext .ts`
+- `lint:fix` — `eslint src --ext .ts --fix`
+- `format` — `prettier --write "src/**/*.ts" "tests/**/*.ts"`
+- `format:check` — `prettier --check "src/**/*.ts" "tests/**/*.ts"`
+- `test` — `vitest run`
+- `test:coverage` — `vitest run --coverage`
+- `test:watch` — `vitest watch`
+- `typecheck` — `tsc --noEmit`
+
+**Корневой package.json:**
+- Делегирует команды через `--workspaces --if-present`
+- `clean` — только артефакты, `clean:all` — включая node_modules
+
 ---
 
 ## 📋 Процесс работы с большими задачами
