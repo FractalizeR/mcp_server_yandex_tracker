@@ -745,33 +745,32 @@ export class MockServer {
   }
 
   // ============================================================
-  // COMMENTS API МЕТОДЫ
+  // LINKS API МЕТОДЫ
   // ============================================================
 
   /**
-   * Mock успешного добавления комментария
+   * Mock успешного создания связи между задачами
    */
-  mockAddCommentSuccess(issueKey: string, commentData?: Record<string, unknown>): this {
-    const comment = generateComment(commentData ? { overrides: commentData } : {});
-    const mockKey = `POST ${TRACKER_API_V3}/issues/${issueKey}/comments`;
-    this.mockAdapter.onPost(`${TRACKER_API_V3}/issues/${issueKey}/comments`).reply(() => {
+  mockCreateLinkSuccess(issueKey: string, targetIssue: string, link: unknown): this {
+    const mockKey = `POST ${TRACKER_API_V3}/issues/${issueKey}/links`;
+    this.mockAdapter.onPost(`${TRACKER_API_V3}/issues/${issueKey}/links`).reply(() => {
       const index = this.pendingMocks.indexOf(mockKey);
       if (index !== -1) {
         this.pendingMocks.splice(index, 1);
       }
-      return [201, comment];
+      return [200, link];
     });
     this.pendingMocks.push(mockKey);
     return this;
   }
 
   /**
-   * Mock ошибки 404 при добавлении комментария (задача не найдена)
+   * Mock ошибки 404 при создании связи (задача не найдена)
    */
-  mockAddComment404(issueKey: string): this {
+  mockCreateLink404(issueKey: string): this {
     const response = generateError404();
-    const mockKey = `POST ${TRACKER_API_V3}/issues/${issueKey}/comments`;
-    this.mockAdapter.onPost(`${TRACKER_API_V3}/issues/${issueKey}/comments`).reply(() => {
+    const mockKey = `POST ${TRACKER_API_V3}/issues/${issueKey}/links`;
+    this.mockAdapter.onPost(`${TRACKER_API_V3}/issues/${issueKey}/links`).reply(() => {
       const index = this.pendingMocks.indexOf(mockKey);
       if (index !== -1) {
         this.pendingMocks.splice(index, 1);
@@ -783,48 +782,28 @@ export class MockServer {
   }
 
   /**
-   * Mock успешного получения списка комментариев
+   * Mock успешного получения списка связей задачи
    */
-  mockGetCommentsSuccess(issueKey: string, comments?: unknown[]): this {
-    const defaultComments = [
-      generateComment({ overrides: { text: 'First comment' } }),
-      generateComment({ overrides: { text: 'Second comment' } }),
-    ];
-    const mockKey = `GET ${TRACKER_API_V3}/issues/${issueKey}/comments`;
-    this.mockAdapter.onGet(`${TRACKER_API_V3}/issues/${issueKey}/comments`).reply(() => {
+  mockGetLinksSuccess(issueKey: string, links: unknown[]): this {
+    const mockKey = `GET ${TRACKER_API_V3}/issues/${issueKey}/links`;
+    this.mockAdapter.onGet(`${TRACKER_API_V3}/issues/${issueKey}/links`).reply(() => {
       const index = this.pendingMocks.indexOf(mockKey);
       if (index !== -1) {
         this.pendingMocks.splice(index, 1);
       }
-      return [200, comments ?? defaultComments];
+      return [200, links];
     });
     this.pendingMocks.push(mockKey);
     return this;
   }
 
   /**
-   * Mock пустого списка комментариев
+   * Mock ошибки 404 при получении связей (задача не найдена)
    */
-  mockGetCommentsEmpty(issueKey: string): this {
-    const mockKey = `GET ${TRACKER_API_V3}/issues/${issueKey}/comments`;
-    this.mockAdapter.onGet(`${TRACKER_API_V3}/issues/${issueKey}/comments`).reply(() => {
-      const index = this.pendingMocks.indexOf(mockKey);
-      if (index !== -1) {
-        this.pendingMocks.splice(index, 1);
-      }
-      return [200, []];
-    });
-    this.pendingMocks.push(mockKey);
-    return this;
-  }
-
-  /**
-   * Mock ошибки 404 при получении комментариев (задача не найдена)
-   */
-  mockGetComments404(issueKey: string): this {
+  mockGetLinks404(issueKey: string): this {
     const response = generateError404();
-    const mockKey = `GET ${TRACKER_API_V3}/issues/${issueKey}/comments`;
-    this.mockAdapter.onGet(`${TRACKER_API_V3}/issues/${issueKey}/comments`).reply(() => {
+    const mockKey = `GET ${TRACKER_API_V3}/issues/${issueKey}/links`;
+    this.mockAdapter.onGet(`${TRACKER_API_V3}/issues/${issueKey}/links`).reply(() => {
       const index = this.pendingMocks.indexOf(mockKey);
       if (index !== -1) {
         this.pendingMocks.splice(index, 1);
@@ -836,82 +815,34 @@ export class MockServer {
   }
 
   /**
-   * Mock успешного редактирования комментария
+   * Mock успешного удаления связи
    */
-  mockEditCommentSuccess(
-    issueKey: string,
-    commentId: string,
-    updates?: Record<string, unknown>
-  ): this {
-    const comment = generateComment({
-      overrides: { id: commentId, ...updates },
+  mockDeleteLinkSuccess(issueKey: string, linkId: string): this {
+    const mockKey = `DELETE ${TRACKER_API_V3}/issues/${issueKey}/links/${linkId}`;
+    this.mockAdapter.onDelete(`${TRACKER_API_V3}/issues/${issueKey}/links/${linkId}`).reply(() => {
+      const index = this.pendingMocks.indexOf(mockKey);
+      if (index !== -1) {
+        this.pendingMocks.splice(index, 1);
+      }
+      return [204];
     });
-    const mockKey = `PATCH ${TRACKER_API_V3}/issues/${issueKey}/comments/${commentId}`;
-    this.mockAdapter
-      .onPatch(`${TRACKER_API_V3}/issues/${issueKey}/comments/${commentId}`)
-      .reply(() => {
-        const index = this.pendingMocks.indexOf(mockKey);
-        if (index !== -1) {
-          this.pendingMocks.splice(index, 1);
-        }
-        return [200, comment];
-      });
     this.pendingMocks.push(mockKey);
     return this;
   }
 
   /**
-   * Mock ошибки 404 при редактировании комментария
+   * Mock ошибки 404 при удалении связи (связь не найдена)
    */
-  mockEditComment404(issueKey: string, commentId: string): this {
+  mockDeleteLink404(issueKey: string, linkId: string): this {
     const response = generateError404();
-    const mockKey = `PATCH ${TRACKER_API_V3}/issues/${issueKey}/comments/${commentId}`;
-    this.mockAdapter
-      .onPatch(`${TRACKER_API_V3}/issues/${issueKey}/comments/${commentId}`)
-      .reply(() => {
-        const index = this.pendingMocks.indexOf(mockKey);
-        if (index !== -1) {
-          this.pendingMocks.splice(index, 1);
-        }
-        return [404, response];
-      });
-    this.pendingMocks.push(mockKey);
-    return this;
-  }
-
-  /**
-   * Mock успешного удаления комментария
-   */
-  mockDeleteCommentSuccess(issueKey: string, commentId: string): this {
-    const mockKey = `DELETE ${TRACKER_API_V3}/issues/${issueKey}/comments/${commentId}`;
-    this.mockAdapter
-      .onDelete(`${TRACKER_API_V3}/issues/${issueKey}/comments/${commentId}`)
-      .reply(() => {
-        const index = this.pendingMocks.indexOf(mockKey);
-        if (index !== -1) {
-          this.pendingMocks.splice(index, 1);
-        }
-        return [204, ''];
-      });
-    this.pendingMocks.push(mockKey);
-    return this;
-  }
-
-  /**
-   * Mock ошибки 404 при удалении комментария
-   */
-  mockDeleteComment404(issueKey: string, commentId: string): this {
-    const response = generateError404();
-    const mockKey = `DELETE ${TRACKER_API_V3}/issues/${issueKey}/comments/${commentId}`;
-    this.mockAdapter
-      .onDelete(`${TRACKER_API_V3}/issues/${issueKey}/comments/${commentId}`)
-      .reply(() => {
-        const index = this.pendingMocks.indexOf(mockKey);
-        if (index !== -1) {
-          this.pendingMocks.splice(index, 1);
-        }
-        return [404, response];
-      });
+    const mockKey = `DELETE ${TRACKER_API_V3}/issues/${issueKey}/links/${linkId}`;
+    this.mockAdapter.onDelete(`${TRACKER_API_V3}/issues/${issueKey}/links/${linkId}`).reply(() => {
+      const index = this.pendingMocks.indexOf(mockKey);
+      if (index !== -1) {
+        this.pendingMocks.splice(index, 1);
+      }
+      return [404, response];
+    });
     this.pendingMocks.push(mockKey);
     return this;
   }
