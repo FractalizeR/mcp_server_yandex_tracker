@@ -455,7 +455,7 @@ container.bind(TYPES.HttpClient).toConstantValue(mockHttp); // ✅
 ## 🔗 См. также
 
 - **Operations:** [src/tracker_api/api_operations/README.md](../tracker_api/api_operations/README.md)
-- **MCP Tools:** [src/mcp/README.md](../mcp/README.md)
+- **MCP Tools:** [src/tools/README.md](../tools/README.md)
 - **Общие правила:** [CLAUDE.md](../../CLAUDE.md)
 - **Реальные unit тесты:** `tests/unit/tracker_api/facade/yandex-tracker.facade.test.ts`
 - **Реальные integration тесты:** `tests/integration/helpers/mcp-client.ts`

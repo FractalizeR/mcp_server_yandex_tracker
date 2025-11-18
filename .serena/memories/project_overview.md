@@ -4,10 +4,12 @@
 
 ```
 packages/
-├── infrastructure/  # HTTP, cache, logging, async utilities
-├── core/           # BaseTool, registry, type system
-├── search/         # Tool Search Engine
-└── yandex-tracker/ # Yandex Tracker MCP Server
+├── framework/
+│   ├── infrastructure/  # HTTP, cache, logging, async utilities
+│   ├── core/           # BaseTool, registry, type system
+│   └── search/         # Tool Search Engine
+└── servers/
+    └── yandex-tracker/ # Yandex Tracker MCP Server
 ```
 
 ## Тесты
