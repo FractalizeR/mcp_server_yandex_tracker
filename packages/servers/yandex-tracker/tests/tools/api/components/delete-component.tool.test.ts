@@ -3,11 +3,11 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { DeleteComponentTool } from '@tools/api/components/delete-component.tool.js';
-import type { YandexTrackerFacade } from '@tracker_api/facade/yandex-tracker.facade.js';
+import { DeleteComponentTool } from '#tools/api/components/delete-component.tool.js';
+import type { YandexTrackerFacade } from '#tracker_api/facade/yandex-tracker.facade.js';
 import type { Logger } from '@mcp-framework/infrastructure/logging/index.js';
 import { buildToolName } from '@mcp-framework/core';
-import { MCP_TOOL_PREFIX } from '@constants';
+import { MCP_TOOL_PREFIX } from '#constants';
 
 describe('DeleteComponentTool', () => {
   let mockTrackerFacade: YandexTrackerFacade;

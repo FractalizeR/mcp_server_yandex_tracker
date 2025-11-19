@@ -2,13 +2,13 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { HttpClient } from '@mcp-framework/infrastructure/http/client/http-client.js';
 import type { CacheManager } from '@mcp-framework/infrastructure/cache/cache-manager.interface.js';
 import type { Logger } from '@mcp-framework/infrastructure/logging/logger.js';
-import type { QueuePermissionWithUnknownFields } from '@tracker_api/entities/index.js';
-import { ManageQueueAccessOperation } from '@tracker_api/api_operations/queue/manage-queue-access.operation.js';
-import { createQueuePermissionListFixture } from '../../../helpers/queue-permission.fixture.js';
+import type { QueuePermissionWithUnknownFields } from '#tracker_api/entities/index.js';
+import { ManageQueueAccessOperation } from '#tracker_api/api_operations/queue/manage-queue-access.operation.js';
+import { createQueuePermissionListFixture } from '#helpers/queue-permission.fixture.js';
 import {
   createManageQueueAccessDto,
   createRemoveQueueAccessDto,
-} from '../../../helpers/queue-dto.fixture.js';
+} from '#helpers/queue-dto.fixture.js';
 
 describe('ManageQueueAccessOperation', () => {
   let operation: ManageQueueAccessOperation;

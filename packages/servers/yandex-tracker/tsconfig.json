@@ -5,13 +5,7 @@
     "rootDir": "./src",
     "composite": true,
     "tsBuildInfoFile": "./dist/tsconfig.tsbuildinfo",
-    "baseUrl": ".",
-    "paths": {
-      "@tracker_api/*": ["./src/tracker_api/*"],
-      "@tools/*": ["./src/tools/*"],
-      "@composition-root/*": ["./src/composition-root/*"],
-      "@cli/*": ["./src/cli/*"]
-    }
+    "baseUrl": "."
   },
   "references": [
     { "path": "../../framework/core" },

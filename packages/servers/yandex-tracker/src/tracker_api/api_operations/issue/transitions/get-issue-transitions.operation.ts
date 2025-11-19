@@ -13,8 +13,8 @@
  * API v3: GET /v3/issues/{issueKey}/transitions
  */
 
-import { BaseOperation } from '@tracker_api/api_operations/base-operation.js';
-import type { TransitionWithUnknownFields } from '@tracker_api/entities/index.js';
+import { BaseOperation } from '#tracker_api/api_operations/base-operation.js';
+import type { TransitionWithUnknownFields } from '#tracker_api/entities/index.js';
 
 export class GetIssueTransitionsOperation extends BaseOperation {
   /**

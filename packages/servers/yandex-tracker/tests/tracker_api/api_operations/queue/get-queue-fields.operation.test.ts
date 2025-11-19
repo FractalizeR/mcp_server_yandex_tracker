@@ -2,13 +2,13 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { HttpClient } from '@mcp-framework/infrastructure/http/client/http-client.js';
 import type { CacheManager } from '@mcp-framework/infrastructure/cache/cache-manager.interface.js';
 import type { Logger } from '@mcp-framework/infrastructure/logging/logger.js';
-import type { QueueFieldWithUnknownFields } from '@tracker_api/entities/index.js';
-import { GetQueueFieldsOperation } from '@tracker_api/api_operations/queue/get-queue-fields.operation.js';
+import type { QueueFieldWithUnknownFields } from '#tracker_api/entities/index.js';
+import { GetQueueFieldsOperation } from '#tracker_api/api_operations/queue/get-queue-fields.operation.js';
 import {
   createQueueFieldListFixture,
   createRequiredQueueFieldFixture,
   createStandardSystemFields,
-} from '../../../helpers/queue-field.fixture.js';
+} from '#helpers/queue-field.fixture.js';
 
 describe('GetQueueFieldsOperation', () => {
   let operation: GetQueueFieldsOperation;

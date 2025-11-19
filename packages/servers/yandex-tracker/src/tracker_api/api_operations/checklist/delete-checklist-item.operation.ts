@@ -8,7 +8,7 @@
  * API: DELETE /v2/issues/{issueId}/checklistItems/{checklistItemId}
  */
 
-import { BaseOperation } from '@tracker_api/api_operations/base-operation.js';
+import { BaseOperation } from '#tracker_api/api_operations/base-operation.js';
 
 export class DeleteChecklistItemOperation extends BaseOperation {
   /**

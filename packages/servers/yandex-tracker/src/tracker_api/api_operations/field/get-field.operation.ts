@@ -9,9 +9,9 @@
  * API: GET /v2/fields/{fieldId}
  */
 
-import { BaseOperation } from '@tracker_api/api_operations/base-operation.js';
+import { BaseOperation } from '#tracker_api/api_operations/base-operation.js';
 import { EntityCacheKey, EntityType } from '@mcp-framework/infrastructure';
-import type { FieldOutput } from '@tracker_api/dto/index.js';
+import type { FieldOutput } from '#tracker_api/dto/index.js';
 
 export class GetFieldOperation extends BaseOperation {
   /**

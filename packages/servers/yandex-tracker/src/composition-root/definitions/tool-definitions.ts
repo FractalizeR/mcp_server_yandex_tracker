@@ -7,14 +7,14 @@
  * 3. Всё остальное произойдёт автоматически (DI регистрация, ToolRegistry)
  */
 
-import { PingTool } from '@tools/ping.tool.js';
-import { GetIssuesTool } from '@tools/api/issues/get/index.js';
-import { CreateIssueTool } from '@tools/api/issues/create/index.js';
-import { FindIssuesTool } from '@tools/api/issues/find/index.js';
-import { UpdateIssueTool } from '@tools/api/issues/update/index.js';
-import { GetIssueChangelogTool } from '@tools/api/issues/changelog/index.js';
-import { GetIssueTransitionsTool } from '@tools/api/issues/transitions/get/index.js';
-import { TransitionIssueTool } from '@tools/api/issues/transitions/execute/index.js';
+import { PingTool } from '#tools/ping.tool.js';
+import { GetIssuesTool } from '#tools/api/issues/get/index.js';
+import { CreateIssueTool } from '#tools/api/issues/create/index.js';
+import { FindIssuesTool } from '#tools/api/issues/find/index.js';
+import { UpdateIssueTool } from '#tools/api/issues/update/index.js';
+import { GetIssueChangelogTool } from '#tools/api/issues/changelog/index.js';
+import { GetIssueTransitionsTool } from '#tools/api/issues/transitions/get/index.js';
+import { TransitionIssueTool } from '#tools/api/issues/transitions/execute/index.js';
 import {
   GetQueuesTool,
   GetQueueTool,
@@ -22,40 +22,40 @@ import {
   UpdateQueueTool,
   GetQueueFieldsTool,
   ManageQueueAccessTool,
-} from '@tools/api/queues/index.js';
+} from '#tools/api/queues/index.js';
 import {
   GetComponentsTool,
   CreateComponentTool,
   UpdateComponentTool,
   DeleteComponentTool,
-} from '@tools/api/components/index.js';
-import { GetIssueLinksTool } from '@tools/api/issues/links/get/index.js';
-import { CreateLinkTool } from '@tools/api/issues/links/create/index.js';
-import { DeleteLinkTool } from '@tools/api/issues/links/delete/index.js';
-import { AddCommentTool } from '@tools/api/comments/add/index.js';
-import { GetCommentsTool } from '@tools/api/comments/get/index.js';
-import { EditCommentTool } from '@tools/api/comments/edit/index.js';
-import { DeleteCommentTool } from '@tools/api/comments/delete/index.js';
-import { GetAttachmentsTool } from '@tools/api/issues/attachments/get/index.js';
-import { UploadAttachmentTool } from '@tools/api/issues/attachments/upload/index.js';
-import { DownloadAttachmentTool } from '@tools/api/issues/attachments/download/index.js';
-import { DeleteAttachmentTool } from '@tools/api/issues/attachments/delete/index.js';
-import { GetThumbnailTool } from '@tools/api/issues/attachments/thumbnail/index.js';
+} from '#tools/api/components/index.js';
+import { GetIssueLinksTool } from '#tools/api/issues/links/get/index.js';
+import { CreateLinkTool } from '#tools/api/issues/links/create/index.js';
+import { DeleteLinkTool } from '#tools/api/issues/links/delete/index.js';
+import { AddCommentTool } from '#tools/api/comments/add/index.js';
+import { GetCommentsTool } from '#tools/api/comments/get/index.js';
+import { EditCommentTool } from '#tools/api/comments/edit/index.js';
+import { DeleteCommentTool } from '#tools/api/comments/delete/index.js';
+import { GetAttachmentsTool } from '#tools/api/issues/attachments/get/index.js';
+import { UploadAttachmentTool } from '#tools/api/issues/attachments/upload/index.js';
+import { DownloadAttachmentTool } from '#tools/api/issues/attachments/download/index.js';
+import { DeleteAttachmentTool } from '#tools/api/issues/attachments/delete/index.js';
+import { GetThumbnailTool } from '#tools/api/issues/attachments/thumbnail/index.js';
 import {
   GetChecklistTool,
   AddChecklistItemTool,
   UpdateChecklistItemTool,
   DeleteChecklistItemTool,
-} from '@tools/api/checklists/index.js';
+} from '#tools/api/checklists/index.js';
 import {
   GetProjectsTool,
   GetProjectTool,
   CreateProjectTool,
   UpdateProjectTool,
   DeleteProjectTool,
-} from '@tools/api/projects/index.js';
-import { IssueUrlTool } from '@tools/helpers/issue-url/index.js';
-import { DemoTool } from '@tools/helpers/demo/index.js';
+} from '#tools/api/projects/index.js';
+import { IssueUrlTool } from '#tools/helpers/issue-url/index.js';
+import { DemoTool } from '#tools/helpers/demo/index.js';
 
 /**
  * Массив всех Tool классов в проекте

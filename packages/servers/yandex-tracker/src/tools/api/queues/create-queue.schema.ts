@@ -3,7 +3,7 @@
  */
 
 import { z } from 'zod';
-import { FieldsSchema } from '../../../common/schemas/index.js';
+import { FieldsSchema } from '#common/schemas/index.js';
 
 /**
  * Схема параметров для создания очереди

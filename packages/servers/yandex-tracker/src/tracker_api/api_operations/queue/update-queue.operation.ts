@@ -9,9 +9,9 @@
  * API: PATCH /v3/queues/{queueId}
  */
 
-import { BaseOperation } from '@tracker_api/api_operations/base-operation.js';
+import { BaseOperation } from '#tracker_api/api_operations/base-operation.js';
 import { EntityCacheKey, EntityType } from '@mcp-framework/infrastructure';
-import type { UpdateQueueDto, QueueOutput } from '@tracker_api/dto/index.js';
+import type { UpdateQueueDto, QueueOutput } from '#tracker_api/dto/index.js';
 
 export interface UpdateQueueParams {
   queueId: string;

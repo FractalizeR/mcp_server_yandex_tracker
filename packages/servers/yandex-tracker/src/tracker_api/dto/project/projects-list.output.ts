@@ -4,7 +4,7 @@
  * ВАЖНО: Используется как возвращаемый тип из GetProjects operation.
  */
 
-import type { ProjectWithUnknownFields } from '@tracker_api/entities/index.js';
+import type { ProjectWithUnknownFields } from '#tracker_api/entities/index.js';
 
 /**
  * Результат операции получения списка проектов

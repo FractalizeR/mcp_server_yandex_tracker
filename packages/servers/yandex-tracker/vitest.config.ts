@@ -17,28 +17,7 @@ export default mergeConfig(
     },
     resolve: {
       alias: {
-        // Поддержка subpath imports для локального пакета
-        'mcp-server-yandex-tracker': path.resolve(__dirname, './src'),
-        'mcp-server-yandex-tracker/*': path.resolve(__dirname, './src/*'),
-
-        // Path aliases для локальных модулей (с wildcard для subpaths)
-        '@tracker_api': path.resolve(__dirname, './src/tracker_api'),
-        '@tracker_api/*': path.resolve(__dirname, './src/tracker_api/*'),
-        '@tools': path.resolve(__dirname, './src/tools'),
-        '@tools/*': path.resolve(__dirname, './src/tools/*'),
-        '@composition-root': path.resolve(__dirname, './src/composition-root'),
-        '@composition-root/*': path.resolve(__dirname, './src/composition-root/*'),
-        '@cli': path.resolve(__dirname, './src/cli'),
-        '@cli/*': path.resolve(__dirname, './src/cli/*'),
-        '@constants': path.resolve(__dirname, './src/constants'),
-
-        // Test helpers
-        '@integration': path.resolve(__dirname, './tests/integration'),
-        '@integration/*': path.resolve(__dirname, './tests/integration/*'),
-        '@helpers': path.resolve(__dirname, './tests/helpers'),
-        '@helpers/*': path.resolve(__dirname, './tests/helpers/*'),
-
-        // Framework packages (с wildcard для subpaths)
+        // Framework packages (междупакетные зависимости для vitest)
         '@mcp-framework/search': path.resolve(__dirname, '../../framework/search/src'),
         '@mcp-framework/search/*': path.resolve(__dirname, '../../framework/search/src/*'),
         '@mcp-framework/core': path.resolve(__dirname, '../../framework/core/src'),

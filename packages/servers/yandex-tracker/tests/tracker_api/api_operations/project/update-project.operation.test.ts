@@ -2,10 +2,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { HttpClient } from '@mcp-framework/infrastructure/http/client/http-client.js';
 import type { CacheManager } from '@mcp-framework/infrastructure/cache/cache-manager.interface.js';
 import type { Logger } from '@mcp-framework/infrastructure/logging/logger.js';
-import type { ProjectWithUnknownFields } from '@tracker_api/entities/index.js';
-import { UpdateProjectOperation } from '@tracker_api/api_operations/project/update-project.operation.js';
-import { createProjectFixture } from '../../../helpers/project.fixture.js';
-import { createUpdateProjectDto } from '../../../helpers/project-dto.fixture.js';
+import type { ProjectWithUnknownFields } from '#tracker_api/entities/index.js';
+import { UpdateProjectOperation } from '#tracker_api/api_operations/project/update-project.operation.js';
+import { createProjectFixture } from '#helpers/project.fixture.js';
+import { createUpdateProjectDto } from '#helpers/project-dto.fixture.js';
 import { EntityCacheKey, EntityType } from '@mcp-framework/infrastructure';
 
 describe('UpdateProjectOperation', () => {

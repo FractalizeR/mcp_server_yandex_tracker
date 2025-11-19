@@ -4,7 +4,7 @@
  * ВАЖНО: Все поля опциональны - обновляются только переданные.
  */
 
-import type { ProjectStatus } from '@tracker_api/entities/index.js';
+import type { ProjectStatus } from '#tracker_api/entities/index.js';
 
 export interface UpdateProjectDto {
   /** Название проекта */

@@ -10,8 +10,8 @@
  * API: GET /v2/issues/{issueId}/attachments/{attachmentId}/{filename}
  */
 
-import { BaseOperation } from '@tracker_api/api_operations/base-operation.js';
-import type { AttachmentWithUnknownFields } from '@tracker_api/entities/index.js';
+import { BaseOperation } from '#tracker_api/api_operations/base-operation.js';
+import type { AttachmentWithUnknownFields } from '#tracker_api/entities/index.js';
 
 /**
  * Скачивание файла из задачи

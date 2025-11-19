@@ -9,7 +9,7 @@
  * API: DELETE /v2/boards/{boardId}
  */
 
-import { BaseOperation } from '@tracker_api/api_operations/base-operation.js';
+import { BaseOperation } from '#tracker_api/api_operations/base-operation.js';
 import { EntityCacheKey, EntityType } from '@mcp-framework/infrastructure';
 
 export interface DeleteBoardParams {

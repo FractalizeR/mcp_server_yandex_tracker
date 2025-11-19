@@ -1,10 +1,10 @@
 // tests/integration/mcp/tools/api/issues/transitions/get-issue-transitions.tool.integration.test.ts
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { createTestClient } from '@integration/helpers/mcp-client.js';
-import { createMockServer } from '@integration/helpers/mock-server.js';
-import type { TestMCPClient } from '@integration/helpers/mcp-client.js';
-import type { MockServer } from '@integration/helpers/mock-server.js';
-import { STANDARD_TRANSITION_FIELDS } from '@helpers/test-fields.js';
+import { createTestClient } from '#integration/helpers/mcp-client.js';
+import { createMockServer } from '#integration/helpers/mock-server.js';
+import type { TestMCPClient } from '#integration/helpers/mcp-client.js';
+import type { MockServer } from '#integration/helpers/mock-server.js';
+import { STANDARD_TRANSITION_FIELDS } from '#helpers/test-fields.js';
 
 describe('get-issue-transitions integration tests', () => {
   let client: TestMCPClient;

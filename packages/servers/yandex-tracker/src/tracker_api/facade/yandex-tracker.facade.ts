@@ -20,9 +20,9 @@
 import type { Container } from 'inversify';
 
 // Types
-import type { PingResult } from '@tracker_api/api_operations/user/ping.operation.js';
-import type { BatchIssueResult } from '@tracker_api/api_operations/issue/get-issues.operation.js';
-import type { FindIssuesResult } from '@tracker_api/api_operations/issue/find/index.js';
+import type { PingResult } from '#tracker_api/api_operations/user/ping.operation.js';
+import type { BatchIssueResult } from '#tracker_api/api_operations/issue/get-issues.operation.js';
+import type { FindIssuesResult } from '#tracker_api/api_operations/issue/find/index.js';
 import type {
   FindIssuesInputDto,
   CreateIssueDto,
@@ -74,7 +74,7 @@ import type {
   UpdateSprintDto,
   SprintOutput,
   SprintsListOutput,
-} from '@tracker_api/dto/index.js';
+} from '#tracker_api/dto/index.js';
 import type {
   IssueWithUnknownFields,
   ChangelogEntryWithUnknownFields,
@@ -85,14 +85,14 @@ import type {
   AttachmentWithUnknownFields,
   ChecklistItemWithUnknownFields,
   BulkChangeOperationWithUnknownFields,
-} from '@tracker_api/entities/index.js';
+} from '#tracker_api/entities/index.js';
 import type {
   UpdateQueueParams,
   ManageQueueAccessParams,
   GetProjectParams,
   UpdateProjectParams,
   DeleteProjectParams,
-} from '@tracker_api/api_operations/index.js';
+} from '#tracker_api/api_operations/index.js';
 
 export class YandexTrackerFacade {
   constructor(private readonly container: Container) {}

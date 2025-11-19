@@ -8,7 +8,7 @@
  * API: DELETE /v3/issues/{issueId}/comments/{commentId}
  */
 
-import { BaseOperation } from '@tracker_api/api_operations/base-operation.js';
+import { BaseOperation } from '#tracker_api/api_operations/base-operation.js';
 
 export class DeleteCommentOperation extends BaseOperation {
   /**

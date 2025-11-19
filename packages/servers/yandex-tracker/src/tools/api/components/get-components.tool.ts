@@ -3,10 +3,10 @@
  */
 
 import { BaseTool, ResponseFieldFilter } from '@mcp-framework/core';
-import type { YandexTrackerFacade } from '@tracker_api/facade/index.js';
+import type { YandexTrackerFacade } from '#tracker_api/facade/index.js';
 import type { ToolDefinition } from '@mcp-framework/core';
 import type { ToolCallParams, ToolResult } from '@mcp-framework/infrastructure';
-import type { ComponentWithUnknownFields } from '@tracker_api/entities/index.js';
+import type { ComponentWithUnknownFields } from '#tracker_api/entities/index.js';
 import { GetComponentsDefinition } from './get-components.definition.js';
 import { GetComponentsParamsSchema } from './get-components.schema.js';
 

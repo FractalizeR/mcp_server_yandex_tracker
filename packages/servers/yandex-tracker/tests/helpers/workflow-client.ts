@@ -1,7 +1,7 @@
 // tests/e2e/helpers/workflow-client.ts
-import type { TestMCPClient } from '@integration/helpers/mcp-client.js';
+import type { TestMCPClient } from '#integration/helpers/mcp-client.js';
 import { buildToolName } from '@mcp-framework/core';
-import { MCP_TOOL_PREFIX } from '@constants';
+import { MCP_TOOL_PREFIX } from '#constants';
 
 /**
  * Helper для E2E workflows с автоматическим извлечением данных

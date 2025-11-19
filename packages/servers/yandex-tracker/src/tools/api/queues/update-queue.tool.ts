@@ -3,14 +3,14 @@
  */
 
 import { BaseTool, ResponseFieldFilter } from '@mcp-framework/core';
-import type { YandexTrackerFacade } from '@tracker_api/facade/index.js';
+import type { YandexTrackerFacade } from '#tracker_api/facade/index.js';
 import type { ToolDefinition } from '@mcp-framework/core';
 import type { ToolCallParams, ToolResult } from '@mcp-framework/infrastructure';
 import { UpdateQueueDefinition } from './update-queue.definition.js';
 import { UpdateQueueParamsSchema } from './update-queue.schema.js';
 
-import type { UpdateQueueDto } from '@tracker_api/dto/index.js';
-import type { QueueWithUnknownFields } from '@tracker_api/entities/index.js';
+import type { UpdateQueueDto } from '#tracker_api/dto/index.js';
+import type { QueueWithUnknownFields } from '#tracker_api/entities/index.js';
 import { UPDATE_QUEUE_TOOL_METADATA } from './update-queue.metadata.js';
 
 export class UpdateQueueTool extends BaseTool<YandexTrackerFacade> {

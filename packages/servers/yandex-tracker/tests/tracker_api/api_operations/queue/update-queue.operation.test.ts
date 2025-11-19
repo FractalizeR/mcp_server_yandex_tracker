@@ -2,10 +2,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { HttpClient } from '@mcp-framework/infrastructure/http/client/http-client.js';
 import type { CacheManager } from '@mcp-framework/infrastructure/cache/cache-manager.interface.js';
 import type { Logger } from '@mcp-framework/infrastructure/logging/logger.js';
-import type { QueueWithUnknownFields } from '@tracker_api/entities/index.js';
-import { UpdateQueueOperation } from '@tracker_api/api_operations/queue/update-queue.operation.js';
-import { createQueueFixture } from '../../../helpers/queue.fixture.js';
-import { createUpdateQueueDto } from '../../../helpers/queue-dto.fixture.js';
+import type { QueueWithUnknownFields } from '#tracker_api/entities/index.js';
+import { UpdateQueueOperation } from '#tracker_api/api_operations/queue/update-queue.operation.js';
+import { createQueueFixture } from '#helpers/queue.fixture.js';
+import { createUpdateQueueDto } from '#helpers/queue-dto.fixture.js';
 import { EntityCacheKey, EntityType } from '@mcp-framework/infrastructure';
 
 describe('UpdateQueueOperation', () => {

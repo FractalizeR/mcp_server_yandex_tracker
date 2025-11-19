@@ -5,14 +5,14 @@
  */
 
 import { BaseTool, ResponseFieldFilter } from '@mcp-framework/core';
-import type { YandexTrackerFacade } from '@tracker_api/facade/index.js';
+import type { YandexTrackerFacade } from '#tracker_api/facade/index.js';
 import type { ToolDefinition } from '@mcp-framework/core';
 import type { ToolCallParams, ToolResult } from '@mcp-framework/infrastructure';
 import { CreateProjectDefinition } from './create-project.definition.js';
 import { CreateProjectParamsSchema } from './create-project.schema.js';
 
-import type { CreateProjectDto } from '@tracker_api/dto/index.js';
-import type { ProjectWithUnknownFields } from '@tracker_api/entities/index.js';
+import type { CreateProjectDto } from '#tracker_api/dto/index.js';
+import type { ProjectWithUnknownFields } from '#tracker_api/entities/index.js';
 import { CREATE_PROJECT_TOOL_METADATA } from './create-project.metadata.js';
 
 export class CreateProjectTool extends BaseTool<YandexTrackerFacade> {

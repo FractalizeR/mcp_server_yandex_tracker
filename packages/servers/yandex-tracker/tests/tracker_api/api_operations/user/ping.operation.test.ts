@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { PingOperation } from '@tracker_api/api_operations/user/ping.operation.js';
+import { PingOperation } from '#tracker_api/api_operations/user/ping.operation.js';
 import type { HttpClient } from '@mcp-framework/infrastructure/http/client/http-client.js';
 import type { CacheManager } from '@mcp-framework/infrastructure/cache/cache-manager.interface.js';
 import type { Logger } from '@mcp-framework/infrastructure/logging/index.js';
-import type { User } from '@tracker_api/entities/user.entity.js';
+import type { User } from '#tracker_api/entities/user.entity.js';
 import type { ApiError, ServerConfig } from '@mcp-framework/infrastructure/types.js';
 import { HttpStatusCode } from '@mcp-framework/infrastructure/types.js';
 

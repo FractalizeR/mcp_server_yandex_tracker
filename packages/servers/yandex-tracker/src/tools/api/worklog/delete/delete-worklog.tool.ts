@@ -8,11 +8,11 @@
  */
 
 import { BaseTool } from '@mcp-framework/core';
-import type { YandexTrackerFacade } from '@tracker_api/facade/index.js';
+import type { YandexTrackerFacade } from '#tracker_api/facade/index.js';
 import type { ToolDefinition } from '@mcp-framework/core';
 import type { ToolCallParams, ToolResult } from '@mcp-framework/infrastructure';
-import { DeleteWorklogDefinition } from '@tools/api/worklog/delete/delete-worklog.definition.js';
-import { DeleteWorklogParamsSchema } from '@tools/api/worklog/delete/delete-worklog.schema.js';
+import { DeleteWorklogDefinition } from '#tools/api/worklog/delete/delete-worklog.definition.js';
+import { DeleteWorklogParamsSchema } from '#tools/api/worklog/delete/delete-worklog.schema.js';
 
 import { DELETE_WORKLOG_TOOL_METADATA } from './delete-worklog.metadata.js';
 

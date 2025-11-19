@@ -8,8 +8,8 @@ import type { ToolRegistry } from '@mcp-framework/core/tool-registry.js';
 import type { HttpClient } from '@mcp-framework/infrastructure/http/client/http-client.js';
 import type { AxiosInstance } from 'axios';
 import type { ServerConfig } from '@mcp-framework/infrastructure/types.js';
-import { TYPES } from '@composition-root/types.js';
-import { createContainer } from '@composition-root/index.js';
+import { TYPES } from '#composition-root/types.js';
+import { createContainer } from '#composition-root/index.js';
 
 /**
  * Результат выполнения MCP tool

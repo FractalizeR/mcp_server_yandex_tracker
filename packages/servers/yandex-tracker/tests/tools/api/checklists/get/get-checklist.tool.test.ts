@@ -3,13 +3,13 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { GetChecklistTool } from '@tools/api/checklists/get/index.js';
-import type { YandexTrackerFacade } from '@tracker_api/facade/yandex-tracker.facade.js';
+import { GetChecklistTool } from '#tools/api/checklists/get/index.js';
+import type { YandexTrackerFacade } from '#tracker_api/facade/yandex-tracker.facade.js';
 import type { Logger } from '@mcp-framework/infrastructure/logging/index.js';
-import type { ChecklistItemWithUnknownFields } from '@tracker_api/entities/index.js';
+import type { ChecklistItemWithUnknownFields } from '#tracker_api/entities/index.js';
 import { buildToolName } from '@mcp-framework/core';
-import { MCP_TOOL_PREFIX } from '@constants';
-import { createChecklistOutputFixture } from '../../../../helpers/checklist-dto.fixture.js';
+import { MCP_TOOL_PREFIX } from '#constants';
+import { createChecklistOutputFixture } from '#helpers/checklist-dto.fixture.js';
 
 describe('GetChecklistTool', () => {
   let mockTrackerFacade: YandexTrackerFacade;

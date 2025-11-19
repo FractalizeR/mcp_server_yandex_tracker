@@ -12,9 +12,9 @@
  * - API не поддерживает пагинацию для компонентов (возвращает все компоненты очереди)
  */
 
-import { BaseOperation } from '@tracker_api/api_operations/base-operation.js';
+import { BaseOperation } from '#tracker_api/api_operations/base-operation.js';
 import { EntityCacheKey, EntityType } from '@mcp-framework/infrastructure';
-import type { ComponentsListOutput } from '@tracker_api/dto/index.js';
+import type { ComponentsListOutput } from '#tracker_api/dto/index.js';
 
 export class GetComponentsOperation extends BaseOperation {
   /**

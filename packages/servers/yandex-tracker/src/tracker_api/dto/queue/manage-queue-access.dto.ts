@@ -2,7 +2,7 @@
  * DTO для управления доступом к очереди в Яндекс.Трекере
  */
 
-import type { QueueRole } from '@tracker_api/entities/index.js';
+import type { QueueRole } from '#tracker_api/entities/index.js';
 
 /**
  * Действие для управления доступом

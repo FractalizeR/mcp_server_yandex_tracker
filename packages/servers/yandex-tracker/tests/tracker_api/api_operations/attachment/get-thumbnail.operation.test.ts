@@ -6,12 +6,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { HttpClient } from '@mcp-framework/infrastructure/http/client/http-client.js';
 import type { CacheManager } from '@mcp-framework/infrastructure/cache/cache-manager.interface.js';
 import type { Logger } from '@mcp-framework/infrastructure/logging/logger.js';
-import { GetThumbnailOperation } from '@tracker_api/api_operations/attachment/get-thumbnail.operation.js';
+import { GetThumbnailOperation } from '#tracker_api/api_operations/attachment/get-thumbnail.operation.js';
 import {
   createAttachmentFixture,
   createImageAttachmentFixture,
-} from '../../../helpers/attachment.fixture.js';
-import { createTestImage } from '../../../helpers/file-upload.helper.js';
+} from '#helpers/attachment.fixture.js';
+import { createTestImage } from '#helpers/file-upload.helper.js';
 
 describe('GetThumbnailOperation', () => {
   let operation: GetThumbnailOperation;
@@ -174,7 +174,7 @@ describe('GetThumbnailOperation', () => {
       });
 
       // Replace the utility methods temporarily
-      const originalUtils = await import('@tracker_api/utils/index.js');
+      const originalUtils = await import('#tracker_api/utils/index.js');
       vi.spyOn(originalUtils.FileDownloadUtil, 'isImage').mockReturnValue(false);
       vi.spyOn(originalUtils.FileDownloadUtil, 'isImageByExtension').mockReturnValue(false);
 
@@ -197,7 +197,7 @@ describe('GetThumbnailOperation', () => {
         });
 
         // Mock FileDownloadUtil methods
-        const originalUtils = await import('@tracker_api/utils/index.js');
+        const originalUtils = await import('#tracker_api/utils/index.js');
         vi.spyOn(originalUtils.FileDownloadUtil, 'isImage').mockReturnValue(false);
         vi.spyOn(originalUtils.FileDownloadUtil, 'isImageByExtension').mockReturnValue(true);
 
@@ -217,7 +217,7 @@ describe('GetThumbnailOperation', () => {
       });
 
       // Mock FileDownloadUtil to recognize it as image by MIME
-      const originalUtils = await import('@tracker_api/utils/index.js');
+      const originalUtils = await import('#tracker_api/utils/index.js');
       vi.spyOn(originalUtils.FileDownloadUtil, 'isImage').mockReturnValue(true);
 
       // Act
@@ -247,7 +247,7 @@ describe('GetThumbnailOperation', () => {
       });
 
       // Mock FileDownloadUtil
-      const originalUtils = await import('@tracker_api/utils/index.js');
+      const originalUtils = await import('#tracker_api/utils/index.js');
       vi.spyOn(originalUtils.FileDownloadUtil, 'isImage').mockReturnValue(false);
       vi.spyOn(originalUtils.FileDownloadUtil, 'isImageByExtension').mockReturnValue(false);
 
@@ -267,7 +267,7 @@ describe('GetThumbnailOperation', () => {
       });
 
       // Mock FileDownloadUtil
-      const originalUtils = await import('@tracker_api/utils/index.js');
+      const originalUtils = await import('#tracker_api/utils/index.js');
       vi.spyOn(originalUtils.FileDownloadUtil, 'isImage').mockReturnValue(false);
       vi.spyOn(originalUtils.FileDownloadUtil, 'isImageByExtension').mockReturnValue(false);
 

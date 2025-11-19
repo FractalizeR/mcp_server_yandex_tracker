@@ -2,7 +2,7 @@
  * DTO для обновления спринта в Яндекс.Трекере
  */
 
-import type { SprintStatus } from '@tracker_api/entities/index.js';
+import type { SprintStatus } from '#tracker_api/entities/index.js';
 
 export interface UpdateSprintDto {
   /** ID спринта для обновления */

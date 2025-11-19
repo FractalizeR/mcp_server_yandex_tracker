@@ -8,12 +8,12 @@
  */
 
 import { BaseTool, ResponseFieldFilter } from '@mcp-framework/core';
-import type { YandexTrackerFacade } from '@tracker_api/facade/index.js';
+import type { YandexTrackerFacade } from '#tracker_api/facade/index.js';
 import type { ToolDefinition } from '@mcp-framework/core';
 import type { ToolCallParams, ToolResult } from '@mcp-framework/infrastructure';
-import type { CommentWithUnknownFields } from '@tracker_api/entities/index.js';
-import { EditCommentDefinition } from '@tools/api/comments/edit/edit-comment.definition.js';
-import { EditCommentParamsSchema } from '@tools/api/comments/edit/edit-comment.schema.js';
+import type { CommentWithUnknownFields } from '#tracker_api/entities/index.js';
+import { EditCommentDefinition } from '#tools/api/comments/edit/edit-comment.definition.js';
+import { EditCommentParamsSchema } from '#tools/api/comments/edit/edit-comment.schema.js';
 
 import { EDIT_COMMENT_TOOL_METADATA } from './edit-comment.metadata.js';
 

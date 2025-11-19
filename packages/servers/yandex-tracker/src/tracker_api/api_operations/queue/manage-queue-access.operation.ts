@@ -9,8 +9,8 @@
  * API: PATCH /v3/queues/{queueId}/permissions
  */
 
-import { BaseOperation } from '@tracker_api/api_operations/base-operation.js';
-import type { ManageQueueAccessDto, QueuePermissionsOutput } from '@tracker_api/dto/index.js';
+import { BaseOperation } from '#tracker_api/api_operations/base-operation.js';
+import type { ManageQueueAccessDto, QueuePermissionsOutput } from '#tracker_api/dto/index.js';
 
 export interface ManageQueueAccessParams {
   queueId: string;

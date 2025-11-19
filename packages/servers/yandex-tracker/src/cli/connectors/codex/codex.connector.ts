@@ -19,7 +19,7 @@ import {
   DEFAULT_LOG_LEVEL,
   DEFAULT_REQUEST_TIMEOUT,
   ENV_VAR_NAMES,
-} from '../../../constants.js';
+} from '#constants';
 
 interface CodexConfig {
   mcp_servers?: Record<

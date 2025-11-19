@@ -8,7 +8,7 @@
 import { Container } from 'inversify';
 import type { ServerConfig } from '@mcp-framework/infrastructure';
 import { Logger } from '@mcp-framework/infrastructure';
-import { TYPES } from '@composition-root/types.js';
+import { TYPES } from '#composition-root/types.js';
 
 // HTTP Layer
 import { HttpClient } from '@mcp-framework/infrastructure';
@@ -20,7 +20,7 @@ import type { CacheManager } from '@mcp-framework/infrastructure';
 import { NoOpCache } from '@mcp-framework/infrastructure';
 
 // Yandex Tracker Facade
-import { YandexTrackerFacade } from '@tracker_api/facade/yandex-tracker.facade.js';
+import { YandexTrackerFacade } from '#tracker_api/facade/yandex-tracker.facade.js';
 
 // Tool Registry
 import { ToolRegistry } from '@mcp-framework/core';

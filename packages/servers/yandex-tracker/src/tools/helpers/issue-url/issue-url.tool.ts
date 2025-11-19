@@ -9,11 +9,11 @@
  */
 
 import { BaseTool } from '@mcp-framework/core';
-import type { YandexTrackerFacade } from '@tracker_api/facade/index.js';
+import type { YandexTrackerFacade } from '#tracker_api/facade/index.js';
 import type { ToolDefinition } from '@mcp-framework/core';
 import type { ToolCallParams, ToolResult } from '@mcp-framework/infrastructure';
-import { IssueUrlDefinition } from '@tools/helpers/issue-url/issue-url.definition.js';
-import { IssueUrlParamsSchema } from '@tools/helpers/issue-url/issue-url.schema.js';
+import { IssueUrlDefinition } from '#tools/helpers/issue-url/issue-url.definition.js';
+import { IssueUrlParamsSchema } from '#tools/helpers/issue-url/issue-url.schema.js';
 
 import { ISSUE_URL_TOOL_METADATA } from './issue-url.metadata.js';
 

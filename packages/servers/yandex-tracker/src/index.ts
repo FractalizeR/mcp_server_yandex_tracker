@@ -28,7 +28,7 @@ import {
 } from './constants.js';
 
 // DI Container (Composition Root)
-import { createContainer, TYPES } from '@composition-root/index.js';
+import { createContainer, TYPES } from '#composition-root/index.js';
 
 /**
  * Метрики инструментов для анализа размера tools/list response

@@ -3,12 +3,12 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { GetQueuesTool } from '@tools/api/queues/get-queues.tool.js';
-import type { YandexTrackerFacade } from '@tracker_api/facade/yandex-tracker.facade.js';
+import { GetQueuesTool } from '#tools/api/queues/get-queues.tool.js';
+import type { YandexTrackerFacade } from '#tracker_api/facade/yandex-tracker.facade.js';
 import type { Logger } from '@mcp-framework/infrastructure/logging/index.js';
 import { buildToolName } from '@mcp-framework/core';
-import { MCP_TOOL_PREFIX } from '@constants';
-import { createQueueListFixture } from '../../../helpers/queue.fixture.js';
+import { MCP_TOOL_PREFIX } from '#constants';
+import { createQueueListFixture } from '#helpers/queue.fixture.js';
 
 describe('GetQueuesTool', () => {
   let mockTrackerFacade: YandexTrackerFacade;

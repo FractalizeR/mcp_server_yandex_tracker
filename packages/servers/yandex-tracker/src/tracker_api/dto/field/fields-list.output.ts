@@ -4,7 +4,7 @@
  * API: GET /v2/fields
  */
 
-import type { FieldWithUnknownFields } from '@tracker_api/entities/index.js';
+import type { FieldWithUnknownFields } from '#tracker_api/entities/index.js';
 
 /**
  * Список полей трекера

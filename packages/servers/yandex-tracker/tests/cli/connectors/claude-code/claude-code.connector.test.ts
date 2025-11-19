@@ -11,9 +11,9 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { ClaudeCodeConnector } from '@cli/connectors/claude-code/claude-code.connector.js';
-import type { MCPServerConfig } from '@cli/connectors/base/connector.interface.js';
-import { MCP_SERVER_NAME } from '@constants';
+import { ClaudeCodeConnector } from '#cli/connectors/claude-code/claude-code.connector.js';
+import type { MCPServerConfig } from '#cli/connectors/base/connector.interface.js';
+import { MCP_SERVER_NAME } from '#constants';
 
 // Mock CommandExecutor
 vi.mock('@cli/utils/command-executor.js', () => ({

@@ -2,9 +2,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { HttpClient } from '@mcp-framework/infrastructure/http/client/http-client.js';
 import type { CacheManager } from '@mcp-framework/infrastructure/cache/cache-manager.interface.js';
 import type { Logger } from '@mcp-framework/infrastructure/logging/logger.js';
-import type { QueueWithUnknownFields } from '@tracker_api/entities/index.js';
-import { GetQueuesOperation } from '@tracker_api/api_operations/queue/get-queues.operation.js';
-import { createQueueFixture, createQueueListFixture } from '../../../helpers/queue.fixture.js';
+import type { QueueWithUnknownFields } from '#tracker_api/entities/index.js';
+import { GetQueuesOperation } from '#tracker_api/api_operations/queue/get-queues.operation.js';
+import { createQueueFixture, createQueueListFixture } from '#helpers/queue.fixture.js';
 
 describe('GetQueuesOperation', () => {
   let operation: GetQueuesOperation;

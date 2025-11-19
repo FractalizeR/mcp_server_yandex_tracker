@@ -1,23 +1,23 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { ToolRegistry, buildToolName } from '@mcp-framework/core';
 import type { Container } from 'inversify';
-import type { YandexTrackerFacade } from '@tracker_api/facade/yandex-tracker.facade.js';
+import type { YandexTrackerFacade } from '#tracker_api/facade/yandex-tracker.facade.js';
 import type { Logger } from '@mcp-framework/infrastructure/logging/index.js';
 import type { ToolCallParams } from '@mcp-framework/infrastructure/types.js';
-import type { PingResult } from '@tracker_api/api_operations/user/ping.operation.js';
-import type { BatchIssueResult } from '@tracker_api/api_operations/issue/get-issues.operation.js';
-import type { IssueWithUnknownFields } from '@tracker_api/entities/index.js';
-import { PingTool } from '@tools/ping.tool.js';
-import { GetIssuesTool } from '@tools/api/issues/get/index.js';
-import { CreateIssueTool } from '@tools/api/issues/create/index.js';
-import { UpdateIssueTool } from '@tools/api/issues/update/index.js';
-import { FindIssuesTool } from '@tools/api/issues/find/index.js';
-import { GetIssueChangelogTool } from '@tools/api/issues/changelog/index.js';
-import { GetIssueTransitionsTool } from '@tools/api/issues/transitions/get/index.js';
-import { TransitionIssueTool } from '@tools/api/issues/transitions/execute/index.js';
-import { IssueUrlTool } from '@tools/helpers/issue-url/index.js';
-import { DemoTool } from '@tools/helpers/demo/index.js';
-import { MCP_TOOL_PREFIX } from '@constants';
+import type { PingResult } from '#tracker_api/api_operations/user/ping.operation.js';
+import type { BatchIssueResult } from '#tracker_api/api_operations/issue/get-issues.operation.js';
+import type { IssueWithUnknownFields } from '#tracker_api/entities/index.js';
+import { PingTool } from '#tools/ping.tool.js';
+import { GetIssuesTool } from '#tools/api/issues/get/index.js';
+import { CreateIssueTool } from '#tools/api/issues/create/index.js';
+import { UpdateIssueTool } from '#tools/api/issues/update/index.js';
+import { FindIssuesTool } from '#tools/api/issues/find/index.js';
+import { GetIssueChangelogTool } from '#tools/api/issues/changelog/index.js';
+import { GetIssueTransitionsTool } from '#tools/api/issues/transitions/get/index.js';
+import { TransitionIssueTool } from '#tools/api/issues/transitions/execute/index.js';
+import { IssueUrlTool } from '#tools/helpers/issue-url/index.js';
+import { DemoTool } from '#tools/helpers/demo/index.js';
+import { MCP_TOOL_PREFIX } from '#constants';
 
 describe('ToolRegistry', () => {
   let registry: ToolRegistry;

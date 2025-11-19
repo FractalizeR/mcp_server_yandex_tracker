@@ -3,7 +3,7 @@
  */
 
 import { z } from 'zod';
-import { IssueKeysSchema } from '../../../common/schemas/index.js';
+import { IssueKeysSchema } from '#common/schemas/index.js';
 
 /**
  * Схема параметров для получения URL задач

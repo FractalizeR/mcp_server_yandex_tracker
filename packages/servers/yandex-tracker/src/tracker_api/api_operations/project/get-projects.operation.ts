@@ -10,8 +10,8 @@
  * API: GET /v2/projects
  */
 
-import { BaseOperation } from '@tracker_api/api_operations/base-operation.js';
-import type { GetProjectsDto, ProjectsListOutput } from '@tracker_api/dto/index.js';
+import { BaseOperation } from '#tracker_api/api_operations/base-operation.js';
+import type { GetProjectsDto, ProjectsListOutput } from '#tracker_api/dto/index.js';
 
 export class GetProjectsOperation extends BaseOperation {
   /**

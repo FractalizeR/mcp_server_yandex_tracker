@@ -10,7 +10,7 @@
 import { BaseTool } from '@mcp-framework/core';
 import type { ToolDefinition } from '@mcp-framework/core';
 import type { ToolCallParams, ToolResult } from '@mcp-framework/infrastructure';
-import type { YandexTrackerFacade } from '@tracker_api/facade/index.js';
+import type { YandexTrackerFacade } from '#tracker_api/facade/index.js';
 import { PingDefinition } from './ping.definition.js';
 import { PING_TOOL_METADATA } from './ping.metadata.js';
 

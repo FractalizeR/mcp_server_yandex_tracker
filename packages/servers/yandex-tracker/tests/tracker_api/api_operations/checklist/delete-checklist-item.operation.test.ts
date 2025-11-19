@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { HttpClient } from '@mcp-framework/infrastructure/http/client/http-client.js';
 import type { CacheManager } from '@mcp-framework/infrastructure/cache/cache-manager.interface.js';
 import type { Logger } from '@mcp-framework/infrastructure/logging/logger.js';
-import { DeleteChecklistItemOperation } from '@tracker_api/api_operations/checklist/delete-checklist-item.operation.js';
+import { DeleteChecklistItemOperation } from '#tracker_api/api_operations/checklist/delete-checklist-item.operation.js';
 
 describe('DeleteChecklistItemOperation', () => {
   let operation: DeleteChecklistItemOperation;

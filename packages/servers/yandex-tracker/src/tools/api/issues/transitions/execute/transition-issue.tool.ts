@@ -8,14 +8,14 @@
  */
 
 import { BaseTool } from '@mcp-framework/core';
-import type { YandexTrackerFacade } from '@tracker_api/facade/index.js';
+import type { YandexTrackerFacade } from '#tracker_api/facade/index.js';
 import type { ToolDefinition } from '@mcp-framework/core';
 import type { ToolCallParams, ToolResult } from '@mcp-framework/infrastructure';
 import { ResponseFieldFilter } from '@mcp-framework/core';
-import type { IssueWithUnknownFields } from '@tracker_api/entities/index.js';
-import type { ExecuteTransitionDto } from '@tracker_api/dto/index.js';
-import { TransitionIssueDefinition } from '@tools/api/issues/transitions/execute/transition-issue.definition.js';
-import { TransitionIssueParamsSchema } from '@tools/api/issues/transitions/execute/transition-issue.schema.js';
+import type { IssueWithUnknownFields } from '#tracker_api/entities/index.js';
+import type { ExecuteTransitionDto } from '#tracker_api/dto/index.js';
+import { TransitionIssueDefinition } from '#tools/api/issues/transitions/execute/transition-issue.definition.js';
+import { TransitionIssueParamsSchema } from '#tools/api/issues/transitions/execute/transition-issue.schema.js';
 
 import { TRANSITION_ISSUE_TOOL_METADATA } from './transition-issue.metadata.js';
 

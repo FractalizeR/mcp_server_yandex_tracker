@@ -7,9 +7,9 @@
  * - НЕТ других операций с пользователями
  */
 
-import { BaseOperation } from '@tracker_api/api_operations/base-operation.js';
+import { BaseOperation } from '#tracker_api/api_operations/base-operation.js';
 import { EntityCacheKey, EntityType } from '@mcp-framework/infrastructure';
-import type { User } from '@tracker_api/entities/user.entity.js';
+import type { User } from '#tracker_api/entities/user.entity.js';
 import type { ApiError, ServerConfig } from '@mcp-framework/infrastructure';
 
 /**

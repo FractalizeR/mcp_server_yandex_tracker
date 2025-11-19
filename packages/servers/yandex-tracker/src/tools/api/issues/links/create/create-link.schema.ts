@@ -3,7 +3,7 @@
  */
 
 import { z } from 'zod';
-import { IssueKeySchema, FieldsSchema } from '../../../../../common/schemas/index.js';
+import { IssueKeySchema, FieldsSchema } from '#common/schemas/index.js';
 
 /**
  * Enum для типов связей (relationship)

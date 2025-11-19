@@ -10,10 +10,10 @@
  * API: POST /v3/issues
  */
 
-import { BaseOperation } from '@tracker_api/api_operations/base-operation.js';
+import { BaseOperation } from '#tracker_api/api_operations/base-operation.js';
 import { EntityCacheKey, EntityType } from '@mcp-framework/infrastructure';
-import type { CreateIssueDto } from '@tracker_api/dto/index.js';
-import type { IssueWithUnknownFields } from '@tracker_api/entities/index.js';
+import type { CreateIssueDto } from '#tracker_api/dto/index.js';
+import type { IssueWithUnknownFields } from '#tracker_api/entities/index.js';
 
 export class CreateIssueOperation extends BaseOperation {
   /**

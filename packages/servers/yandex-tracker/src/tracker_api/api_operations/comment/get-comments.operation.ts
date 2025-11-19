@@ -9,9 +9,9 @@
  * API: GET /v3/issues/{issueId}/comments
  */
 
-import { BaseOperation } from '@tracker_api/api_operations/base-operation.js';
-import type { GetCommentsInput } from '@tracker_api/dto/index.js';
-import type { CommentWithUnknownFields } from '@tracker_api/entities/index.js';
+import { BaseOperation } from '#tracker_api/api_operations/base-operation.js';
+import type { GetCommentsInput } from '#tracker_api/dto/index.js';
+import type { CommentWithUnknownFields } from '#tracker_api/entities/index.js';
 
 export class GetCommentsOperation extends BaseOperation {
   /**
