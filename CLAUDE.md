@@ -144,24 +144,54 @@ import { BaseTool } from '../../../core/src/tools/base/base-tool.js'; // WRONG!
 import { BaseTool } from '@core/tools/base/base-tool.js';              // WRONG!
 ```
 
-**Внутри пакета:**
-- ✅ Относительные пути (`./`, `../`) для внутренних импортов
-- ✅ Алиасы только если настроены в `tsconfig.json` пакета
+### 3. Внутрипакетные импорты (Node.js Subpath Imports)
 
-### 3. Типобезопасность
+**Проект использует Node.js Subpath Imports (# префикс) вместо TypeScript path aliases.**
+
+**Короткие импорты (≤2 уровня) - относительные пути:**
+```typescript
+import { validateInput } from './utils.js';
+import { BaseOperation } from '../base-operation.js';
+```
+
+**Глубокие импорты (≥3 уровня) - Node.js subpath imports:**
+```typescript
+import { MCP_TOOL_PREFIX } from '#constants';
+import { YandexTrackerFacade } from '#tracker_api/facade/yandex-tracker.facade.js';
+import { createFixture } from '#helpers/queue.fixture.js';
+```
+
+**Доступные # префиксы (yandex-tracker пакет):**
+- `#tracker_api/*` - Tracker API слой
+- `#tools/*` - MCP Tools
+- `#composition-root/*` - DI контейнер
+- `#cli/*` - CLI модули
+- `#constants` - Константы проекта
+- `#common/*` - Общие утилиты
+- `#integration/*` - Интеграционные тесты
+- `#helpers/*` - Тестовые helpers
+
+**❌ НЕ используй старые @ алиасы:**
+```typescript
+import { YandexTrackerFacade } from '@tracker_api/facade/yandex-tracker.facade.js'; // WRONG! Use #
+```
+
+**Подробности:** См. [ARCHITECTURE.md](./ARCHITECTURE.md) секция "Module System"
+
+### 4. Типобезопасность
 
 - ❌ `any` / `unknown` / `null` / `undefined` (где можно избежать)
 - ✅ Явные типы для всех публичных функций и параметров
 - ✅ `import type` для type-only импортов
 - ✅ Strict mode во всех пакетах
 
-### 4. Single Responsibility Principle (SRP)
+### 5. Single Responsibility Principle (SRP)
 
 - Один класс = один файл = одна ответственность
 - Каждый пакет имеет чёткую границу ответственности (см. README.md пакетов)
 - Не смешивай логику разных слоёв в одном файле
 
-### 5. Консистентность npm скриптов
+### 6. Консистентность npm скриптов
 
 **Все workspaces ОБЯЗАНЫ иметь одинаковый набор базовых команд:**
 - `build` — `tsc -b && tsc-alias` (НЕ `tsc` без `-b`!)
