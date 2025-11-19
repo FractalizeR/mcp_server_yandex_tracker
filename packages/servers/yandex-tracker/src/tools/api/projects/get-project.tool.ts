@@ -2,12 +2,13 @@
  * MCP Tool для получения одного проекта в Яндекс.Трекере
  */
 
-import { BaseTool } from '@mcp-framework/core';
+import { BaseTool, ResponseFieldFilter } from '@mcp-framework/core';
 import type { YandexTrackerFacade } from '@tracker_api/facade/index.js';
 import type { ToolDefinition } from '@mcp-framework/core';
 import type { ToolCallParams, ToolResult } from '@mcp-framework/infrastructure';
 import { GetProjectDefinition } from './get-project.definition.js';
 import { GetProjectParamsSchema } from './get-project.schema.js';
+import type { ProjectWithUnknownFields } from '@tracker_api/entities/index.js';
 
 import { GET_PROJECT_TOOL_METADATA } from './get-project.metadata.js';
 
@@ -26,7 +27,7 @@ export class GetProjectTool extends BaseTool<YandexTrackerFacade> {
       return validation.error;
     }
 
-    const { projectId, expand } = validation.data;
+    const { fields, projectId, expand } = validation.data;
 
     try {
       this.logger.info('Получение проекта', {
@@ -41,8 +42,11 @@ export class GetProjectTool extends BaseTool<YandexTrackerFacade> {
         projectName: project.name,
       });
 
+      const filteredProject = ResponseFieldFilter.filter<ProjectWithUnknownFields>(project, fields);
+
       return this.formatSuccess({
-        project,
+        project: filteredProject,
+        fieldsReturned: fields,
       });
     } catch (error: unknown) {
       return this.formatError(`Ошибка при получении проекта ${projectId}`, error as Error);

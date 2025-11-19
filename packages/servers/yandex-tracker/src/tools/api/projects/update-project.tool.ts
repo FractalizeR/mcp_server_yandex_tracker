@@ -4,7 +4,7 @@
  * ВАЖНО: Обновление проектов - администраторская операция!
  */
 
-import { BaseTool } from '@mcp-framework/core';
+import { BaseTool, ResponseFieldFilter } from '@mcp-framework/core';
 import type { YandexTrackerFacade } from '@tracker_api/facade/index.js';
 import type { ToolDefinition } from '@mcp-framework/core';
 import type { ToolCallParams, ToolResult } from '@mcp-framework/infrastructure';
@@ -12,6 +12,7 @@ import { UpdateProjectDefinition } from './update-project.definition.js';
 import { UpdateProjectParamsSchema } from './update-project.schema.js';
 
 import type { UpdateProjectDto } from '@tracker_api/dto/index.js';
+import type { ProjectWithUnknownFields } from '@tracker_api/entities/index.js';
 import { UPDATE_PROJECT_TOOL_METADATA } from './update-project.metadata.js';
 
 export class UpdateProjectTool extends BaseTool<YandexTrackerFacade> {
@@ -30,6 +31,7 @@ export class UpdateProjectTool extends BaseTool<YandexTrackerFacade> {
     }
 
     const {
+      fields,
       projectId,
       name,
       lead,
@@ -67,9 +69,15 @@ export class UpdateProjectTool extends BaseTool<YandexTrackerFacade> {
         projectName: updatedProject.name,
       });
 
+      const filteredProject = ResponseFieldFilter.filter<ProjectWithUnknownFields>(
+        updatedProject,
+        fields
+      );
+
       return this.formatSuccess({
         projectKey: updatedProject.key,
-        project: updatedProject,
+        project: filteredProject,
+        fieldsReturned: fields,
       });
     } catch (error: unknown) {
       return this.formatError(`Ошибка при обновлении проекта ${projectId}`, error as Error);

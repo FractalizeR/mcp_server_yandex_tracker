@@ -30,8 +30,9 @@ export class CreateProjectDefinition extends BaseToolDefinition {
           endDate: this.buildEndDateParam(),
           queueIds: this.buildQueueIdsParam(),
           teamUserIds: this.buildTeamUserIdsParam(),
+          fields: this.buildFieldsParam(),
         },
-        required: ['key', 'name', 'lead'],
+        required: ['key', 'name', 'lead', 'fields'],
       },
     };
   }
@@ -115,6 +116,19 @@ export class CreateProjectDefinition extends BaseToolDefinition {
       }),
       {
         examples: [['user1', 'user2']],
+      }
+    );
+  }
+
+  private buildFieldsParam(): Record<string, unknown> {
+    return this.buildArrayParam(
+      '⚠️ ОБЯЗАТЕЛЬНЫЙ. Массив полей для возврата в созданном проекте. Используйте только необходимые поля для экономии контекста.',
+      {
+        items: { type: 'string' },
+        examples: [
+          ['id', 'key', 'name'],
+          ['id', 'key', 'name', 'lead', 'status'],
+        ],
       }
     );
   }

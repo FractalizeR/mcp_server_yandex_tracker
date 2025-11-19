@@ -4,7 +4,7 @@
  * ВАЖНО: Создание проектов - администраторская операция!
  */
 
-import { BaseTool } from '@mcp-framework/core';
+import { BaseTool, ResponseFieldFilter } from '@mcp-framework/core';
 import type { YandexTrackerFacade } from '@tracker_api/facade/index.js';
 import type { ToolDefinition } from '@mcp-framework/core';
 import type { ToolCallParams, ToolResult } from '@mcp-framework/infrastructure';
@@ -12,6 +12,7 @@ import { CreateProjectDefinition } from './create-project.definition.js';
 import { CreateProjectParamsSchema } from './create-project.schema.js';
 
 import type { CreateProjectDto } from '@tracker_api/dto/index.js';
+import type { ProjectWithUnknownFields } from '@tracker_api/entities/index.js';
 import { CREATE_PROJECT_TOOL_METADATA } from './create-project.metadata.js';
 
 export class CreateProjectTool extends BaseTool<YandexTrackerFacade> {
@@ -29,8 +30,18 @@ export class CreateProjectTool extends BaseTool<YandexTrackerFacade> {
       return validation.error;
     }
 
-    const { key, name, lead, status, description, startDate, endDate, queueIds, teamUserIds } =
-      validation.data;
+    const {
+      fields,
+      key,
+      name,
+      lead,
+      status,
+      description,
+      startDate,
+      endDate,
+      queueIds,
+      teamUserIds,
+    } = validation.data;
 
     try {
       this.logger.info('Создание нового проекта', {
@@ -59,9 +70,15 @@ export class CreateProjectTool extends BaseTool<YandexTrackerFacade> {
         projectId: createdProject.id,
       });
 
+      const filteredProject = ResponseFieldFilter.filter<ProjectWithUnknownFields>(
+        createdProject,
+        fields
+      );
+
       return this.formatSuccess({
         projectKey: createdProject.key,
-        project: createdProject,
+        project: filteredProject,
+        fieldsReturned: fields,
       });
     } catch (error: unknown) {
       return this.formatError(`Ошибка при создании проекта ${key}`, error as Error);

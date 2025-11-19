@@ -23,8 +23,9 @@ export class GetProjectDefinition extends BaseToolDefinition {
         properties: {
           projectId: this.buildProjectIdParam(),
           expand: this.buildExpandParam(),
+          fields: this.buildFieldsParam(),
         },
-        required: ['projectId'],
+        required: ['projectId', 'fields'],
       },
     };
   }
@@ -55,6 +56,19 @@ export class GetProjectDefinition extends BaseToolDefinition {
       'Дополнительные поля для включения в ответ (опционально). Примеры: "queues", "team".',
       {
         examples: ['queues'],
+      }
+    );
+  }
+
+  private buildFieldsParam(): Record<string, unknown> {
+    return this.buildArrayParam(
+      '⚠️ ОБЯЗАТЕЛЬНЫЙ. Массив полей для возврата в проекте. Используйте только необходимые поля для экономии контекста.',
+      {
+        items: { type: 'string' },
+        examples: [
+          ['id', 'key', 'name'],
+          ['id', 'key', 'name', 'lead', 'status'],
+        ],
       }
     );
   }

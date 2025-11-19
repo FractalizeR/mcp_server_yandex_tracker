@@ -25,8 +25,9 @@ export class GetProjectsDefinition extends BaseToolDefinition {
           page: this.buildPageParam(),
           expand: this.buildExpandParam(),
           queueId: this.buildQueueIdParam(),
+          fields: this.buildFieldsParam(),
         },
-        required: [],
+        required: ['fields'],
       },
     };
   }
@@ -71,6 +72,19 @@ export class GetProjectsDefinition extends BaseToolDefinition {
       'Фильтр по ID или ключу очереди - вернет только проекты, связанные с этой очередью (опционально).',
       {
         examples: ['QUEUE'],
+      }
+    );
+  }
+
+  private buildFieldsParam(): Record<string, unknown> {
+    return this.buildArrayParam(
+      '⚠️ ОБЯЗАТЕЛЬНЫЙ. Массив полей для возврата в каждом проекте. Используйте только необходимые поля для экономии контекста.',
+      {
+        items: { type: 'string' },
+        examples: [
+          ['id', 'key', 'name'],
+          ['id', 'key', 'name', 'lead', 'status'],
+        ],
       }
     );
   }

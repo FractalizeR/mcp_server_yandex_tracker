@@ -3,6 +3,7 @@
  */
 
 import { z } from 'zod';
+import { FieldsSchema } from '../../../common/schemas/index.js';
 
 /**
  * Возможные статусы проекта
@@ -57,6 +58,11 @@ export const UpdateProjectParamsSchema = z.object({
    * Массив ID или login участников проекта (опционально)
    */
   teamUserIds: z.array(z.string()).optional(),
+
+  /**
+   * Список полей для возврата (обязательно)
+   */
+  fields: FieldsSchema,
 });
 
 /**

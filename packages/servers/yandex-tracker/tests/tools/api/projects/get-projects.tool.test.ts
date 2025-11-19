@@ -41,6 +41,7 @@ describe('GetProjectsTool', () => {
       expect(definition.inputSchema.properties?.['page']).toBeDefined();
       expect(definition.inputSchema.properties?.['expand']).toBeDefined();
       expect(definition.inputSchema.properties?.['queueId']).toBeDefined();
+      expect(definition.inputSchema.properties?.['fields']).toBeDefined();
     });
   });
 
@@ -53,7 +54,7 @@ describe('GetProjectsTool', () => {
           total: 3,
         });
 
-        const result = await tool.execute({});
+        const result = await tool.execute({ fields: ['id', 'key', 'name'] });
 
         expect(result.isError).toBeUndefined();
         expect(mockTrackerFacade.getProjects).toHaveBeenCalledWith({});
@@ -85,7 +86,7 @@ describe('GetProjectsTool', () => {
           total: 50,
         });
 
-        const result = await tool.execute({ perPage: 10, page: 2 });
+        const result = await tool.execute({ perPage: 10, page: 2, fields: ['id', 'key', 'name'] });
 
         expect(result.isError).toBeUndefined();
         expect(mockTrackerFacade.getProjects).toHaveBeenCalledWith({
@@ -112,7 +113,7 @@ describe('GetProjectsTool', () => {
           total: 2,
         });
 
-        const result = await tool.execute({ expand: 'queues' });
+        const result = await tool.execute({ expand: 'queues', fields: ['id', 'key', 'name'] });
 
         expect(result.isError).toBeUndefined();
         expect(mockTrackerFacade.getProjects).toHaveBeenCalledWith({
@@ -136,7 +137,7 @@ describe('GetProjectsTool', () => {
           total: 1,
         });
 
-        const result = await tool.execute({ queueId: 'QUEUE1' });
+        const result = await tool.execute({ queueId: 'QUEUE1', fields: ['id', 'key', 'name'] });
 
         expect(result.isError).toBeUndefined();
         expect(mockTrackerFacade.getProjects).toHaveBeenCalledWith({
@@ -160,7 +161,7 @@ describe('GetProjectsTool', () => {
           total: 0,
         });
 
-        const result = await tool.execute({});
+        const result = await tool.execute({ fields: ['id', 'key', 'name'] });
 
         expect(result.isError).toBeUndefined();
         expect(mockLogger.info).toHaveBeenCalledWith('Список проектов получен', {
@@ -187,7 +188,7 @@ describe('GetProjectsTool', () => {
           total: 100,
         });
 
-        const result = await tool.execute({ perPage: 50 });
+        const result = await tool.execute({ perPage: 50, fields: ['id', 'key', 'name'] });
 
         expect(result.isError).toBeUndefined();
         const parsed = JSON.parse(result.content[0]?.text || '{}') as {
@@ -214,6 +215,7 @@ describe('GetProjectsTool', () => {
           page: 3,
           expand: 'team',
           queueId: 'TEST',
+          fields: ['id', 'key', 'name'],
         });
 
         expect(result.isError).toBeUndefined();
@@ -231,7 +233,7 @@ describe('GetProjectsTool', () => {
         const error = new Error('API Error: 500 Internal Server Error');
         vi.mocked(mockTrackerFacade.getProjects).mockRejectedValue(error);
 
-        const result = await tool.execute({});
+        const result = await tool.execute({ fields: ['id', 'key', 'name'] });
 
         expect(result.isError).toBe(true);
         const parsed = JSON.parse(result.content[0]?.text || '{}') as {
@@ -248,7 +250,7 @@ describe('GetProjectsTool', () => {
         const error = new Error('Network timeout');
         vi.mocked(mockTrackerFacade.getProjects).mockRejectedValue(error);
 
-        const result = await tool.execute({});
+        const result = await tool.execute({ fields: ['id', 'key', 'name'] });
 
         expect(result.isError).toBe(true);
         const parsed = JSON.parse(result.content[0]?.text || '{}') as {
@@ -263,7 +265,7 @@ describe('GetProjectsTool', () => {
         const error = new Error('Permission denied');
         vi.mocked(mockTrackerFacade.getProjects).mockRejectedValue(error);
 
-        const result = await tool.execute({});
+        const result = await tool.execute({ fields: ['id', 'key', 'name'] });
 
         expect(result.isError).toBe(true);
         const parsed = JSON.parse(result.content[0]?.text || '{}') as {

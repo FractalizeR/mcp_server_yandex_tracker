@@ -40,6 +40,7 @@ describe('GetProjectTool', () => {
       expect(definition.inputSchema.required).toContain('projectId');
       expect(definition.inputSchema.properties?.['projectId']).toBeDefined();
       expect(definition.inputSchema.properties?.['expand']).toBeDefined();
+      expect(definition.inputSchema.properties?.['fields']).toBeDefined();
     });
   });
 
@@ -58,7 +59,7 @@ describe('GetProjectTool', () => {
       });
 
       it('должен вернуть ошибку для пустого projectId', async () => {
-        const result = await tool.execute({ projectId: '' });
+        const result = await tool.execute({ projectId: '', fields: ['id', 'key'] });
 
         expect(result.isError).toBe(true);
         const parsed = JSON.parse(result.content[0]?.text || '{}') as {
@@ -73,7 +74,7 @@ describe('GetProjectTool', () => {
         const mockProject = createProjectFixture({ key: 'PROJ1' });
         vi.mocked(mockTrackerFacade.getProject).mockResolvedValue(mockProject);
 
-        const result = await tool.execute({ projectId: 'PROJ1' });
+        const result = await tool.execute({ projectId: 'PROJ1', fields: ['key', 'name'] });
 
         expect(result.isError).toBeUndefined();
         expect(mockTrackerFacade.getProject).toHaveBeenCalledWith({
@@ -90,7 +91,7 @@ describe('GetProjectTool', () => {
         });
         vi.mocked(mockTrackerFacade.getProject).mockResolvedValue(mockProject);
 
-        const result = await tool.execute({ projectId: 'MYPROJ' });
+        const result = await tool.execute({ projectId: 'MYPROJ', fields: ['key', 'name'] });
 
         expect(result.isError).toBeUndefined();
         expect(mockTrackerFacade.getProject).toHaveBeenCalledWith({
@@ -123,7 +124,7 @@ describe('GetProjectTool', () => {
         });
         vi.mocked(mockTrackerFacade.getProject).mockResolvedValue(mockProject);
 
-        const result = await tool.execute({ projectId: 'project123' });
+        const result = await tool.execute({ projectId: 'project123', fields: ['id', 'key'] });
 
         expect(result.isError).toBeUndefined();
         expect(mockTrackerFacade.getProject).toHaveBeenCalledWith({
@@ -147,6 +148,7 @@ describe('GetProjectTool', () => {
         const result = await tool.execute({
           projectId: 'PROJ',
           expand: 'queues',
+          fields: ['key', 'name'],
         });
 
         expect(result.isError).toBeUndefined();
@@ -175,7 +177,10 @@ describe('GetProjectTool', () => {
         });
         vi.mocked(mockTrackerFacade.getProject).mockResolvedValue(mockProject);
 
-        const result = await tool.execute({ projectId: 'FULL' });
+        const result = await tool.execute({
+          projectId: 'FULL',
+          fields: ['key', 'name', 'description', 'status'],
+        });
 
         expect(result.isError).toBeUndefined();
         const parsed = JSON.parse(result.content[0]?.text || '{}') as {
@@ -202,7 +207,7 @@ describe('GetProjectTool', () => {
         const error = new Error('Project not found');
         vi.mocked(mockTrackerFacade.getProject).mockRejectedValue(error);
 
-        const result = await tool.execute({ projectId: 'NOTEXIST' });
+        const result = await tool.execute({ projectId: 'NOTEXIST', fields: ['id', 'key'] });
 
         expect(result.isError).toBe(true);
         const parsed = JSON.parse(result.content[0]?.text || '{}') as {
@@ -219,7 +224,7 @@ describe('GetProjectTool', () => {
         const error = new Error('Network timeout');
         vi.mocked(mockTrackerFacade.getProject).mockRejectedValue(error);
 
-        const result = await tool.execute({ projectId: 'PROJ' });
+        const result = await tool.execute({ projectId: 'PROJ', fields: ['id', 'key'] });
 
         expect(result.isError).toBe(true);
         const parsed = JSON.parse(result.content[0]?.text || '{}') as {
@@ -234,7 +239,7 @@ describe('GetProjectTool', () => {
         const error = new Error('Permission denied');
         vi.mocked(mockTrackerFacade.getProject).mockRejectedValue(error);
 
-        const result = await tool.execute({ projectId: 'RESTRICTED' });
+        const result = await tool.execute({ projectId: 'RESTRICTED', fields: ['id', 'key'] });
 
         expect(result.isError).toBe(true);
         const parsed = JSON.parse(result.content[0]?.text || '{}') as {
@@ -249,7 +254,7 @@ describe('GetProjectTool', () => {
         const error = new Error('API Error: 500 Internal Server Error');
         vi.mocked(mockTrackerFacade.getProject).mockRejectedValue(error);
 
-        const result = await tool.execute({ projectId: 'PROJ' });
+        const result = await tool.execute({ projectId: 'PROJ', fields: ['id', 'key'] });
 
         expect(result.isError).toBe(true);
         const parsed = JSON.parse(result.content[0]?.text || '{}') as {

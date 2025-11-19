@@ -47,13 +47,14 @@ describe('UpdateProjectTool', () => {
       expect(definition.inputSchema.properties?.['endDate']).toBeDefined();
       expect(definition.inputSchema.properties?.['queueIds']).toBeDefined();
       expect(definition.inputSchema.properties?.['teamUserIds']).toBeDefined();
+      expect(definition.inputSchema.properties?.['fields']).toBeDefined();
     });
   });
 
   describe('execute', () => {
     describe('валидация параметров (Zod)', () => {
       it('должен требовать параметр projectId', async () => {
-        const result = await tool.execute({ name: 'Updated' });
+        const result = await tool.execute({ name: 'Updated', fields: ['id', 'key'] });
 
         expect(result.isError).toBe(true);
         const parsed = JSON.parse(result.content[0]?.text || '{}') as {
@@ -65,7 +66,11 @@ describe('UpdateProjectTool', () => {
       });
 
       it('должен отклонить пустой projectId', async () => {
-        const result = await tool.execute({ projectId: '', name: 'Updated' });
+        const result = await tool.execute({
+          projectId: '',
+          name: 'Updated',
+          fields: ['id', 'key'],
+        });
 
         expect(result.isError).toBe(true);
         const parsed = JSON.parse(result.content[0]?.text || '{}') as {
@@ -83,6 +88,7 @@ describe('UpdateProjectTool', () => {
         const result = await tool.execute({
           projectId: 'PROJ',
           name: 'Updated',
+          fields: ['id', 'key', 'name'],
         });
 
         expect(result.isError).toBeUndefined();
@@ -101,6 +107,7 @@ describe('UpdateProjectTool', () => {
         const result = await tool.execute({
           projectId: 'PROJ',
           name: 'Updated Name',
+          fields: ['key', 'name'],
         });
 
         expect(result.isError).toBeUndefined();
@@ -133,6 +140,7 @@ describe('UpdateProjectTool', () => {
         const result = await tool.execute({
           projectId: 'PROJ',
           status: 'launched',
+          fields: ['key', 'status'],
         });
 
         expect(result.isError).toBeUndefined();
@@ -165,6 +173,7 @@ describe('UpdateProjectTool', () => {
           name: 'New Name',
           description: 'New description',
           status: 'in_progress',
+          fields: ['key', 'name', 'description', 'status'],
         });
 
         expect(result.isError).toBeUndefined();
@@ -190,6 +199,7 @@ describe('UpdateProjectTool', () => {
           projectId: 'PROJ',
           startDate: '2024-01-01',
           endDate: '2024-12-31',
+          fields: ['key', 'startDate', 'endDate'],
         });
 
         expect(result.isError).toBeUndefined();
@@ -209,6 +219,7 @@ describe('UpdateProjectTool', () => {
         const result = await tool.execute({
           projectId: 'PROJ',
           queueIds: ['QUEUE1', 'QUEUE2'],
+          fields: ['key', 'name'],
         });
 
         expect(result.isError).toBeUndefined();
@@ -227,6 +238,7 @@ describe('UpdateProjectTool', () => {
         const result = await tool.execute({
           projectId: 'PROJ',
           teamUserIds: ['user1', 'user2'],
+          fields: ['key', 'name'],
         });
 
         expect(result.isError).toBeUndefined();
@@ -255,6 +267,7 @@ describe('UpdateProjectTool', () => {
           endDate: '2024-12-31',
           queueIds: ['QUEUE1'],
           teamUserIds: ['user1'],
+          fields: ['key', 'name', 'lead', 'status'],
         });
 
         expect(result.isError).toBeUndefined();
@@ -282,6 +295,7 @@ describe('UpdateProjectTool', () => {
         const result = await tool.execute({
           projectId: 'NOTEXIST',
           name: 'Updated',
+          fields: ['id', 'key', 'name'],
         });
 
         expect(result.isError).toBe(true);
@@ -302,6 +316,7 @@ describe('UpdateProjectTool', () => {
         const result = await tool.execute({
           projectId: 'RESTRICTED',
           name: 'Updated',
+          fields: ['id', 'key', 'name'],
         });
 
         expect(result.isError).toBe(true);
@@ -320,6 +335,7 @@ describe('UpdateProjectTool', () => {
         const result = await tool.execute({
           projectId: 'PROJ',
           name: 'Updated',
+          fields: ['id', 'key', 'name'],
         });
 
         expect(result.isError).toBe(true);
@@ -338,6 +354,7 @@ describe('UpdateProjectTool', () => {
         const result = await tool.execute({
           projectId: 'PROJ',
           name: 'Updated',
+          fields: ['id', 'key', 'name'],
         });
 
         expect(result.isError).toBe(true);
