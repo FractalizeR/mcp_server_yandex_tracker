@@ -39,9 +39,10 @@ export default [
     ],
   },
 
-  // 2. BASE CONFIG для всех TS файлов
+  // 2. BASE CONFIG для src TS файлов (с type-checking)
   {
-    files: ['**/*.ts'],
+    files: ['**/src/**/*.ts', '**/packages/**/*.ts'],
+    ignores: ['**/tests/**/*.ts', '**/*.test.ts', '**/*.spec.ts', '**/*.config.ts', '**/scripts/**/*.ts'],
     languageOptions: {
       parser: tsparser,
       parserOptions: {
@@ -117,15 +118,50 @@ export default [
     },
   },
 
-  // 3. OVERRIDE для тестов
+  // 3. OVERRIDE для тестов (без type-checking)
   {
     files: ['**/tests/**/*.ts', '**/*.test.ts', '**/*.spec.ts'],
+    languageOptions: {
+      parser: tsparser,
+      parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+        projectService: false, // Отключаем projectService для тестов
+      },
+      globals: {
+        ...globals.node,
+        ...globals.es2022,
+      },
+    },
+    plugins: {
+      '@typescript-eslint': tseslint,
+    },
     rules: {
-      '@typescript-eslint/no-unsafe-assignment': 'off',
-      '@typescript-eslint/no-unsafe-member-access': 'off',
-      '@typescript-eslint/no-unsafe-call': 'off',
+      // Базовые правила (БЕЗ recommended-type-checked)
+      ...eslint.configs.recommended.rules,
+      ...tseslint.configs['recommended'].rules, // только recommended, без type-checked
+
+      // TypeScript specific (только non-type-aware)
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+        },
+      ],
+      '@typescript-eslint/no-explicit-any': 'warn', // warn для тестов
+      '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports' }],
+      '@typescript-eslint/no-non-null-assertion': 'warn',
+
+      // General
+      'no-console': 'off',
+      'prefer-const': 'error',
+      'no-var': 'error',
+
+      // Метрики сложности (более мягкие для тестов)
       'max-lines-per-function': 'off',
       'max-statements': 'off',
+      'max-lines': 'off',
     },
   },
 

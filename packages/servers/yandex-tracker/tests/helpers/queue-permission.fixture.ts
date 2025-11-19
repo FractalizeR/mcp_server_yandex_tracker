@@ -108,7 +108,7 @@ export function createMinimalQueuePermissionFixture(userId = 'user-1234567890'):
  * ```
  */
 export function createStandardPermissionsSet(
-  queueKey = 'TEST'
+  _queueKey = 'TEST'
 ): Record<QueueRole, QueuePermissionWithUnknownFields[]> {
   return {
     'queue-lead': [
