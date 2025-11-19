@@ -56,12 +56,24 @@ import {
   DeleteChecklistItemOperation,
 } from '@tracker_api/api_operations/checklist/index.js';
 import {
+  GetWorklogsOperation,
+  AddWorklogOperation,
+  UpdateWorklogOperation,
+  DeleteWorklogOperation,
+} from '@tracker_api/api_operations/worklog/index.js';
+import {
   GetProjectsOperation,
   GetProjectOperation,
   CreateProjectOperation,
   UpdateProjectOperation,
   DeleteProjectOperation,
 } from '@tracker_api/api_operations/project/index.js';
+import {
+  BulkUpdateIssuesOperation,
+  BulkTransitionIssuesOperation,
+  BulkMoveIssuesOperation,
+  GetBulkChangeStatusOperation,
+} from '@tracker_api/api_operations/bulk-change/index.js';
 
 /**
  * Массив всех Operation классов в проекте
@@ -106,11 +118,19 @@ export const OPERATION_CLASSES = [
   AddChecklistItemOperation,
   UpdateChecklistItemOperation,
   DeleteChecklistItemOperation,
+  GetWorklogsOperation,
+  AddWorklogOperation,
+  UpdateWorklogOperation,
+  DeleteWorklogOperation,
   GetProjectsOperation,
   GetProjectOperation,
   CreateProjectOperation,
   UpdateProjectOperation,
   DeleteProjectOperation,
+  BulkUpdateIssuesOperation,
+  BulkTransitionIssuesOperation,
+  BulkMoveIssuesOperation,
+  GetBulkChangeStatusOperation,
 ] as const;
 
 /**

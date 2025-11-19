@@ -86,6 +86,15 @@ export type {
   QueueRef,
 } from './project.entity.js';
 
+// Bulk Change
+export type {
+  BulkChangeOperation,
+  BulkChangeOperationWithUnknownFields,
+  BulkChangeStatus,
+  BulkChangeType,
+  BulkChangeError,
+} from './bulk-change.entity.js';
+
 // Entity Factories (runtime code for coverage)
 export {
   createUser,

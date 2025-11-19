@@ -55,6 +55,9 @@ import type {
   CreateProjectDto,
   ProjectOutput,
   ProjectsListOutput,
+  BulkUpdateIssuesInputDto,
+  BulkTransitionIssuesInputDto,
+  BulkMoveIssuesInputDto,
 } from '@tracker_api/dto/index.js';
 import type {
   IssueWithUnknownFields,
@@ -65,6 +68,7 @@ import type {
   WorklogWithUnknownFields,
   AttachmentWithUnknownFields,
   ChecklistItemWithUnknownFields,
+  BulkChangeOperationWithUnknownFields,
 } from '@tracker_api/entities/index.js';
 import type {
   UpdateQueueParams,
@@ -740,5 +744,143 @@ export class YandexTrackerFacade {
       content,
       metadata,
     };
+  }
+
+  // === Bulk Change Methods ===
+
+  /**
+   * Выполняет массовое обновление задач
+   *
+   * ВАЖНО: Операция выполняется асинхронно на сервере.
+   * Метод возвращает информацию об операции (включая operationId).
+   * Для проверки статуса используй getBulkChangeStatus(operationId).
+   *
+   * @param params - параметры массового обновления (issues + values)
+   * @returns информация о запущенной операции
+   *
+   * @example
+   * ```typescript
+   * const operation = await facade.bulkUpdateIssues({
+   *   issues: ['QUEUE-1', 'QUEUE-2', 'QUEUE-3'],
+   *   values: {
+   *     priority: 'minor',
+   *     tags: { add: ['bug'] }
+   *   }
+   * });
+   * // Проверить статус позже
+   * const status = await facade.getBulkChangeStatus(operation.id);
+   * ```
+   */
+  async bulkUpdateIssues(
+    params: BulkUpdateIssuesInputDto
+  ): Promise<BulkChangeOperationWithUnknownFields> {
+    const operation = this.getOperation<{
+      execute: (p: BulkUpdateIssuesInputDto) => Promise<BulkChangeOperationWithUnknownFields>;
+    }>('BulkUpdateIssuesOperation');
+    return operation.execute(params);
+  }
+
+  /**
+   * Выполняет массовую смену статусов задач
+   *
+   * ВАЖНО: Операция выполняется асинхронно на сервере.
+   * Метод возвращает информацию об операции (включая operationId).
+   * Для проверки статуса используй getBulkChangeStatus(operationId).
+   *
+   * @param params - параметры массового перехода (issues + transition + values)
+   * @returns информация о запущенной операции
+   *
+   * @example
+   * ```typescript
+   * // Простой переход
+   * const operation = await facade.bulkTransitionIssues({
+   *   issues: ['QUEUE-1', 'QUEUE-2'],
+   *   transition: 'start_progress'
+   * });
+   *
+   * // С установкой resolution
+   * const operation = await facade.bulkTransitionIssues({
+   *   issues: ['QUEUE-1', 'QUEUE-2'],
+   *   transition: 'close',
+   *   values: { resolution: 'fixed' }
+   * });
+   * ```
+   */
+  async bulkTransitionIssues(
+    params: BulkTransitionIssuesInputDto
+  ): Promise<BulkChangeOperationWithUnknownFields> {
+    const operation = this.getOperation<{
+      execute: (p: BulkTransitionIssuesInputDto) => Promise<BulkChangeOperationWithUnknownFields>;
+    }>('BulkTransitionIssuesOperation');
+    return operation.execute(params);
+  }
+
+  /**
+   * Выполняет массовое перемещение задач между очередями
+   *
+   * ВАЖНО: Операция выполняется асинхронно на сервере.
+   * Метод возвращает информацию об операции (включая operationId).
+   * Для проверки статуса используй getBulkChangeStatus(operationId).
+   *
+   * @param params - параметры массового перемещения (issues + queue + values)
+   * @returns информация о запущенной операции
+   *
+   * @example
+   * ```typescript
+   * // Простое перемещение
+   * const operation = await facade.bulkMoveIssues({
+   *   issues: ['QUEUE1-1', 'QUEUE1-2'],
+   *   queue: 'QUEUE2'
+   * });
+   *
+   * // С сохранением всех полей
+   * const operation = await facade.bulkMoveIssues({
+   *   issues: ['QUEUE1-1', 'QUEUE1-2'],
+   *   queue: 'QUEUE2',
+   *   moveAllFields: true
+   * });
+   * ```
+   */
+  async bulkMoveIssues(
+    params: BulkMoveIssuesInputDto
+  ): Promise<BulkChangeOperationWithUnknownFields> {
+    const operation = this.getOperation<{
+      execute: (p: BulkMoveIssuesInputDto) => Promise<BulkChangeOperationWithUnknownFields>;
+    }>('BulkMoveIssuesOperation');
+    return operation.execute(params);
+  }
+
+  /**
+   * Получает текущий статус bulk операции
+   *
+   * Используется для мониторинга прогресса асинхронных операций
+   * (bulkUpdateIssues, bulkTransitionIssues, bulkMoveIssues).
+   *
+   * @param operationId - идентификатор операции (из response.id при создании)
+   * @returns актуальная информация о статусе операции
+   *
+   * @example
+   * ```typescript
+   * const status = await facade.getBulkChangeStatus('12345');
+   * console.log(`Статус: ${status.status}, прогресс: ${status.progress}%`);
+   * console.log(`Обработано: ${status.processedIssues}/${status.totalIssues}`);
+   *
+   * // Polling с ожиданием завершения
+   * async function waitForCompletion(operationId: string) {
+   *   while (true) {
+   *     const status = await facade.getBulkChangeStatus(operationId);
+   *     if (status.status === 'COMPLETED' || status.status === 'FAILED') {
+   *       return status;
+   *     }
+   *     await new Promise(resolve => setTimeout(resolve, 2000));
+   *   }
+   * }
+   * ```
+   */
+  async getBulkChangeStatus(operationId: string): Promise<BulkChangeOperationWithUnknownFields> {
+    const operation = this.getOperation<{
+      execute: (id: string) => Promise<BulkChangeOperationWithUnknownFields>;
+    }>('GetBulkChangeStatusOperation');
+    return operation.execute(operationId);
   }
 }
