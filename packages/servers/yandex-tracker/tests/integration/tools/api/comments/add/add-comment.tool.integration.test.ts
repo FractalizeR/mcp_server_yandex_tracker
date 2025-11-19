@@ -30,6 +30,7 @@ describe('add-comment integration tests', () => {
     const result = await client.callTool('fr_yandex_tracker_add_comment', {
       issueId: issueKey,
       text: commentText,
+      fields: ['id', 'text'],
     });
 
     // Assert
@@ -54,6 +55,7 @@ describe('add-comment integration tests', () => {
       issueId: issueKey,
       text: commentText,
       attachmentIds,
+      fields: ['id', 'text'],
     });
 
     // Assert
@@ -73,6 +75,7 @@ describe('add-comment integration tests', () => {
     const result = await client.callTool('fr_yandex_tracker_add_comment', {
       issueId: issueKey,
       text: 'Test comment',
+      fields: ['id', 'text'],
     });
 
     // Assert
@@ -92,6 +95,7 @@ describe('add-comment integration tests', () => {
     const result = await client.callTool('fr_yandex_tracker_add_comment', {
       issueId: issueKey,
       text: markdownText,
+      fields: ['id', 'text'],
     });
 
     // Assert

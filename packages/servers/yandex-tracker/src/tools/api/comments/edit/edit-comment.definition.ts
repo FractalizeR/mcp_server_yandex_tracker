@@ -27,15 +27,17 @@ export class EditCommentDefinition extends BaseToolDefinition {
           issueId: this.buildIssueIdParam(),
           commentId: this.buildCommentIdParam(),
           text: this.buildTextParam(),
+          fields: this.buildFieldsParam(),
         },
-        required: ['issueId', 'commentId', 'text'],
+        required: ['issueId', 'commentId', 'text', 'fields'],
       },
     };
   }
 
   private buildDescription(): string {
     return (
-      'Редактировать существующий комментарий. Все поля обязательны. ' +
+      'Редактировать существующий комментарий. Все поля обязательны: issueId, commentId, text и fields. ' +
+      'Параметр fields определяет, какие поля обновленного комментария вернуть в ответе (например: ["id", "text", "updatedAt"]). ' +
       '\n\n' +
       'Для: изменения текста существующего комментария. ' +
       '\n' +
@@ -62,6 +64,26 @@ export class EditCommentDefinition extends BaseToolDefinition {
         examples: [
           'Обновленный текст комментария',
           '## Исправление\n\nИсправлена ошибка в описании.',
+        ],
+      }
+    );
+  }
+
+  private buildFieldsParam(): Record<string, unknown> {
+    return this.buildArrayParam(
+      '⚠️ ОБЯЗАТЕЛЬНЫЙ. Фильтр полей ответа. ' +
+        'Указывайте только необходимые поля для экономии токенов. ' +
+        '\n\n' +
+        'Доступные поля: id, text, createdAt, updatedAt, createdBy, updatedBy, version.',
+      this.buildStringParam('Имя поля', {
+        minLength: 1,
+        examples: ['id', 'text', 'createdAt', 'updatedBy'],
+      }),
+      {
+        minItems: 1,
+        examples: [
+          ['id', 'text'],
+          ['id', 'text', 'updatedAt', 'version'],
         ],
       }
     );

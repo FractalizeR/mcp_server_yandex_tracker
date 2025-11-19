@@ -32,6 +32,7 @@ describe('edit-comment integration tests', () => {
       issueId: issueKey,
       commentId,
       text: updatedText,
+      fields: ['id', 'text'],
     });
 
     // Assert
@@ -54,6 +55,7 @@ describe('edit-comment integration tests', () => {
       issueId: issueKey,
       commentId,
       text: 'Some text',
+      fields: ['id', 'text'],
     });
 
     // Assert
@@ -75,6 +77,7 @@ describe('edit-comment integration tests', () => {
       issueId: issueKey,
       commentId,
       text: markdownText,
+      fields: ['id', 'text'],
     });
 
     // Assert

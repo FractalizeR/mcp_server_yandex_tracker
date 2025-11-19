@@ -7,10 +7,11 @@
  * - Валидация через Zod
  */
 
-import { BaseTool } from '@mcp-framework/core';
+import { BaseTool, ResponseFieldFilter } from '@mcp-framework/core';
 import type { YandexTrackerFacade } from '@tracker_api/facade/index.js';
 import type { ToolDefinition } from '@mcp-framework/core';
 import type { ToolCallParams, ToolResult } from '@mcp-framework/infrastructure';
+import type { CommentWithUnknownFields } from '@tracker_api/entities/index.js';
 import { GetCommentsDefinition } from '@tools/api/comments/get/get-comments.definition.js';
 import { GetCommentsParamsSchema } from '@tools/api/comments/get/get-comments.schema.js';
 
@@ -43,7 +44,7 @@ export class GetCommentsTool extends BaseTool<YandexTrackerFacade> {
       return validation.error;
     }
 
-    const { issueId, perPage, page, expand } = validation.data;
+    const { issueId, perPage, page, expand, fields } = validation.data;
 
     try {
       // 2. Логирование начала операции
@@ -61,16 +62,22 @@ export class GetCommentsTool extends BaseTool<YandexTrackerFacade> {
         expand: expand?.join(','),
       });
 
-      // 4. Логирование результата
+      // 4. Фильтрация полей ответа для каждого комментария
+      const filtered = comments.map((comment) =>
+        ResponseFieldFilter.filter<CommentWithUnknownFields>(comment, fields)
+      );
+
+      // 5. Логирование результата
       this.logger.info('Комментарии успешно получены', {
         issueId,
-        commentsCount: comments.length,
+        commentsCount: filtered.length,
       });
 
       return this.formatSuccess({
         issueId,
-        comments,
-        count: comments.length,
+        comments: filtered,
+        count: filtered.length,
+        fieldsReturned: fields,
       });
     } catch (error: unknown) {
       return this.formatError(

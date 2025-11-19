@@ -73,7 +73,7 @@ describe('GetProjectOperation', () => {
 
     it('should return cached project if available', async () => {
       const cachedProject: ProjectWithUnknownFields = createProjectFixture({ id: 'cached' });
-      const cacheKey = EntityCacheKey.createKey(EntityType.PROJECT, 'cached');
+      const _cacheKey = EntityCacheKey.createKey(EntityType.PROJECT, 'cached');
       vi.mocked(mockCacheManager.get).mockReturnValue(cachedProject); // синхронный возврат
 
       const result = await operation.execute({ projectId: 'cached' });

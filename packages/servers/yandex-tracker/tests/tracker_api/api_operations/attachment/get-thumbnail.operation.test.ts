@@ -157,7 +157,7 @@ describe('GetThumbnailOperation', () => {
         const attachment = createAttachmentFixture({ mimetype });
 
         // Act
-        const result = operation.supportsThumbnail(attachment);
+        const _result = operation.supportsThumbnail(attachment);
 
         // Assert - we need to mock FileDownloadUtil.isImage to return true
         // For this test, we assume the method works correctly
@@ -172,10 +172,6 @@ describe('GetThumbnailOperation', () => {
         mimetype: 'application/pdf',
         thumbnail: undefined,
       });
-
-      // Mock FileDownloadUtil methods to return false
-      const mockIsImage = vi.fn().mockReturnValue(false);
-      const mockIsImageByExtension = vi.fn().mockReturnValue(false);
 
       // Replace the utility methods temporarily
       const originalUtils = await import('@tracker_api/utils/index.js');
@@ -206,7 +202,7 @@ describe('GetThumbnailOperation', () => {
         vi.spyOn(originalUtils.FileDownloadUtil, 'isImageByExtension').mockReturnValue(true);
 
         // Act
-        const result = operation.supportsThumbnail(attachment);
+        const _result = operation.supportsThumbnail(attachment);
 
         // Assert - depends on implementation
         // For this test, we assume it returns true if isImageByExtension returns true

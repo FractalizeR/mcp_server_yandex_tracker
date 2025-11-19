@@ -3,7 +3,7 @@
  */
 
 import { z } from 'zod';
-import { IssueKeySchema, ExpandSchema } from '../../../../common/schemas/index.js';
+import { IssueKeySchema, ExpandSchema, FieldsSchema } from '../../../../common/schemas/index.js';
 
 /**
  * Схема параметров для получения комментариев
@@ -28,6 +28,12 @@ export const GetCommentsParamsSchema = z.object({
    * Параметр expand для включения дополнительных данных (опционально)
    */
   expand: ExpandSchema,
+
+  /**
+   * Массив полей для возврата в результате (обязательный)
+   * Примеры: ['id', 'text', 'createdAt'], ['id', 'text', 'createdBy.login']
+   */
+  fields: FieldsSchema,
 });
 
 /**

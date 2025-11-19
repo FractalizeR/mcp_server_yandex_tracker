@@ -33,8 +33,9 @@ export class AddCommentDefinition extends BaseToolDefinition {
           issueId: this.buildIssueIdParam(),
           text: this.buildTextParam(),
           attachmentIds: this.buildAttachmentIdsParam(),
+          fields: this.buildFieldsParam(),
         },
-        required: ['issueId', 'text'],
+        required: ['issueId', 'text', 'fields'],
       },
     };
   }
@@ -44,8 +45,9 @@ export class AddCommentDefinition extends BaseToolDefinition {
    */
   private buildDescription(): string {
     return (
-      'Добавить комментарий к задаче. Обязательные поля: issueId и text. ' +
+      'Добавить комментарий к задаче. Обязательные поля: issueId, text и fields. ' +
       'Можно прикрепить вложения через attachmentIds. ' +
+      'Параметр fields определяет, какие поля комментария вернуть в ответе (например: ["id", "text", "createdAt"]). ' +
       '\n\n' +
       'Для: добавления комментария с текстом и опциональными вложениями. ' +
       '\n' +
@@ -90,6 +92,29 @@ export class AddCommentDefinition extends BaseToolDefinition {
       {
         itemsType: 'string',
         examples: [['att-123', 'att-456']],
+      }
+    );
+  }
+
+  /**
+   * Построить описание параметра fields
+   */
+  private buildFieldsParam(): Record<string, unknown> {
+    return this.buildArrayParam(
+      '⚠️ ОБЯЗАТЕЛЬНЫЙ. Фильтр полей ответа. ' +
+        'Указывайте только необходимые поля для экономии токенов. ' +
+        '\n\n' +
+        'Доступные поля: id, text, createdAt, updatedAt, createdBy, updatedBy, version.',
+      this.buildStringParam('Имя поля', {
+        minLength: 1,
+        examples: ['id', 'text', 'createdAt', 'createdBy'],
+      }),
+      {
+        minItems: 1,
+        examples: [
+          ['id', 'text'],
+          ['id', 'text', 'createdAt', 'createdBy'],
+        ],
       }
     );
   }
