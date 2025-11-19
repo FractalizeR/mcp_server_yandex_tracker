@@ -7,7 +7,7 @@
  * - Структура метаданных для поиска
  */
 
-import type { ToolDefinition } from './base-definition.js';
+import type { ToolDefinition } from './base.types.js';
 
 /**
  * Категории инструментов

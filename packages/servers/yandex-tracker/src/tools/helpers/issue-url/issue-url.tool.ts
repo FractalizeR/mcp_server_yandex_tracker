@@ -44,7 +44,7 @@ export class IssueUrlTool extends BaseTool<YandexTrackerFacade> {
     // 1. Валидация параметров через BaseTool
     const validation = this.validateParams(params, IssueUrlParamsSchema);
     if (!validation.success) {
-      return validation.error;
+      return Promise.resolve(validation.error);
     }
 
     const { issueKeys } = validation.data;
@@ -59,9 +59,11 @@ export class IssueUrlTool extends BaseTool<YandexTrackerFacade> {
     this.logger.info(`URL сформированы для ${issueKeys.length} задач: ${issueKeys.join(', ')}`);
 
     // 3. Возврат результата
-    return this.formatSuccess({
-      count: results.length,
-      urls: results,
-    });
+    return Promise.resolve(
+      this.formatSuccess({
+        count: results.length,
+        urls: results,
+      })
+    );
   }
 }
