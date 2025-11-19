@@ -85,6 +85,13 @@ export type {
   ProjectsListOutput,
 } from './project/index.js';
 
+// Bulk Change DTO
+export type {
+  BulkUpdateIssuesInputDto,
+  BulkTransitionIssuesInputDto,
+  BulkMoveIssuesInputDto,
+} from './bulk-change/index.js';
+
 // DTO Factories (runtime code for coverage)
 export {
   // Issue factories

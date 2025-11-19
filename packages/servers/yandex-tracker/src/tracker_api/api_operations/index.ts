@@ -35,3 +35,6 @@ export * from '@tracker_api/api_operations/project/index.js';
 
 // Attachment operations
 export * from '@tracker_api/api_operations/attachment/index.js';
+
+// Bulk Change operations
+export * from '@tracker_api/api_operations/bulk-change/index.js';
