@@ -2,7 +2,7 @@
  * Тесты для ExponentialBackoffStrategy
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { ExponentialBackoffStrategy } from '@mcp-framework/infrastructure/http/retry/exponential-backoff.strategy.js';
 import type { ApiError } from '@mcp-framework/infrastructure/types.js';
 

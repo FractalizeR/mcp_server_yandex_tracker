@@ -80,13 +80,15 @@ describe('EntityCacheKey', () => {
       expect(EntityType.QUEUE).toBe('queue');
       expect(EntityType.USER).toBe('user');
       expect(EntityType.COMMENT).toBe('comment');
+      expect(EntityType.COMPONENT).toBe('component');
       expect(EntityType.SPRINT).toBe('sprint');
       expect(EntityType.PROJECT).toBe('project');
+      expect(EntityType.ATTACHMENT).toBe('attachment');
     });
 
-    it('должен иметь 6 типов сущностей', () => {
+    it('должен иметь 8 типов сущностей', () => {
       const types = Object.values(EntityType);
-      expect(types).toHaveLength(6);
+      expect(types).toHaveLength(8);
     });
   });
 });
