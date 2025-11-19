@@ -311,6 +311,7 @@ async execute(): Promise<Issue> { ... } // Теряем unknown поля
 `GET /v2/issues/{issueId}/attachments/{attachmentId}/thumbnail/{filename}` — миниатюра изображения, кеш ✅
 
 **Ключевые аспекты:**
+- **API версия:** v2 (официально поддерживается Яндекс.Трекер)
 - **Размер файла:** Default 10MB, настраивается через конфигурацию
 - **Валидация:** `FileUploadUtil.validateFilename()`, `validateFileSize()`
 - **Кодирование:** `encodeURIComponent()` для filename в URL
@@ -324,18 +325,19 @@ async execute(): Promise<Issue> { ... } // Теряем unknown поля
 **4 операции для работы с комментариями:**
 
 ### 1. AddCommentOperation
-`POST /v2/issues/{issueId}/comments` — добавление комментария, инвалидация кеша
+`POST /v3/issues/{issueId}/comments` — добавление комментария, инвалидация кеша
 
 ### 2. GetCommentsOperation
-`GET /v2/issues/{issueId}/comments` — получение списка, пагинация (perPage, page, expand), кеш ✅
+`GET /v3/issues/{issueId}/comments` — получение списка, пагинация (perPage, page, expand), кеш ✅
 
 ### 3. EditCommentOperation
-`PATCH /v2/issues/{issueId}/comments/{commentId}` — редактирование, обновляет version
+`PATCH /v3/issues/{issueId}/comments/{commentId}` — редактирование, обновляет version
 
 ### 4. DeleteCommentOperation
-`DELETE /v2/issues/{issueId}/comments/{commentId}` — удаление, инвалидация кеша
+`DELETE /v3/issues/{issueId}/comments/{commentId}` — удаление, инвалидация кеша
 
 **Ключевые аспекты:**
+- **API версия:** v3 (актуальная версия API)
 - **Markdown:** Поле `text` поддерживает markdown форматирование
 - **Вложения:** Можно прикрепить файлы через `attachmentIds` при создании
 - **Версионность:** Поле `version` используется для оптимистичной блокировки
@@ -387,6 +389,7 @@ async execute(): Promise<Issue> { ... } // Теряем unknown поля
 - Batch операция для добавления/удаления прав
 
 **Ключевые аспекты:**
+- **API версия:** v3 (актуальная версия API)
 - **Админ права:** create/update/manage-access требуют администраторских прав
 - **Версионность:** `version` поле для оптимистичных блокировок
 - **Кеш:** Очереди кешируются по ключу, инвалидируются при изменениях
