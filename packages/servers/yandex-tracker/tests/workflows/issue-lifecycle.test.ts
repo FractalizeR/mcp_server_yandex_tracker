@@ -52,7 +52,7 @@ describe('Issue Lifecycle E2E', () => {
     const finalIssue = await workflow.getIssue(issueKey);
 
     // Assert
-    assertIssueStructure(finalIssue);
+    assertIssueStructure(finalIssue, ['key', 'summary', 'status']);
     assertIssueStatus(finalIssue, 'inProgress');
     mockServer.assertAllRequestsDone();
   });

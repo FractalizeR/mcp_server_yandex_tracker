@@ -9,7 +9,7 @@ import type { Logger } from '@mcp-framework/infrastructure/logging/index.js';
 import type { IssueWithUnknownFields } from '@tracker_api/entities/index.js';
 import { buildToolName } from '@mcp-framework/core';
 import { MCP_TOOL_PREFIX } from '@constants';
-import { STANDARD_ISSUE_FIELDS } from '../../../../../helpers/test-fields.js';
+import { STANDARD_ISSUE_FIELDS } from '@helpers/test-fields.js';
 
 describe('TransitionIssueTool', () => {
   let mockTrackerFacade: YandexTrackerFacade;
@@ -135,6 +135,7 @@ describe('TransitionIssueTool', () => {
       await tool.execute({
         issueKey: 'QUEUE-123',
         transitionId: 'close',
+        fields: STANDARD_ISSUE_FIELDS,
         customFields: {
           resolution: 'fixed',
         },
@@ -151,6 +152,7 @@ describe('TransitionIssueTool', () => {
       await tool.execute({
         issueKey: 'QUEUE-123',
         transitionId: 'close',
+        fields: STANDARD_ISSUE_FIELDS,
         comment: 'Closing',
         customFields: {
           resolution: 'fixed',

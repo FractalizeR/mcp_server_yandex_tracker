@@ -63,7 +63,7 @@ describe('Issue Search E2E', () => {
     // Assert
     expect(issues).toHaveLength(2);
     for (const issue of issues) {
-      assertIssueStructure(issue);
+      assertIssueStructure(issue, ['key', 'summary', 'status']);
     }
     mockServer.assertAllRequestsDone();
   });

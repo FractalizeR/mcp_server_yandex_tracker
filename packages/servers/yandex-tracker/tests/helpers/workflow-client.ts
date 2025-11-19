@@ -37,7 +37,7 @@ export class WorkflowClient {
   async getIssue(issueKey: string): Promise<unknown> {
     const result = await this.client.callTool(buildToolName('get_issues', MCP_TOOL_PREFIX), {
       issueKeys: [issueKey],
-      fields: ['key', 'summary', 'status', 'description'],
+      fields: ['key', 'summary', 'status'],
     });
 
     if (result.isError) {
@@ -121,7 +121,7 @@ export class WorkflowClient {
   async getTransitions(issueKey: string): Promise<unknown[]> {
     const result = await this.client.callTool(
       buildToolName('get_issue_transitions', MCP_TOOL_PREFIX),
-      { issueKey, fields: ['id', 'display'] }
+      { issueKey, fields: ['id', 'to'] }
     );
 
     if (result.isError) {

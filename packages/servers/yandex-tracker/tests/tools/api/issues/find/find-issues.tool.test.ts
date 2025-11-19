@@ -9,7 +9,7 @@ import type { IssueWithUnknownFields } from '@tracker_api/entities/index.js';
 import { FindIssuesTool } from '@tools/api/issues/find/index.js';
 import { buildToolName } from '@mcp-framework/core';
 import { MCP_TOOL_PREFIX } from '@constants';
-import { STANDARD_ISSUE_FIELDS } from '../../../../helpers/test-fields.js';
+import { STANDARD_ISSUE_FIELDS } from '@helpers/test-fields.js';
 
 describe('FindIssuesTool', () => {
   let tool: FindIssuesTool;
@@ -152,7 +152,10 @@ describe('FindIssuesTool', () => {
     it('должен принять валидный filter параметр', async () => {
       vi.mocked(mockTrackerFacade.findIssues).mockResolvedValue([mockIssue1]);
 
-      const result = await tool.execute({ filter: { status: 'open' }, fields: STANDARD_ISSUE_FIELDS });
+      const result = await tool.execute({
+        filter: { status: 'open' },
+        fields: STANDARD_ISSUE_FIELDS,
+      });
 
       expect(result.isError).not.toBe(true);
       expect(mockTrackerFacade.findIssues).toHaveBeenCalled();
@@ -204,7 +207,12 @@ describe('FindIssuesTool', () => {
     it('должен передать параметры пагинации (perPage, page)', async () => {
       vi.mocked(mockTrackerFacade.findIssues).mockResolvedValue([mockIssue1]);
 
-      await tool.execute({ query: 'Author: me()', perPage: 20, page: 2, fields: STANDARD_ISSUE_FIELDS });
+      await tool.execute({
+        query: 'Author: me()',
+        perPage: 20,
+        page: 2,
+        fields: STANDARD_ISSUE_FIELDS,
+      });
 
       expect(mockTrackerFacade.findIssues).toHaveBeenCalledWith(
         expect.objectContaining({ perPage: 20, page: 2 })

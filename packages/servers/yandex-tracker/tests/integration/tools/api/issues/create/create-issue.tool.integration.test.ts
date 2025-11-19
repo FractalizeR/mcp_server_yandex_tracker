@@ -4,7 +4,7 @@ import { createTestClient } from '@integration/helpers/mcp-client.js';
 import { createMockServer } from '@integration/helpers/mock-server.js';
 import type { TestMCPClient } from '@integration/helpers/mcp-client.js';
 import type { MockServer } from '@integration/helpers/mock-server.js';
-import { STANDARD_ISSUE_FIELDS } from '../../../../../../helpers/test-fields.js';
+import { STANDARD_ISSUE_FIELDS } from '@helpers/test-fields.js';
 
 describe('create-issue integration tests', () => {
   let client: TestMCPClient;
