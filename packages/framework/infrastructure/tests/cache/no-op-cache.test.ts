@@ -2,7 +2,7 @@
  * Тесты для NoOpCache
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { NoOpCache } from '@mcp-framework/infrastructure/cache/no-op-cache.js';
 
 describe('NoOpCache', () => {
