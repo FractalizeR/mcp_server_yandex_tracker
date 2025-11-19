@@ -11,6 +11,7 @@ dist/
 *.js
 *.js.map
 *.d.ts
+*.d.ts.map
 
 # Исключения для корневых конфигурационных файлов
 !*.config.js
@@ -20,6 +21,7 @@ dist/
 scripts/*.js
 scripts/*.js.map
 scripts/*.d.ts
+scripts/*.d.ts.map
 
 # Временные файлы
 *.log
