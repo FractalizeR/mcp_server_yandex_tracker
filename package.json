@@ -43,9 +43,9 @@
     "test:smoke": "npm run test:smoke --workspaces --if-present",
     "test:verbose": "npm run test:verbose --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
-    "validate": "npm run lint && npm run typecheck && npm run test && npm run test:smoke && npm run cpd",
+    "validate": "npm run lint && npm run typecheck && npm run test && npm run test:smoke && npm run cpd && npm run validate:docs",
     "validate:docs": "tsx scripts/validate-docs-size.ts",
-    "validate:quiet": "npm run lint:quiet && npm run typecheck && npm run test:quiet && npm run cpd:quiet",
+    "validate:quiet": "npm run lint:quiet && npm run typecheck && npm run test:quiet && npm run cpd:quiet && npm run validate:docs",
     "validate:security": "npm run knip && npm run audit:socket && npm run audit:lockfile && npm run audit:secrets",
     "vitest:ui": "vitest --ui --coverage"
   },
