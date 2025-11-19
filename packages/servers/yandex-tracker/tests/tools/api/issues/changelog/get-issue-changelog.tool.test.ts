@@ -9,7 +9,7 @@ import type { Logger } from '@mcp-framework/infrastructure/logging/index.js';
 import type { ChangelogEntryWithUnknownFields } from '@tracker_api/entities/index.js';
 import { buildToolName } from '@mcp-framework/core';
 import { MCP_TOOL_PREFIX } from '@constants';
-import { STANDARD_CHANGELOG_FIELDS } from '../../../../helpers/test-fields.js';
+import { STANDARD_CHANGELOG_FIELDS } from '@helpers/test-fields.js';
 
 describe('GetIssueChangelogTool', () => {
   let mockTrackerFacade: YandexTrackerFacade;

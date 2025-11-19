@@ -34,7 +34,7 @@ describe('Issue Tracking E2E', () => {
     const changelog = await workflow.getChangelog(issueKey);
 
     // Assert
-    assertChangelogStructure(changelog);
+    assertChangelogStructure(changelog, ['id', 'updatedAt', 'updatedBy']);
     expect(changelog.length).toBeGreaterThan(0);
     mockServer.assertAllRequestsDone();
   });
@@ -48,7 +48,7 @@ describe('Issue Tracking E2E', () => {
     const transitions = await workflow.getTransitions(issueKey);
 
     // Assert
-    assertTransitionsStructure(transitions);
+    assertTransitionsStructure(transitions, ['id', 'to']);
     expect(transitions.length).toBeGreaterThan(0);
     mockServer.assertAllRequestsDone();
   });
@@ -82,8 +82,8 @@ describe('Issue Tracking E2E', () => {
 
     // Assert
     expect(transitions).toHaveLength(2);
-    assertTransitionsStructure(transitions);
-    assertChangelogStructure(changelog);
+    assertTransitionsStructure(transitions, ['id', 'to']);
+    assertChangelogStructure(changelog, ['id', 'updatedAt', 'updatedBy']);
     mockServer.assertAllRequestsDone();
   });
 
@@ -135,7 +135,7 @@ describe('Issue Tracking E2E', () => {
     const changelog = await workflow.getChangelog(issueKey);
 
     // Assert
-    assertChangelogStructure(changelog);
+    assertChangelogStructure(changelog, ['id', 'updatedAt', 'updatedBy']);
     expect(Array.isArray(changelog)).toBe(true);
     mockServer.assertAllRequestsDone();
   });

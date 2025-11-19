@@ -35,6 +35,8 @@ export default mergeConfig(
         // Test helpers
         '@integration': path.resolve(__dirname, './tests/integration'),
         '@integration/*': path.resolve(__dirname, './tests/integration/*'),
+        '@helpers': path.resolve(__dirname, './tests/helpers'),
+        '@helpers/*': path.resolve(__dirname, './tests/helpers/*'),
 
         // Framework packages (с wildcard для subpaths)
         '@mcp-framework/search': path.resolve(__dirname, '../../framework/search/src'),
