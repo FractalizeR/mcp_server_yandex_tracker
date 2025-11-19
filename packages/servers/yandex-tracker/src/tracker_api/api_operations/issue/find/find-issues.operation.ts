@@ -39,7 +39,7 @@ export class FindIssuesOperation extends BaseOperation {
    * - Пагинация поддерживается через perPage и page параметры
    */
   // TODO: Рефакторинг - разбить на меньшие функции
-  // eslint-disable-next-line max-lines-per-function, complexity
+
   async execute(params: FindIssuesInputDto): Promise<FindIssuesResult> {
     // Валидация: хотя бы один способ поиска должен быть указан
     const hasSearchMethod =

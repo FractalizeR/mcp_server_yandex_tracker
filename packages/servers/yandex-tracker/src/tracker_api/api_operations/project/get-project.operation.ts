@@ -19,7 +19,7 @@ export interface GetProjectParams {
   projectId: string;
 
   /** Дополнительные поля для включения в ответ */
-  expand?: string;
+  expand?: string | undefined;
 }
 
 export class GetProjectOperation extends BaseOperation {

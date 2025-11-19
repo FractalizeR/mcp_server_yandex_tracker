@@ -11,7 +11,7 @@ import type { Logger } from '@mcp-framework/infrastructure';
 import type { ToolCallParams, ToolResult } from '@mcp-framework/infrastructure';
 import type { ToolDefinition } from './base-definition.js';
 import type { ToolMetadata, StaticToolMetadata } from './tool-metadata.js';
-import type { ZodError } from 'zod';
+import type { ZodError, ZodSchema } from 'zod';
 
 /**
  * Абстрактный базовый класс для всех инструментов
@@ -110,10 +110,10 @@ export abstract class BaseTool<TFacade = unknown> {
    * @param schema - Zod схема валидации
    * @returns результат валидации или ToolResult с ошибкой
    */
-  protected validateParams(
+  protected validateParams<T>(
     params: ToolCallParams,
-    schema: any // eslint-disable-line @typescript-eslint/no-explicit-any
-  ): { success: true; data: any } | { success: false; error: ToolResult } {
+    schema: ZodSchema<T>
+  ): { success: true; data: T } | { success: false; error: ToolResult } {
     const validationResult = schema.safeParse(params);
 
     if (!validationResult.success) {
@@ -125,7 +125,7 @@ export abstract class BaseTool<TFacade = unknown> {
 
     return {
       success: true,
-      data: validationResult.data,
+      data: validationResult.data as T,
     };
   }
 

@@ -67,7 +67,7 @@ export class GetCommentsTool extends BaseTool<YandexTrackerFacade> {
       const comments = await this.facade.getComments(issueId, {
         perPage,
         page,
-        expand,
+        expand: expand?.join(','),
       });
 
       // 4. Логирование результата

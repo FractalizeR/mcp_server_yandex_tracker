@@ -12,16 +12,16 @@ export interface CreateIssueDto {
   summary: string;
 
   /** Подробное описание */
-  description?: string;
+  description?: string | undefined;
 
   /** Исполнитель (логин или UID) */
-  assignee?: string;
+  assignee?: string | undefined;
 
   /** Приоритет (ключ приоритета) */
-  priority?: string;
+  priority?: string | undefined;
 
   /** Тип задачи (ключ типа) */
-  type?: string;
+  type?: string | undefined;
 
   /** Дополнительные поля (для кастомных полей Трекера) */
   [key: string]: unknown;

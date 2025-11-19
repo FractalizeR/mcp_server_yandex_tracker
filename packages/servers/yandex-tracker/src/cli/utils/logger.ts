@@ -2,7 +2,6 @@
  * CLI логгер с цветным выводом
  */
 
-/* eslint-disable no-console */
 import chalk from 'chalk';
 import ora, { type Ora } from 'ora';
 

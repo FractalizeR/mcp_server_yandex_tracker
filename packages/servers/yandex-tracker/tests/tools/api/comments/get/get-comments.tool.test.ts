@@ -158,7 +158,7 @@ describe('GetCommentsTool', () => {
       expect(mockTrackerFacade.getComments).toHaveBeenCalledWith('TEST-123', {
         perPage: undefined,
         page: undefined,
-        expand: ['attachments'],
+        expand: 'attachments',
       });
     });
 

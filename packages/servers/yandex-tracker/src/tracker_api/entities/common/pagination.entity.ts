@@ -28,14 +28,14 @@ export interface PaginationParams {
    * По умолчанию: 50
    * Максимум: зависит от endpoint (обычно 200-500)
    */
-  readonly perPage?: number;
+  readonly perPage?: number | undefined;
 
   /**
    * Номер страницы (начинается с 1)
    *
    * По умолчанию: 1
    */
-  readonly page?: number;
+  readonly page?: number | undefined;
 }
 
 /**

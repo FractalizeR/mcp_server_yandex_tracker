@@ -179,7 +179,6 @@ export function loadConfig(): ServerConfig {
     DEFAULT_MAX_CONCURRENT_REQUESTS
   );
 
-  // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
   const logsDirRaw = process.env[ENV_VAR_NAMES.LOGS_DIR]?.trim() || DEFAULT_LOGS_DIR;
   // Если путь относительный - резолвим относительно PROJECT_ROOT
   const logsDir = resolve(PROJECT_ROOT, logsDirRaw);

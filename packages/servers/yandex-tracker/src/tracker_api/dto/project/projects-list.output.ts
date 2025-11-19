@@ -14,5 +14,5 @@ export interface ProjectsListOutput {
   projects: ProjectWithUnknownFields[];
 
   /** Общее количество проектов (если поддерживается API) */
-  total?: number;
+  total?: number | undefined;
 }

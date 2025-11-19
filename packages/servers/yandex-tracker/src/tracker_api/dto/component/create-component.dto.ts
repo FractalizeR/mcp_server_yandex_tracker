@@ -18,13 +18,13 @@ export interface CreateComponentDto {
    * Описание компонента
    * @example "Backend services and APIs"
    */
-  description?: string;
+  description?: string | undefined;
 
   /**
    * ID или login руководителя компонента
    * @example "user-login" или "1234567890"
    */
-  lead?: string;
+  lead?: string | undefined;
 
   /**
    * Автоматическое назначение исполнителя
@@ -34,7 +34,7 @@ export interface CreateComponentDto {
    *
    * @default false
    */
-  assignAuto?: boolean;
+  assignAuto?: boolean | undefined;
 
   /** Дополнительные поля */
   [key: string]: unknown;

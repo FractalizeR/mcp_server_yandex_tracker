@@ -187,7 +187,7 @@ export function createPriority(overrides?: Partial<Priority>): Priority {
  * Создает валидный IssueType entity
  * Note: Похож на createQueueDictionaryRef, но создает разные типы
  */
-// eslint-disable-next-line sonarjs/no-identical-functions
+
 export function createIssueType(overrides?: Partial<IssueType>): IssueType {
   return {
     id: '1',

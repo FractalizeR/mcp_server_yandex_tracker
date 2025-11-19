@@ -8,5 +8,5 @@ export interface AddCommentInput {
   text: string;
 
   /** Идентификаторы вложений (опционально) */
-  attachmentIds?: string[];
+  attachmentIds?: string[] | undefined;
 }

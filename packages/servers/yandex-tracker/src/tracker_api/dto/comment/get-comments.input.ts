@@ -10,5 +10,5 @@ export interface GetCommentsInput extends PaginationParams {
    * Параметр expand для включения дополнительных данных
    * @example "attachments" - включить информацию о вложениях
    */
-  expand?: string;
+  expand?: string | undefined;
 }

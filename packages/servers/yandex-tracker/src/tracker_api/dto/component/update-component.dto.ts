@@ -12,24 +12,24 @@ export interface UpdateComponentDto {
    * Название компонента
    * @example "Backend Services"
    */
-  name?: string;
+  name?: string | undefined;
 
   /**
    * Описание компонента
    * @example "Updated description"
    */
-  description?: string;
+  description?: string | undefined;
 
   /**
    * ID или login руководителя компонента
    * @example "new-lead-login"
    */
-  lead?: string;
+  lead?: string | undefined;
 
   /**
    * Автоматическое назначение исполнителя
    */
-  assignAuto?: boolean;
+  assignAuto?: boolean | undefined;
 
   /** Дополнительные поля */
   [key: string]: unknown;

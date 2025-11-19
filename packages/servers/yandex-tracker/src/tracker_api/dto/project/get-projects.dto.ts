@@ -5,19 +5,19 @@
  */
 export interface GetProjectsDto {
   /** Количество записей на странице (по умолчанию: 50) */
-  perPage?: number;
+  perPage?: number | undefined;
 
   /** Номер страницы (начинается с 1) */
-  page?: number;
+  page?: number | undefined;
 
   /**
    * Дополнительные поля для включения в ответ
    * @example 'queues' | 'team'
    */
-  expand?: string;
+  expand?: string | undefined;
 
   /**
    * Фильтр по ID очереди (вернет проекты, связанные с этой очередью)
    */
-  queueId?: string;
+  queueId?: string | undefined;
 }

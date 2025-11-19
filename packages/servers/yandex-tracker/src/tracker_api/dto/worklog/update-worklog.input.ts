@@ -16,7 +16,7 @@ export interface UpdateWorklogInput {
    * @example "2023-01-15T10:00:00.000+0000"
    * @example "2023-01-15T10:00:00Z"
    */
-  start?: string;
+  start?: string | undefined;
 
   /**
    * Продолжительность работы (опционально)
@@ -29,7 +29,7 @@ export interface UpdateWorklogInput {
    * @example "PT1H30M"
    * @example "2 hours"
    */
-  duration?: string;
+  duration?: string | undefined;
 
   /**
    * Комментарий к записи времени (опционально)
@@ -38,5 +38,5 @@ export interface UpdateWorklogInput {
    *
    * @example "Работал над реализацией API"
    */
-  comment?: string;
+  comment?: string | undefined;
 }

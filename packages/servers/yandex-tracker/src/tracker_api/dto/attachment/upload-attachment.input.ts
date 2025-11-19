@@ -41,5 +41,5 @@ export interface UploadAttachmentInput {
    * @example "application/pdf"
    * @example "text/plain"
    */
-  mimetype?: string;
+  mimetype?: string | undefined;
 }

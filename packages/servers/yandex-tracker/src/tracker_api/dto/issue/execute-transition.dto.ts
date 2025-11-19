@@ -6,7 +6,7 @@
  */
 export interface ExecuteTransitionDto {
   /** Комментарий при переходе */
-  comment?: string;
+  comment?: string | undefined;
 
   /** Дополнительные поля (для форм перехода) */
   [key: string]: unknown;

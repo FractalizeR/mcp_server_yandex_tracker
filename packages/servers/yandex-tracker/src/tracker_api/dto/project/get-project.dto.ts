@@ -6,5 +6,5 @@ export interface GetProjectDto {
    * Дополнительные поля для включения в ответ
    * @example 'queues' | 'team'
    */
-  expand?: string;
+  expand?: string | undefined;
 }

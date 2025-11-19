@@ -22,7 +22,7 @@ export interface FindIssuesInputDto {
    * Функции: empty(), notEmpty(), me(), now(), today(), week(), month()
    * Сравнение: >, <, >=, <=, !, #, ~
    */
-  query?: string;
+  query?: string | undefined;
 
   /**
    * Фильтр по полям задачи (объект key-value)
@@ -33,7 +33,7 @@ export interface FindIssuesInputDto {
    *
    * ВАЖНО: Можно использовать функции empty(), notEmpty() как значения
    */
-  filter?: Record<string, unknown>;
+  filter?: Record<string, unknown> | undefined;
 
   /**
    * Список ключей задач для поиска
@@ -42,21 +42,21 @@ export interface FindIssuesInputDto {
    *
    * ВАЖНО: Для batch-получения лучше использовать getIssues() из GetIssuesOperation
    */
-  keys?: string[];
+  keys?: string[] | undefined;
 
   /**
    * Ключ очереди для поиска всех задач в очереди
    *
    * Пример: "DEVOPS"
    */
-  queue?: string;
+  queue?: string | undefined;
 
   /**
    * Фильтр по ID (альтернатива filterId из API)
    *
    * ID сохранённого фильтра в Трекере
    */
-  filterId?: string;
+  filterId?: string | undefined;
 
   /**
    * Сортировка результатов
@@ -71,7 +71,7 @@ export interface FindIssuesInputDto {
    *
    * ВАЖНО: Работает только с filter, не с query
    */
-  order?: string[];
+  order?: string[] | undefined;
 
   /**
    * Количество результатов на странице
@@ -79,14 +79,14 @@ export interface FindIssuesInputDto {
    * По умолчанию: 50
    * Максимум: зависит от сервера (обычно несколько сотен)
    */
-  perPage?: number;
+  perPage?: number | undefined;
 
   /**
    * Номер страницы для пагинации
    *
    * ВАЖНО: Для >10000 результатов используй scroll (не реализовано в v1)
    */
-  page?: number;
+  page?: number | undefined;
 
   /**
    * Расширение ответа дополнительными полями
@@ -97,5 +97,5 @@ export interface FindIssuesInputDto {
    *
    * Пример: ["transitions", "attachments"]
    */
-  expand?: string[];
+  expand?: string[] | undefined;
 }

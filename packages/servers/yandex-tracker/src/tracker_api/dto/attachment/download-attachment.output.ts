@@ -36,5 +36,5 @@ export interface DownloadAttachmentOutput {
    *
    * @example "/downloads/report.pdf"
    */
-  savedPath?: string;
+  savedPath?: string | undefined;
 }

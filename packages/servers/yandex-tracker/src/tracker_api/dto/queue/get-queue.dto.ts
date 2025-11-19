@@ -9,5 +9,5 @@ export interface GetQueueDto {
    * Дополнительные поля для включения в ответ
    * @example 'projects' | 'components' | 'versions'
    */
-  expand?: string;
+  expand?: string | undefined;
 }

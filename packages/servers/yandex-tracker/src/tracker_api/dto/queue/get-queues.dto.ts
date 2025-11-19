@@ -5,14 +5,14 @@
  */
 export interface GetQueuesDto {
   /** Количество записей на странице (по умолчанию: 50) */
-  perPage?: number;
+  perPage?: number | undefined;
 
   /** Номер страницы (начинается с 1) */
-  page?: number;
+  page?: number | undefined;
 
   /**
    * Дополнительные поля для включения в ответ
    * @example 'projects' | 'components' | 'versions'
    */
-  expand?: string;
+  expand?: string | undefined;
 }

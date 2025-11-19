@@ -10,11 +10,11 @@ export interface AddChecklistItemInput {
   text: string;
 
   /** Статус выполнения элемента (опционально, по умолчанию false) */
-  checked?: boolean;
+  checked?: boolean | undefined;
 
   /** ID назначенного лица (опционально) */
-  assignee?: string;
+  assignee?: string | undefined;
 
   /** Дедлайн в формате ISO 8601 (опционально) */
-  deadline?: string;
+  deadline?: string | undefined;
 }

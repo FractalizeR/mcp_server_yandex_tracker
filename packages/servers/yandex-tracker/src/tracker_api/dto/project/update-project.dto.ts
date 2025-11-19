@@ -8,34 +8,34 @@ import type { ProjectStatus } from '@tracker_api/entities/index.js';
 
 export interface UpdateProjectDto {
   /** Название проекта */
-  name?: string;
+  name?: string | undefined;
 
   /** ID или login руководителя проекта */
-  lead?: string;
+  lead?: string | undefined;
 
   /** Статус проекта */
-  status?: ProjectStatus;
+  status?: ProjectStatus | undefined;
 
   /** Описание проекта */
-  description?: string;
+  description?: string | undefined;
 
   /** Дата начала проекта (формат: YYYY-MM-DD) */
-  startDate?: string;
+  startDate?: string | undefined;
 
   /** Дата окончания проекта (формат: YYYY-MM-DD) */
-  endDate?: string;
+  endDate?: string | undefined;
 
   /**
    * Массив ключей очередей, связанных с проектом
    * @example ['QUEUE1', 'QUEUE2']
    */
-  queueIds?: string[];
+  queueIds?: string[] | undefined;
 
   /**
    * Массив ID или login участников проекта
    * @example ['user1', 'user2']
    */
-  teamUserIds?: string[];
+  teamUserIds?: string[] | undefined;
 
   /** Дополнительные поля */
   [key: string]: unknown;
