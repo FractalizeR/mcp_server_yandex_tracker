@@ -1,21 +1,17 @@
 /**
- * Метаданные для DeleteAttachmentTool
+ * Метаданные для DeleteAttachment Tool
  *
- * Вынесены в отдельный файл для разрыва циркулярной зависимости:
- * - definition.ts импортирует metadata (не tool)
- * - tool.ts импортирует metadata (не definition для METADATA)
- *
- * Это разрывает цикл: definition → tool → definition
+ * Этот файл разрывает циркулярную зависимость между definition и tool
+ * Оба файла импортируют только метаданные, не импортируя друг друга
  */
 
-import { buildToolName, ToolCategory, ToolPriority } from '@mcp-framework/core';
-import type { StaticToolMetadata } from '@mcp-framework/core';
+import { ToolCategory, ToolPriority, buildToolName } from '@mcp-framework/core';
 import { MCP_TOOL_PREFIX } from '../../../../../constants.js';
 
 /**
- * Статические метаданные для DeleteAttachmentTool
+ * Статические метаданные для compile-time индексации
  */
-export const DELETE_ATTACHMENT_TOOL_METADATA: StaticToolMetadata = {
+export const DELETE_ATTACHMENT_TOOL_METADATA = {
   name: buildToolName('delete_attachment', MCP_TOOL_PREFIX),
   description: '[Issues/Attachments] Удалить файл из задачи',
   category: ToolCategory.ISSUES,

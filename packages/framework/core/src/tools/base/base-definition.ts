@@ -9,28 +9,8 @@
 
 import type { StaticToolMetadata } from './tool-metadata.js';
 import { SafetyWarningBuilder } from '../common/utils/index.js';
-
-/**
- * Определение инструмента для MCP
- */
-export interface ToolDefinition {
-  /** Уникальное имя инструмента */
-  name: string;
-  /** Описание функциональности инструмента */
-  description: string;
-  /** JSON Schema для валидации входных параметров */
-  inputSchema: {
-    type: 'object';
-    properties: Record<string, unknown>;
-    required?: string[];
-  };
-  /** Категория инструмента для группировки */
-  category?: string;
-  /** Подкатегория для детальной группировки (опционально) */
-  subcategory?: string;
-  /** Приоритет инструмента для сортировки */
-  priority?: 'critical' | 'high' | 'normal' | 'low';
-}
+import type { ToolDefinition } from './base.types.js';
+export type { ToolDefinition };
 
 /**
  * Базовый класс для построения определений инструментов

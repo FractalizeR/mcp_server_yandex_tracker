@@ -15,13 +15,12 @@
 
 import type { Logger, ToolCallParams, ToolResult } from '@mcp-framework/infrastructure';
 import type { ToolDefinition } from '@mcp-framework/core';
-import type { ToolMetadata, StaticToolMetadata } from '@mcp-framework/core';
-import { ToolCategory } from '@mcp-framework/core';
+import type { ToolMetadata } from '@mcp-framework/core';
 import type { ToolSearchEngine } from '../engine/tool-search-engine.js';
 import { SearchToolsDefinition } from './search-tools.definition.js';
 import { SearchToolsParamsSchema } from './search-tools.schema.js';
+import { SEARCH_TOOLS_METADATA } from './search-tools.metadata.js';
 
-import { buildToolName } from '@mcp-framework/core';
 import { DEFAULT_TOOL_SEARCH_LIMIT, DEFAULT_TOOL_SEARCH_DETAIL_LEVEL } from '../constants.js';
 
 /**
@@ -36,53 +35,7 @@ export class SearchToolsTool {
   /**
    * Статические метаданные для compile-time индексации
    */
-  static readonly METADATA: StaticToolMetadata = {
-    name: buildToolName('search_tools'),
-    description:
-      '⚠️ PRIMARY способ обнаружения инструментов в этом MCP сервере.\n\n' +
-      'tools/list возвращает только essential инструменты (ping, search_tools). ' +
-      'Используйте search_tools для поиска нужных операций перед их вызовом.\n\n' +
-      '⚠️ ВАЖНО: Указывайте query для фильтрации по задаче, чтобы не забивать контекст.\n' +
-      'Получение ВСЕХ инструментов (без query) возвращает много данных — используйте только при необходимости!\n\n' +
-      'Поддерживает:\n' +
-      '• Поиск по названию, описанию, категории, тегам (query указан) — РЕКОМЕНДУЕТСЯ\n' +
-      '• Получение списка ВСЕХ инструментов (query не указан) — используйте редко\n' +
-      '• Фильтрацию по категории (issues, users, projects, etc.)\n' +
-      '• Фильтрацию по типу (helper vs API операции)\n' +
-      '• 3 уровня детализации результатов\n\n' +
-      'Примеры использования:\n' +
-      '• {query: "задачи"} - найти инструменты для работы с задачами (ЛУЧШИЙ подход)\n' +
-      '• {query: "issue"} - найти инструменты для работы с issues\n' +
-      '• {query: "создать"} - найти инструменты создания\n' +
-      '• {category: "issues"} - только инструменты категории issues\n' +
-      '• {} - получить список ВСЕХ инструментов (осторожно: много данных!)\n' +
-      '• {query: "*"} - получить список ВСЕХ инструментов (осторожно: много данных!)',
-    category: ToolCategory.SEARCH,
-    tags: [
-      'search',
-      'tools',
-      'discovery',
-      'find',
-      'helper',
-      'essential',
-      'поиск',
-      'инструменты',
-      'обнаружение',
-      'найти',
-    ],
-    isHelper: true,
-    examples: [
-      'query: "задачи" - найти инструменты для работы с задачами (ЛУЧШИЙ подход)',
-      'query: "issue" - найти все инструменты для работы с issues',
-      'query: "создать" - найти инструменты создания',
-      'query: "ping" - найти инструмент проверки подключения',
-      'query: "url", category: "url-generation" - найти инструменты генерации URL',
-      'query: "create", category: "issues" - найти инструменты создания задач',
-      'category: "issues" - только инструменты категории issues',
-      '{} - получить список ВСЕХ инструментов (осторожно: много данных!)',
-      'query: "*" - получить список ВСЕХ инструментов (осторожно: много данных!)',
-    ],
-  } as const;
+  static readonly METADATA = SEARCH_TOOLS_METADATA;
 
   private readonly definition = new SearchToolsDefinition();
 

@@ -10,14 +10,14 @@
 import type { ToolDefinition, StaticToolMetadata } from '@mcp-framework/core';
 import { BaseToolDefinition } from '@mcp-framework/core';
 import { buildToolName } from '@mcp-framework/core';
-import { SearchToolsTool } from './search-tools.tool.js';
+import { SEARCH_TOOLS_METADATA } from './search-tools.metadata.js';
 
 /**
  * Definition builder для SearchToolsTool
  */
 export class SearchToolsDefinition extends BaseToolDefinition {
   protected getStaticMetadata(): StaticToolMetadata {
-    return SearchToolsTool.METADATA;
+    return SEARCH_TOOLS_METADATA;
   }
 
   build(): ToolDefinition {

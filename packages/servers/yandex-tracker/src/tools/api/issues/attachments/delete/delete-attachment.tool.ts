@@ -7,15 +7,13 @@
  * - Операция необратима
  */
 
-import { BaseTool, ToolCategory, ToolPriority } from '@mcp-framework/core';
+import { BaseTool } from '@mcp-framework/core';
 import type { YandexTrackerFacade } from '@tracker_api/facade/index.js';
 import type { ToolDefinition } from '@mcp-framework/core';
 import type { ToolCallParams, ToolResult } from '@mcp-framework/infrastructure';
 import { DeleteAttachmentDefinition } from './delete-attachment.definition.js';
 import { DeleteAttachmentParamsSchema } from './delete-attachment.schema.js';
-
-import { buildToolName } from '@mcp-framework/core';
-import { MCP_TOOL_PREFIX } from '../../../../../constants.js';
+import { DELETE_ATTACHMENT_TOOL_METADATA } from './delete-attachment.metadata.js';
 
 /**
  * Инструмент для удаления файла из задачи
@@ -34,15 +32,7 @@ export class DeleteAttachmentTool extends BaseTool<YandexTrackerFacade> {
   /**
    * Статические метаданные для compile-time индексации
    */
-  static override readonly METADATA = {
-    name: buildToolName('delete_attachment', MCP_TOOL_PREFIX),
-    description: '[Issues/Attachments] Удалить файл из задачи',
-    category: ToolCategory.ISSUES,
-    subcategory: 'attachments',
-    priority: ToolPriority.NORMAL,
-    tags: ['attachments', 'write', 'delete', 'files'],
-    isHelper: false,
-  } as const;
+  static override readonly METADATA = DELETE_ATTACHMENT_TOOL_METADATA;
 
   private readonly definition = new DeleteAttachmentDefinition();
 

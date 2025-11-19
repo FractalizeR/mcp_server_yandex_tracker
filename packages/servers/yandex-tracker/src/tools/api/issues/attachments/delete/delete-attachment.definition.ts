@@ -7,7 +7,7 @@ import {
   type ToolDefinition,
   type StaticToolMetadata,
 } from '@mcp-framework/core';
-import { DeleteAttachmentTool } from './delete-attachment.tool.js';
+import { DELETE_ATTACHMENT_TOOL_METADATA } from './delete-attachment.metadata.js';
 
 /**
  * Definition для DeleteAttachmentTool
@@ -20,7 +20,7 @@ import { DeleteAttachmentTool } from './delete-attachment.tool.js';
  */
 export class DeleteAttachmentDefinition extends BaseToolDefinition {
   protected getStaticMetadata(): StaticToolMetadata {
-    return DeleteAttachmentTool.METADATA;
+    return DELETE_ATTACHMENT_TOOL_METADATA;
   }
 
   build(): ToolDefinition {
