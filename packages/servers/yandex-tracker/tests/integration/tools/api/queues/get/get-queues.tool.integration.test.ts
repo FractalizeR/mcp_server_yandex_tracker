@@ -7,6 +7,7 @@ import { createTestClient } from '@integration/helpers/mcp-client.js';
 import { createMockServer } from '@integration/helpers/mock-server.js';
 import type { TestMCPClient } from '@integration/helpers/mcp-client.js';
 import type { MockServer } from '@integration/helpers/mock-server.js';
+import { STANDARD_QUEUE_FIELDS } from '../../../../../helpers/test-fields.js';
 
 describe('get-queues integration tests', () => {
   let client: TestMCPClient;
@@ -27,7 +28,9 @@ describe('get-queues integration tests', () => {
       mockServer.mockGetQueuesSuccess();
 
       // Act
-      const result = await client.callTool('fr_yandex_tracker_get_queues', {});
+      const result = await client.callTool('fr_yandex_tracker_get_queues', {
+        fields: STANDARD_QUEUE_FIELDS,
+      });
 
       // Assert
       expect(result.isError).toBeUndefined();
@@ -43,7 +46,9 @@ describe('get-queues integration tests', () => {
       mockServer.mockGetQueuesEmpty();
 
       // Act
-      const result = await client.callTool('fr_yandex_tracker_get_queues', {});
+      const result = await client.callTool('fr_yandex_tracker_get_queues', {
+        fields: STANDARD_QUEUE_FIELDS,
+      });
 
       // Assert
       expect(result.isError).toBeUndefined();
@@ -62,6 +67,7 @@ describe('get-queues integration tests', () => {
       const result = await client.callTool('fr_yandex_tracker_get_queues', {
         perPage: 50,
         page: 2,
+        fields: STANDARD_QUEUE_FIELDS,
       });
 
       // Assert
@@ -78,6 +84,7 @@ describe('get-queues integration tests', () => {
       // Act
       const result = await client.callTool('fr_yandex_tracker_get_queues', {
         expand: 'projects',
+        fields: STANDARD_QUEUE_FIELDS,
       });
 
       // Assert
@@ -94,7 +101,9 @@ describe('get-queues integration tests', () => {
       mockServer.mockGetQueuesSuccess();
 
       // Act
-      const result = await client.callTool('fr_yandex_tracker_get_queues', {});
+      const result = await client.callTool('fr_yandex_tracker_get_queues', {
+        fields: STANDARD_QUEUE_FIELDS,
+      });
 
       // Assert
       expect(result.isError).toBeUndefined();

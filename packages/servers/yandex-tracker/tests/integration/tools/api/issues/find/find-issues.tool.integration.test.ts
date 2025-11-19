@@ -10,6 +10,7 @@ import { createTestClient } from '@integration/helpers/mcp-client.js';
 import { createMockServer } from '@integration/helpers/mock-server.js';
 import type { TestMCPClient } from '@integration/helpers/mcp-client.js';
 import type { MockServer } from '@integration/helpers/mock-server.js';
+import { STANDARD_ISSUE_FIELDS } from '../../../../../helpers/test-fields.js';
 
 describe('find-issues integration tests', () => {
   let client: TestMCPClient;
@@ -42,6 +43,7 @@ describe('find-issues integration tests', () => {
       // Act
       const result = await client.callTool('fr_yandex_tracker_find_issues', {
         keys: issueKeys,
+        fields: STANDARD_ISSUE_FIELDS,
       });
 
       // Assert
@@ -77,6 +79,7 @@ describe('find-issues integration tests', () => {
       // Act
       const result = await client.callTool('fr_yandex_tracker_find_issues', {
         query,
+        fields: STANDARD_ISSUE_FIELDS,
       });
 
       // Assert
@@ -104,6 +107,7 @@ describe('find-issues integration tests', () => {
       // Act
       const result = await client.callTool('fr_yandex_tracker_find_issues', {
         queue,
+        fields: STANDARD_ISSUE_FIELDS,
       });
 
       // Assert
@@ -135,6 +139,7 @@ describe('find-issues integration tests', () => {
       // Act
       const result = await client.callTool('fr_yandex_tracker_find_issues', {
         filter,
+        fields: STANDARD_ISSUE_FIELDS,
       });
 
       // Assert
@@ -165,6 +170,7 @@ describe('find-issues integration tests', () => {
         query: 'Author: me()',
         perPage: 2,
         page: 1,
+        fields: STANDARD_ISSUE_FIELDS,
       });
 
       // Assert

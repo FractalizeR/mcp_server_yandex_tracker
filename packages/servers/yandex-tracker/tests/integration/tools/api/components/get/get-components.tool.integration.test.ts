@@ -7,6 +7,7 @@ import { createTestClient } from '@integration/helpers/mcp-client.js';
 import { createMockServer } from '@integration/helpers/mock-server.js';
 import type { TestMCPClient } from '@integration/helpers/mcp-client.js';
 import type { MockServer } from '@integration/helpers/mock-server.js';
+import { STANDARD_COMPONENT_FIELDS } from '../../../../../helpers/test-fields.js';
 
 describe('get-components integration tests', () => {
   let client: TestMCPClient;
@@ -30,6 +31,7 @@ describe('get-components integration tests', () => {
       // Act
       const result = await client.callTool('fr_yandex_tracker_get_components', {
         queueId,
+        fields: STANDARD_COMPONENT_FIELDS,
       });
 
       // Assert
@@ -49,6 +51,7 @@ describe('get-components integration tests', () => {
       // Act
       const result = await client.callTool('fr_yandex_tracker_get_components', {
         queueId,
+        fields: STANDARD_COMPONENT_FIELDS,
       });
 
       // Assert
@@ -70,6 +73,7 @@ describe('get-components integration tests', () => {
       // Act
       const result = await client.callTool('fr_yandex_tracker_get_components', {
         queueId,
+        fields: STANDARD_COMPONENT_FIELDS,
       });
 
       // Assert
@@ -87,6 +91,7 @@ describe('get-components integration tests', () => {
       // Act
       const result = await client.callTool('fr_yandex_tracker_get_components', {
         queueId,
+        fields: STANDARD_COMPONENT_FIELDS,
       });
 
       // Assert

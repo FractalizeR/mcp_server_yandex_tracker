@@ -7,6 +7,7 @@ import { createTestClient } from '@integration/helpers/mcp-client.js';
 import { createMockServer } from '@integration/helpers/mock-server.js';
 import type { TestMCPClient } from '@integration/helpers/mcp-client.js';
 import type { MockServer } from '@integration/helpers/mock-server.js';
+import { STANDARD_QUEUE_FIELDS } from '../../../../../helpers/test-fields.js';
 
 describe('update-queue integration tests', () => {
   let client: TestMCPClient;
@@ -31,6 +32,7 @@ describe('update-queue integration tests', () => {
       const result = await client.callTool('fr_yandex_tracker_update_queue', {
         queueId: queueKey,
         name: 'Updated Queue Name',
+        fields: STANDARD_QUEUE_FIELDS,
       });
 
       // Assert
@@ -52,6 +54,7 @@ describe('update-queue integration tests', () => {
       const result = await client.callTool('fr_yandex_tracker_update_queue', {
         queueId: queueKey,
         description: 'New description',
+        fields: STANDARD_QUEUE_FIELDS,
       });
 
       // Assert
@@ -75,6 +78,7 @@ describe('update-queue integration tests', () => {
         name: 'New Name',
         description: 'New Description',
         defaultTypeKey: 'bug',
+        fields: STANDARD_QUEUE_FIELDS,
       });
 
       // Assert
@@ -95,6 +99,7 @@ describe('update-queue integration tests', () => {
       const result = await client.callTool('fr_yandex_tracker_update_queue', {
         queueId: queueKey,
         name: 'New Name',
+        fields: STANDARD_QUEUE_FIELDS,
       });
 
       // Assert
@@ -113,6 +118,7 @@ describe('update-queue integration tests', () => {
       const result = await client.callTool('fr_yandex_tracker_update_queue', {
         queueId: queueKey,
         name: 'Updated',
+        fields: STANDARD_QUEUE_FIELDS,
       });
 
       // Assert

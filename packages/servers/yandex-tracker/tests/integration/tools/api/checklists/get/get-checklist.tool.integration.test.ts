@@ -4,6 +4,7 @@ import { createTestClient } from '@integration/helpers/mcp-client.js';
 import { createMockServer } from '@integration/helpers/mock-server.js';
 import type { TestMCPClient } from '@integration/helpers/mcp-client.js';
 import type { MockServer } from '@integration/helpers/mock-server.js';
+import { STANDARD_CHECKLIST_FIELDS } from '../../../../../helpers/test-fields.js';
 
 describe('get-checklist integration tests', () => {
   let client: TestMCPClient;
@@ -31,6 +32,7 @@ describe('get-checklist integration tests', () => {
     // Act
     const result = await client.callTool('fr_yandex_tracker_get_checklist', {
       issueId: issueKey,
+      fields: STANDARD_CHECKLIST_FIELDS,
     });
 
     // Assert
@@ -51,6 +53,7 @@ describe('get-checklist integration tests', () => {
     // Act
     const result = await client.callTool('fr_yandex_tracker_get_checklist', {
       issueId: issueKey,
+      fields: STANDARD_CHECKLIST_FIELDS,
     });
 
     // Assert
@@ -71,6 +74,7 @@ describe('get-checklist integration tests', () => {
     // Act
     const result = await client.callTool('fr_yandex_tracker_get_checklist', {
       issueId: issueKey,
+      fields: STANDARD_CHECKLIST_FIELDS,
     });
 
     // Assert
@@ -93,6 +97,7 @@ describe('get-checklist integration tests', () => {
     // Act
     const result = await client.callTool('fr_yandex_tracker_get_checklist', {
       issueId: issueKey,
+      fields: STANDARD_CHECKLIST_FIELDS,
     });
 
     // Assert

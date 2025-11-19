@@ -109,14 +109,22 @@ describe('UpdateChecklistItemTool', () => {
     });
 
     it('должен отклонить пустой issueId', async () => {
-      const result = await tool.execute({ issueId: '', checklistItemId: 'item-123', fields: ['id', 'text'] });
+      const result = await tool.execute({
+        issueId: '',
+        checklistItemId: 'item-123',
+        fields: ['id', 'text'],
+      });
 
       expect(result.isError).toBe(true);
       expect(result.content[0]?.text).toContain('валидации');
     });
 
     it('должен отклонить пустой checklistItemId', async () => {
-      const result = await tool.execute({ issueId: 'TEST-123', checklistItemId: '', fields: ['id', 'text'] });
+      const result = await tool.execute({
+        issueId: 'TEST-123',
+        checklistItemId: '',
+        fields: ['id', 'text'],
+      });
 
       expect(result.isError).toBe(true);
       expect(result.content[0]?.text).toContain('валидации');

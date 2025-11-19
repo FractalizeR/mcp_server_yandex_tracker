@@ -7,6 +7,7 @@ import { createTestClient } from '@integration/helpers/mcp-client.js';
 import { createMockServer } from '@integration/helpers/mock-server.js';
 import type { TestMCPClient } from '@integration/helpers/mcp-client.js';
 import type { MockServer } from '@integration/helpers/mock-server.js';
+import { STANDARD_COMPONENT_FIELDS } from '../../../../../helpers/test-fields.js';
 
 describe('create-component integration tests', () => {
   let client: TestMCPClient;
@@ -33,6 +34,7 @@ describe('create-component integration tests', () => {
       const result = await client.callTool('fr_yandex_tracker_create_component', {
         queueId,
         name: 'New Component',
+        fields: STANDARD_COMPONENT_FIELDS,
       });
 
       // Assert
@@ -59,6 +61,7 @@ describe('create-component integration tests', () => {
         description: 'Backend services',
         lead: 'testuser',
         assignAuto: true,
+        fields: STANDARD_COMPONENT_FIELDS,
       });
 
       // Assert
@@ -83,6 +86,7 @@ describe('create-component integration tests', () => {
         name: 'Frontend',
         assignAuto: true,
         lead: 'frontend-lead',
+        fields: STANDARD_COMPONENT_FIELDS,
       });
 
       // Assert
@@ -103,6 +107,7 @@ describe('create-component integration tests', () => {
       const result = await client.callTool('fr_yandex_tracker_create_component', {
         queueId,
         name: 'New Component',
+        fields: STANDARD_COMPONENT_FIELDS,
       });
 
       // Assert
@@ -119,6 +124,7 @@ describe('create-component integration tests', () => {
       const result = await client.callTool('fr_yandex_tracker_create_component', {
         queueId,
         name: 'New Component',
+        fields: STANDARD_COMPONENT_FIELDS,
       });
 
       // Assert
@@ -137,6 +143,7 @@ describe('create-component integration tests', () => {
       const result = await client.callTool('fr_yandex_tracker_create_component', {
         queueId,
         name: 'Test Component',
+        fields: STANDARD_COMPONENT_FIELDS,
       });
 
       // Assert
