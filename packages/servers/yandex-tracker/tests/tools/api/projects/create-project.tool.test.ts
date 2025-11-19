@@ -37,7 +37,7 @@ describe('CreateProjectTool', () => {
       expect(definition.name).toBe(buildToolName('create_project', MCP_TOOL_PREFIX));
       expect(definition.description).toContain('Создать новый проект');
       expect(definition.inputSchema.type).toBe('object');
-      expect(definition.inputSchema.required).toEqual(['key', 'name', 'lead']);
+      expect(definition.inputSchema.required).toEqual(['key', 'name', 'lead', 'fields']);
       expect(definition.inputSchema.properties?.['key']).toBeDefined();
       expect(definition.inputSchema.properties?.['name']).toBeDefined();
       expect(definition.inputSchema.properties?.['lead']).toBeDefined();
@@ -47,13 +47,14 @@ describe('CreateProjectTool', () => {
       expect(definition.inputSchema.properties?.['endDate']).toBeDefined();
       expect(definition.inputSchema.properties?.['queueIds']).toBeDefined();
       expect(definition.inputSchema.properties?.['teamUserIds']).toBeDefined();
+      expect(definition.inputSchema.properties?.['fields']).toBeDefined();
     });
   });
 
   describe('execute', () => {
     describe('валидация параметров (Zod)', () => {
       it('должен требовать параметр key', async () => {
-        const result = await tool.execute({ name: 'Test', lead: 'user1' });
+        const result = await tool.execute({ name: 'Test', lead: 'user1', fields: ['id', 'key'] });
 
         expect(result.isError).toBe(true);
         const parsed = JSON.parse(result.content[0]?.text || '{}') as {
@@ -65,7 +66,7 @@ describe('CreateProjectTool', () => {
       });
 
       it('должен требовать параметр name', async () => {
-        const result = await tool.execute({ key: 'PROJ', lead: 'user1' });
+        const result = await tool.execute({ key: 'PROJ', lead: 'user1', fields: ['id', 'key'] });
 
         expect(result.isError).toBe(true);
         const parsed = JSON.parse(result.content[0]?.text || '{}') as {
@@ -77,7 +78,7 @@ describe('CreateProjectTool', () => {
       });
 
       it('должен требовать параметр lead', async () => {
-        const result = await tool.execute({ key: 'PROJ', name: 'Test' });
+        const result = await tool.execute({ key: 'PROJ', name: 'Test', fields: ['id', 'key'] });
 
         expect(result.isError).toBe(true);
         const parsed = JSON.parse(result.content[0]?.text || '{}') as {
@@ -93,6 +94,7 @@ describe('CreateProjectTool', () => {
           key: '',
           name: 'Test',
           lead: 'user1',
+          fields: ['id', 'key'],
         });
 
         expect(result.isError).toBe(true);
@@ -112,6 +114,7 @@ describe('CreateProjectTool', () => {
           key: 'NEWPROJ',
           name: 'New Project',
           lead: 'user1',
+          fields: ['id', 'key', 'name'],
         });
 
         expect(result.isError).toBeUndefined();
@@ -131,6 +134,7 @@ describe('CreateProjectTool', () => {
           key: 'MINIMAL',
           name: 'Minimal Project',
           lead: 'user1',
+          fields: ['key', 'name'],
         });
 
         expect(result.isError).toBeUndefined();
@@ -176,6 +180,7 @@ describe('CreateProjectTool', () => {
           endDate: '2024-12-31',
           queueIds: ['QUEUE1', 'QUEUE2'],
           teamUserIds: ['user1', 'user2'],
+          fields: ['key', 'name', 'status'],
         });
 
         expect(result.isError).toBeUndefined();
@@ -213,6 +218,7 @@ describe('CreateProjectTool', () => {
           name: 'Project',
           lead: 'user1',
           description: 'Project description',
+          fields: ['key', 'description'],
         });
 
         expect(result.isError).toBeUndefined();
@@ -233,6 +239,7 @@ describe('CreateProjectTool', () => {
           name: 'Project',
           lead: 'user1',
           queueIds: ['QUEUE1', 'QUEUE2'],
+          fields: ['key', 'name'],
         });
 
         expect(result.isError).toBeUndefined();
@@ -253,6 +260,7 @@ describe('CreateProjectTool', () => {
           name: 'Project',
           lead: 'user1',
           teamUserIds: ['user1', 'user2', 'user3'],
+          fields: ['key', 'name'],
         });
 
         expect(result.isError).toBeUndefined();
@@ -274,6 +282,7 @@ describe('CreateProjectTool', () => {
           key: 'EXISTS',
           name: 'Exists',
           lead: 'user1',
+          fields: ['id', 'key'],
         });
 
         expect(result.isError).toBe(true);
@@ -295,6 +304,7 @@ describe('CreateProjectTool', () => {
           key: 'PROJ',
           name: 'Project',
           lead: 'user1',
+          fields: ['id', 'key'],
         });
 
         expect(result.isError).toBe(true);
@@ -314,6 +324,7 @@ describe('CreateProjectTool', () => {
           key: 'PROJ',
           name: 'Project',
           lead: 'user1',
+          fields: ['id', 'key'],
         });
 
         expect(result.isError).toBe(true);
@@ -333,6 +344,7 @@ describe('CreateProjectTool', () => {
           key: 'PROJ',
           name: 'Project',
           lead: 'user1',
+          fields: ['id', 'key'],
         });
 
         expect(result.isError).toBe(true);
