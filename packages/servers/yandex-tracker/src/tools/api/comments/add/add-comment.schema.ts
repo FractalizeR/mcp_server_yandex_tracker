@@ -3,7 +3,7 @@
  */
 
 import { z } from 'zod';
-import { IssueKeySchema } from '../../../../common/schemas/index.js';
+import { IssueKeySchema, FieldsSchema } from '../../../../common/schemas/index.js';
 
 /**
  * Схема параметров для добавления комментария
@@ -23,6 +23,12 @@ export const AddCommentParamsSchema = z.object({
    * Идентификаторы вложений (опционально)
    */
   attachmentIds: z.array(z.string()).optional(),
+
+  /**
+   * Массив полей для возврата в результате (обязательный)
+   * Примеры: ['id', 'text', 'createdAt'], ['id', 'text', 'createdBy.login']
+   */
+  fields: FieldsSchema,
 });
 
 /**

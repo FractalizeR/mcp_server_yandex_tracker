@@ -7,7 +7,7 @@
  * - Валидация через Zod
  */
 
-import { BaseTool } from '@mcp-framework/core';
+import { BaseTool, ResponseFieldFilter } from '@mcp-framework/core';
 import type { YandexTrackerFacade } from '@tracker_api/facade/index.js';
 import type { ToolDefinition } from '@mcp-framework/core';
 import type { ToolCallParams, ToolResult } from '@mcp-framework/infrastructure';
@@ -44,7 +44,7 @@ export class AddCommentTool extends BaseTool<YandexTrackerFacade> {
       return validation.error;
     }
 
-    const { issueId, text, attachmentIds } = validation.data;
+    const { issueId, text, attachmentIds, fields } = validation.data;
 
     try {
       // 2. Логирование начала операции
@@ -60,7 +60,10 @@ export class AddCommentTool extends BaseTool<YandexTrackerFacade> {
         attachmentIds,
       });
 
-      // 4. Логирование результата
+      // 4. Фильтрация полей ответа
+      const filtered = ResponseFieldFilter.filter<CommentWithUnknownFields>(comment, fields);
+
+      // 5. Логирование результата
       this.logger.info('Комментарий успешно добавлен', {
         issueId,
         commentId: comment.id,
@@ -68,9 +71,10 @@ export class AddCommentTool extends BaseTool<YandexTrackerFacade> {
       });
 
       return this.formatSuccess({
-        commentId: comment.id,
-        comment,
+        commentId: filtered.id,
+        comment: filtered,
         issueId,
+        fieldsReturned: fields,
       });
     } catch (error: unknown) {
       return this.formatError(

@@ -60,16 +60,21 @@ describe('EditCommentTool', () => {
       const definition = tool.getDefinition();
 
       expect(definition.inputSchema.type).toBe('object');
-      expect(definition.inputSchema.required).toEqual(['issueId', 'commentId', 'text']);
+      expect(definition.inputSchema.required).toEqual(['issueId', 'commentId', 'text', 'fields']);
       expect(definition.inputSchema.properties?.['issueId']).toBeDefined();
       expect(definition.inputSchema.properties?.['commentId']).toBeDefined();
       expect(definition.inputSchema.properties?.['text']).toBeDefined();
+      expect(definition.inputSchema.properties?.['fields']).toBeDefined();
     });
   });
 
   describe('Validation', () => {
     it('должен требовать параметр issueId', async () => {
-      const result = await tool.execute({ commentId: '12345', text: 'Updated' });
+      const result = await tool.execute({
+        commentId: '12345',
+        text: 'Updated',
+        fields: ['id', 'text'],
+      });
 
       expect(result.isError).toBe(true);
       const parsed = JSON.parse(result.content[0]?.text || '{}') as {
@@ -81,7 +86,11 @@ describe('EditCommentTool', () => {
     });
 
     it('должен требовать параметр commentId', async () => {
-      const result = await tool.execute({ issueId: 'TEST-123', text: 'Updated' });
+      const result = await tool.execute({
+        issueId: 'TEST-123',
+        text: 'Updated',
+        fields: ['id', 'text'],
+      });
 
       expect(result.isError).toBe(true);
       const parsed = JSON.parse(result.content[0]?.text || '{}') as {
@@ -93,7 +102,27 @@ describe('EditCommentTool', () => {
     });
 
     it('должен требовать параметр text', async () => {
-      const result = await tool.execute({ issueId: 'TEST-123', commentId: '12345' });
+      const result = await tool.execute({
+        issueId: 'TEST-123',
+        commentId: '12345',
+        fields: ['id', 'text'],
+      });
+
+      expect(result.isError).toBe(true);
+      const parsed = JSON.parse(result.content[0]?.text || '{}') as {
+        success: boolean;
+        message: string;
+      };
+      expect(parsed.success).toBe(false);
+      expect(parsed.message).toContain('валидации');
+    });
+
+    it('должен требовать параметр fields', async () => {
+      const result = await tool.execute({
+        issueId: 'TEST-123',
+        commentId: '12345',
+        text: 'Updated',
+      });
 
       expect(result.isError).toBe(true);
       const parsed = JSON.parse(result.content[0]?.text || '{}') as {
@@ -109,6 +138,7 @@ describe('EditCommentTool', () => {
         issueId: '',
         commentId: '12345',
         text: 'Updated',
+        fields: ['id', 'text'],
       });
 
       expect(result.isError).toBe(true);
@@ -120,6 +150,7 @@ describe('EditCommentTool', () => {
         issueId: 'TEST-123',
         commentId: '',
         text: 'Updated',
+        fields: ['id', 'text'],
       });
 
       expect(result.isError).toBe(true);
@@ -131,6 +162,7 @@ describe('EditCommentTool', () => {
         issueId: 'TEST-123',
         commentId: '12345',
         text: '',
+        fields: ['id', 'text'],
       });
 
       expect(result.isError).toBe(true);
@@ -144,6 +176,7 @@ describe('EditCommentTool', () => {
         issueId: 'TEST-123',
         commentId: '12345',
         text: 'Updated comment',
+        fields: ['id', 'text'],
       });
 
       expect(result.isError).toBeUndefined();
@@ -158,6 +191,7 @@ describe('EditCommentTool', () => {
         issueId: 'TEST-123',
         commentId: '12345',
         text: 'Updated comment text',
+        fields: ['id', 'text'],
       });
 
       expect(mockTrackerFacade.editComment).toHaveBeenCalledWith('TEST-123', '12345', {
@@ -172,6 +206,7 @@ describe('EditCommentTool', () => {
         issueId: 'TEST-123',
         commentId: '12345',
         text: 'Updated comment text',
+        fields: ['id', 'text'],
       });
 
       expect(result.isError).toBeUndefined();
@@ -181,15 +216,16 @@ describe('EditCommentTool', () => {
           commentId: string;
           comment: CommentWithUnknownFields;
           issueId: string;
+          fieldsReturned: string[];
         };
       };
       expect(parsed.success).toBe(true);
       expect(parsed.data.commentId).toBe('12345');
       expect(parsed.data.issueId).toBe('TEST-123');
+      expect(parsed.data.fieldsReturned).toEqual(['id', 'text']);
       expect(parsed.data.comment).toMatchObject({
         id: '12345',
         text: 'Updated comment text',
-        version: 2,
       });
     });
   });
@@ -202,6 +238,7 @@ describe('EditCommentTool', () => {
         issueId: 'TEST-123',
         commentId: '12345',
         text: 'Updated comment text',
+        fields: ['id', 'text'],
       });
 
       expect(mockLogger.info).toHaveBeenCalledWith(
@@ -221,6 +258,7 @@ describe('EditCommentTool', () => {
         issueId: 'TEST-123',
         commentId: '12345',
         text: 'Updated comment text',
+        fields: ['id', 'text'],
       });
 
       expect(mockLogger.info).toHaveBeenCalledWith(
@@ -243,6 +281,7 @@ describe('EditCommentTool', () => {
         issueId: 'TEST-123',
         commentId: '12345',
         text: 'Updated comment',
+        fields: ['id', 'text'],
       });
 
       expect(result.isError).toBe(true);
@@ -259,6 +298,7 @@ describe('EditCommentTool', () => {
         issueId: 'TEST-123',
         commentId: 'NONEXISTENT',
         text: 'Updated comment',
+        fields: ['id', 'text'],
       });
 
       expect(result.isError).toBe(true);
@@ -273,6 +313,7 @@ describe('EditCommentTool', () => {
         issueId: 'PRIVATE-123',
         commentId: '12345',
         text: 'Updated comment',
+        fields: ['id', 'text'],
       });
 
       expect(result.isError).toBe(true);

@@ -28,15 +28,17 @@ export class GetCommentsDefinition extends BaseToolDefinition {
           perPage: this.buildPerPageParam(),
           page: this.buildPageParam(),
           expand: this.buildExpandParam(),
+          fields: this.buildFieldsParam(),
         },
-        required: ['issueId'],
+        required: ['issueId', 'fields'],
       },
     };
   }
 
   private buildDescription(): string {
     return (
-      'Получить список комментариев задачи. Поддерживает пагинацию. ' +
+      'Получить список комментариев задачи. Обязательные поля: issueId и fields. Поддерживает пагинацию. ' +
+      'Параметр fields определяет, какие поля каждого комментария вернуть в ответе (например: ["id", "text", "createdAt"]). ' +
       '\n\n' +
       'Для: получения всех комментариев задачи с пагинацией. ' +
       '\n' +
@@ -73,6 +75,26 @@ export class GetCommentsDefinition extends BaseToolDefinition {
       'Опциональный параметр для включения дополнительных данных (например, "attachments").',
       {
         examples: ['attachments'],
+      }
+    );
+  }
+
+  private buildFieldsParam(): Record<string, unknown> {
+    return this.buildArrayParam(
+      '⚠️ ОБЯЗАТЕЛЬНЫЙ. Фильтр полей ответа. ' +
+        'Указывайте только необходимые поля для экономии токенов. ' +
+        '\n\n' +
+        'Доступные поля: id, text, createdAt, updatedAt, createdBy, updatedBy, version.',
+      this.buildStringParam('Имя поля', {
+        minLength: 1,
+        examples: ['id', 'text', 'createdAt', 'createdBy'],
+      }),
+      {
+        minItems: 1,
+        examples: [
+          ['id', 'text'],
+          ['id', 'text', 'createdAt', 'createdBy'],
+        ],
       }
     );
   }

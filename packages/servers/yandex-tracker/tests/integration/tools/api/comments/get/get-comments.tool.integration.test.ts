@@ -26,6 +26,7 @@ describe('get-comments integration tests', () => {
     // Act
     const result = await client.callTool('fr_yandex_tracker_get_comments', {
       issueId: issueKey,
+      fields: ['id', 'text'],
     });
 
     // Assert
@@ -45,6 +46,7 @@ describe('get-comments integration tests', () => {
     // Act
     const result = await client.callTool('fr_yandex_tracker_get_comments', {
       issueId: issueKey,
+      fields: ['id', 'text'],
     });
 
     // Assert
@@ -64,6 +66,7 @@ describe('get-comments integration tests', () => {
     // Act
     const result = await client.callTool('fr_yandex_tracker_get_comments', {
       issueId: issueKey,
+      fields: ['id', 'text'],
     });
 
     // Assert
@@ -81,6 +84,7 @@ describe('get-comments integration tests', () => {
       issueId: issueKey,
       perPage: 10,
       page: 1,
+      fields: ['id', 'text'],
     });
 
     // Assert
@@ -100,6 +104,7 @@ describe('get-comments integration tests', () => {
     const result = await client.callTool('fr_yandex_tracker_get_comments', {
       issueId: issueKey,
       expand: ['attachments'],
+      fields: ['id', 'text'],
     });
 
     // Assert

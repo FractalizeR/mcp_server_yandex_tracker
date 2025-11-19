@@ -56,17 +56,30 @@ describe('GetCommentsTool', () => {
       const definition = tool.getDefinition();
 
       expect(definition.inputSchema.type).toBe('object');
-      expect(definition.inputSchema.required).toEqual(['issueId']);
+      expect(definition.inputSchema.required).toEqual(['issueId', 'fields']);
       expect(definition.inputSchema.properties?.['issueId']).toBeDefined();
       expect(definition.inputSchema.properties?.['perPage']).toBeDefined();
       expect(definition.inputSchema.properties?.['page']).toBeDefined();
       expect(definition.inputSchema.properties?.['expand']).toBeDefined();
+      expect(definition.inputSchema.properties?.['fields']).toBeDefined();
     });
   });
 
   describe('Validation', () => {
     it('должен требовать параметр issueId', async () => {
-      const result = await tool.execute({});
+      const result = await tool.execute({ fields: ['id', 'text'] });
+
+      expect(result.isError).toBe(true);
+      const parsed = JSON.parse(result.content[0]?.text || '{}') as {
+        success: boolean;
+        message: string;
+      };
+      expect(parsed.success).toBe(false);
+      expect(parsed.message).toContain('валидации');
+    });
+
+    it('должен требовать параметр fields', async () => {
+      const result = await tool.execute({ issueId: 'TEST-123' });
 
       expect(result.isError).toBe(true);
       const parsed = JSON.parse(result.content[0]?.text || '{}') as {
@@ -78,28 +91,40 @@ describe('GetCommentsTool', () => {
     });
 
     it('должен отклонить пустой issueId', async () => {
-      const result = await tool.execute({ issueId: '' });
+      const result = await tool.execute({ issueId: '', fields: ['id', 'text'] });
 
       expect(result.isError).toBe(true);
       expect(result.content[0]?.text).toContain('валидации');
     });
 
     it('должен отклонить некорректный perPage (отрицательное число)', async () => {
-      const result = await tool.execute({ issueId: 'TEST-123', perPage: -1 });
+      const result = await tool.execute({
+        issueId: 'TEST-123',
+        perPage: -1,
+        fields: ['id', 'text'],
+      });
 
       expect(result.isError).toBe(true);
       expect(result.content[0]?.text).toContain('валидации');
     });
 
     it('должен отклонить некорректный perPage (больше 500)', async () => {
-      const result = await tool.execute({ issueId: 'TEST-123', perPage: 501 });
+      const result = await tool.execute({
+        issueId: 'TEST-123',
+        perPage: 501,
+        fields: ['id', 'text'],
+      });
 
       expect(result.isError).toBe(true);
       expect(result.content[0]?.text).toContain('валидации');
     });
 
     it('должен отклонить некорректный page (0)', async () => {
-      const result = await tool.execute({ issueId: 'TEST-123', page: 0 });
+      const result = await tool.execute({
+        issueId: 'TEST-123',
+        page: 0,
+        fields: ['id', 'text'],
+      });
 
       expect(result.isError).toBe(true);
       expect(result.content[0]?.text).toContain('валидации');
@@ -110,6 +135,7 @@ describe('GetCommentsTool', () => {
 
       const result = await tool.execute({
         issueId: 'TEST-123',
+        fields: ['id', 'text'],
       });
 
       expect(result.isError).toBeUndefined();
@@ -122,6 +148,7 @@ describe('GetCommentsTool', () => {
 
       await tool.execute({
         issueId: 'TEST-123',
+        fields: ['id', 'text'],
       });
 
       expect(mockTrackerFacade.getComments).toHaveBeenCalledWith('TEST-123', {
@@ -138,6 +165,7 @@ describe('GetCommentsTool', () => {
         issueId: 'TEST-123',
         perPage: 50,
         page: 2,
+        fields: ['id', 'text'],
       });
 
       expect(mockTrackerFacade.getComments).toHaveBeenCalledWith('TEST-123', {
@@ -153,6 +181,7 @@ describe('GetCommentsTool', () => {
       await tool.execute({
         issueId: 'TEST-123',
         expand: ['attachments'],
+        fields: ['id', 'text'],
       });
 
       expect(mockTrackerFacade.getComments).toHaveBeenCalledWith('TEST-123', {
@@ -167,6 +196,7 @@ describe('GetCommentsTool', () => {
 
       const result = await tool.execute({
         issueId: 'TEST-123',
+        fields: ['id', 'text'],
       });
 
       expect(result.isError).toBeUndefined();
@@ -176,12 +206,14 @@ describe('GetCommentsTool', () => {
           issueId: string;
           comments: CommentWithUnknownFields[];
           count: number;
+          fieldsReturned: string[];
         };
       };
       expect(parsed.success).toBe(true);
       expect(parsed.data.issueId).toBe('TEST-123');
       expect(parsed.data.comments).toHaveLength(3);
       expect(parsed.data.count).toBe(3);
+      expect(parsed.data.fieldsReturned).toEqual(['id', 'text']);
     });
 
     it('должен вернуть пустой массив для задачи без комментариев', async () => {
@@ -189,6 +221,7 @@ describe('GetCommentsTool', () => {
 
       const result = await tool.execute({
         issueId: 'TEST-123',
+        fields: ['id', 'text'],
       });
 
       expect(result.isError).toBeUndefined();
@@ -211,6 +244,7 @@ describe('GetCommentsTool', () => {
 
       await tool.execute({
         issueId: 'TEST-123',
+        fields: ['id', 'text'],
       });
 
       expect(mockLogger.info).toHaveBeenCalledWith(
@@ -228,6 +262,7 @@ describe('GetCommentsTool', () => {
         issueId: 'TEST-123',
         perPage: 50,
         page: 2,
+        fields: ['id', 'text'],
       });
 
       expect(mockLogger.info).toHaveBeenCalledWith(
@@ -244,6 +279,7 @@ describe('GetCommentsTool', () => {
 
       await tool.execute({
         issueId: 'TEST-123',
+        fields: ['id', 'text'],
       });
 
       expect(mockLogger.info).toHaveBeenCalledWith(
@@ -263,6 +299,7 @@ describe('GetCommentsTool', () => {
 
       const result = await tool.execute({
         issueId: 'TEST-123',
+        fields: ['id', 'text'],
       });
 
       expect(result.isError).toBe(true);
@@ -276,6 +313,7 @@ describe('GetCommentsTool', () => {
 
       const result = await tool.execute({
         issueId: 'NONEXISTENT-999',
+        fields: ['id', 'text'],
       });
 
       expect(result.isError).toBe(true);
@@ -289,6 +327,7 @@ describe('GetCommentsTool', () => {
 
       const result = await tool.execute({
         issueId: 'PRIVATE-123',
+        fields: ['id', 'text'],
       });
 
       expect(result.isError).toBe(true);

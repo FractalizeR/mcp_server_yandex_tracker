@@ -59,16 +59,17 @@ describe('AddCommentTool', () => {
       const definition = tool.getDefinition();
 
       expect(definition.inputSchema.type).toBe('object');
-      expect(definition.inputSchema.required).toEqual(['issueId', 'text']);
+      expect(definition.inputSchema.required).toEqual(['issueId', 'text', 'fields']);
       expect(definition.inputSchema.properties?.['issueId']).toBeDefined();
       expect(definition.inputSchema.properties?.['text']).toBeDefined();
       expect(definition.inputSchema.properties?.['attachmentIds']).toBeDefined();
+      expect(definition.inputSchema.properties?.['fields']).toBeDefined();
     });
   });
 
   describe('Validation', () => {
     it('должен требовать параметр issueId', async () => {
-      const result = await tool.execute({ text: 'Test comment' });
+      const result = await tool.execute({ text: 'Test comment', fields: ['id', 'text'] });
 
       expect(result.isError).toBe(true);
       const parsed = JSON.parse(result.content[0]?.text || '{}') as {
@@ -80,7 +81,19 @@ describe('AddCommentTool', () => {
     });
 
     it('должен требовать параметр text', async () => {
-      const result = await tool.execute({ issueId: 'TEST-123' });
+      const result = await tool.execute({ issueId: 'TEST-123', fields: ['id', 'text'] });
+
+      expect(result.isError).toBe(true);
+      const parsed = JSON.parse(result.content[0]?.text || '{}') as {
+        success: boolean;
+        message: string;
+      };
+      expect(parsed.success).toBe(false);
+      expect(parsed.message).toContain('валидации');
+    });
+
+    it('должен требовать параметр fields', async () => {
+      const result = await tool.execute({ issueId: 'TEST-123', text: 'Test comment' });
 
       expect(result.isError).toBe(true);
       const parsed = JSON.parse(result.content[0]?.text || '{}') as {
@@ -92,14 +105,22 @@ describe('AddCommentTool', () => {
     });
 
     it('должен отклонить пустой issueId', async () => {
-      const result = await tool.execute({ issueId: '', text: 'Test comment' });
+      const result = await tool.execute({
+        issueId: '',
+        text: 'Test comment',
+        fields: ['id', 'text'],
+      });
 
       expect(result.isError).toBe(true);
       expect(result.content[0]?.text).toContain('валидации');
     });
 
     it('должен отклонить пустой text', async () => {
-      const result = await tool.execute({ issueId: 'TEST-123', text: '' });
+      const result = await tool.execute({
+        issueId: 'TEST-123',
+        text: '',
+        fields: ['id', 'text'],
+      });
 
       expect(result.isError).toBe(true);
       expect(result.content[0]?.text).toContain('text');
@@ -111,6 +132,7 @@ describe('AddCommentTool', () => {
       const result = await tool.execute({
         issueId: 'TEST-123',
         text: 'Test comment',
+        fields: ['id', 'text'],
       });
 
       expect(result.isError).toBeUndefined();
@@ -124,6 +146,7 @@ describe('AddCommentTool', () => {
       await tool.execute({
         issueId: 'TEST-123',
         text: 'Test comment',
+        fields: ['id', 'text'],
       });
 
       expect(mockTrackerFacade.addComment).toHaveBeenCalledWith('TEST-123', {
@@ -139,6 +162,7 @@ describe('AddCommentTool', () => {
         issueId: 'TEST-123',
         text: 'Test comment',
         attachmentIds: ['att1', 'att2'],
+        fields: ['id', 'text'],
       });
 
       expect(mockTrackerFacade.addComment).toHaveBeenCalledWith('TEST-123', {
@@ -147,12 +171,13 @@ describe('AddCommentTool', () => {
       });
     });
 
-    it('должен вернуть добавленный комментарий', async () => {
+    it('должен вернуть отфильтрованный комментарий с указанными полями', async () => {
       vi.mocked(mockTrackerFacade.addComment).mockResolvedValue(mockComment);
 
       const result = await tool.execute({
         issueId: 'TEST-123',
         text: 'Test comment',
+        fields: ['id', 'text'],
       });
 
       expect(result.isError).toBeUndefined();
@@ -162,15 +187,15 @@ describe('AddCommentTool', () => {
           commentId: string;
           comment: CommentWithUnknownFields;
           issueId: string;
+          fieldsReturned: string[];
         };
       };
       expect(parsed.success).toBe(true);
       expect(parsed.data.commentId).toBe('12345');
       expect(parsed.data.issueId).toBe('TEST-123');
-      expect(parsed.data.comment).toMatchObject({
-        id: '12345',
-        text: 'Test comment text',
-      });
+      expect(parsed.data.fieldsReturned).toEqual(['id', 'text']);
+      expect(parsed.data.comment).toHaveProperty('id');
+      expect(parsed.data.comment).toHaveProperty('text');
     });
   });
 
@@ -181,6 +206,7 @@ describe('AddCommentTool', () => {
       await tool.execute({
         issueId: 'TEST-123',
         text: 'Test comment',
+        fields: ['id', 'text'],
       });
 
       expect(mockLogger.info).toHaveBeenCalledWith(
@@ -200,6 +226,7 @@ describe('AddCommentTool', () => {
         issueId: 'TEST-123',
         text: 'Test comment',
         attachmentIds: ['att1'],
+        fields: ['id', 'text'],
       });
 
       expect(mockLogger.info).toHaveBeenCalledWith(
@@ -216,6 +243,7 @@ describe('AddCommentTool', () => {
       await tool.execute({
         issueId: 'TEST-123',
         text: 'Test comment',
+        fields: ['id', 'text'],
       });
 
       expect(mockLogger.info).toHaveBeenCalledWith(
@@ -236,6 +264,7 @@ describe('AddCommentTool', () => {
       const result = await tool.execute({
         issueId: 'TEST-123',
         text: 'Test comment',
+        fields: ['id', 'text'],
       });
 
       expect(result.isError).toBe(true);
@@ -250,6 +279,7 @@ describe('AddCommentTool', () => {
       const result = await tool.execute({
         issueId: 'NONEXISTENT-999',
         text: 'Test comment',
+        fields: ['id', 'text'],
       });
 
       expect(result.isError).toBe(true);
@@ -264,6 +294,7 @@ describe('AddCommentTool', () => {
       const result = await tool.execute({
         issueId: 'PRIVATE-123',
         text: 'Test comment',
+        fields: ['id', 'text'],
       });
 
       expect(result.isError).toBe(true);

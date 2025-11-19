@@ -3,7 +3,7 @@
  */
 
 import { z } from 'zod';
-import { IssueKeySchema } from '../../../../common/schemas/index.js';
+import { IssueKeySchema, FieldsSchema } from '../../../../common/schemas/index.js';
 
 /**
  * Схема параметров для редактирования комментария
@@ -23,6 +23,12 @@ export const EditCommentParamsSchema = z.object({
    * Новый текст комментария (обязательно)
    */
   text: z.string().min(1, 'Comment text не может быть пустым'),
+
+  /**
+   * Массив полей для возврата в результате (обязательный)
+   * Примеры: ['id', 'text', 'updatedAt'], ['id', 'text', 'updatedBy.login']
+   */
+  fields: FieldsSchema,
 });
 
 /**
