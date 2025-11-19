@@ -10,7 +10,7 @@
 
 import { buildToolName, ToolCategory, ToolPriority } from '@mcp-framework/core';
 import type { StaticToolMetadata } from '@mcp-framework/core';
-import { MCP_TOOL_PREFIX } from '../../../../constants.js';
+import { MCP_TOOL_PREFIX } from '#constants';
 
 /**
  * Статические метаданные для GetCommentsTool

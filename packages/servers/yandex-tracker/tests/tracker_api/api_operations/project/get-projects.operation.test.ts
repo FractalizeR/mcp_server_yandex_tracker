@@ -2,9 +2,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { HttpClient } from '@mcp-framework/infrastructure/http/client/http-client.js';
 import type { CacheManager } from '@mcp-framework/infrastructure/cache/cache-manager.interface.js';
 import type { Logger } from '@mcp-framework/infrastructure/logging/logger.js';
-import type { ProjectWithUnknownFields } from '@tracker_api/entities/index.js';
-import { GetProjectsOperation } from '@tracker_api/api_operations/project/get-projects.operation.js';
-import { createProjectListFixture } from '../../../helpers/project.fixture.js';
+import type { ProjectWithUnknownFields } from '#tracker_api/entities/index.js';
+import { GetProjectsOperation } from '#tracker_api/api_operations/project/get-projects.operation.js';
+import { createProjectListFixture } from '#helpers/project.fixture.js';
 
 describe('GetProjectsOperation', () => {
   let operation: GetProjectsOperation;

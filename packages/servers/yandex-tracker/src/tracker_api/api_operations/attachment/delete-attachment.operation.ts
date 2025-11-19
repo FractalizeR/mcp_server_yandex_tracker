@@ -9,7 +9,7 @@
  * API: DELETE /v2/issues/{issueId}/attachments/{attachmentId}
  */
 
-import { BaseOperation } from '@tracker_api/api_operations/base-operation.js';
+import { BaseOperation } from '#tracker_api/api_operations/base-operation.js';
 import { EntityCacheKey, EntityType } from '@mcp-framework/infrastructure';
 
 /**

@@ -1,14 +1,14 @@
 // tests/integration/tools/api/issues/links/get/get-issue-links.tool.integration.test.ts
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { createTestClient } from '@integration/helpers/mcp-client.js';
-import { createMockServer } from '@integration/helpers/mock-server.js';
-import type { TestMCPClient } from '@integration/helpers/mcp-client.js';
-import type { MockServer } from '@integration/helpers/mock-server.js';
+import { createTestClient } from '#integration/helpers/mcp-client.js';
+import { createMockServer } from '#integration/helpers/mock-server.js';
+import type { TestMCPClient } from '#integration/helpers/mcp-client.js';
+import type { MockServer } from '#integration/helpers/mock-server.js';
 import {
   createLinkListFixture,
   createSubtaskLinkFixture,
   createRelatesLinkFixture,
-} from '../../../../../../helpers/link.fixture.js';
+} from '#helpers/link.fixture.js';
 
 describe('get-issue-links integration tests', () => {
   let client: TestMCPClient;

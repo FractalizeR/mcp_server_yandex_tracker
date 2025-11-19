@@ -14,9 +14,9 @@
  * - Retry логика встроена в HttpClient
  */
 
-import { BaseOperation } from '@tracker_api/api_operations/base-operation.js';
+import { BaseOperation } from '#tracker_api/api_operations/base-operation.js';
 import { EntityCacheKey, EntityType } from '@mcp-framework/infrastructure';
-import type { LinkWithUnknownFields } from '@tracker_api/entities/index.js';
+import type { LinkWithUnknownFields } from '#tracker_api/entities/index.js';
 
 export class GetIssueLinksOperation extends BaseOperation {
   /**

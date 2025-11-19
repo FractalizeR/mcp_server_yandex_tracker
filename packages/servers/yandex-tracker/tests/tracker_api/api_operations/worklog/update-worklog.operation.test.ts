@@ -2,9 +2,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { HttpClient } from '@mcp-framework/infrastructure/http/client/http-client.js';
 import type { CacheManager } from '@mcp-framework/infrastructure/cache/cache-manager.interface.js';
 import type { Logger } from '@mcp-framework/infrastructure/logging/logger.js';
-import type { WorklogWithUnknownFields } from '@tracker_api/entities/index.js';
-import type { UpdateWorklogInput } from '@tracker_api/dto/index.js';
-import { UpdateWorklogOperation } from '@tracker_api/api_operations/worklog/update-worklog.operation.js';
+import type { WorklogWithUnknownFields } from '#tracker_api/entities/index.js';
+import type { UpdateWorklogInput } from '#tracker_api/dto/index.js';
+import { UpdateWorklogOperation } from '#tracker_api/api_operations/worklog/update-worklog.operation.js';
 
 describe('UpdateWorklogOperation', () => {
   let operation: UpdateWorklogOperation;

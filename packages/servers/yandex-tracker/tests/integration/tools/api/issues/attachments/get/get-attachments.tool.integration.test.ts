@@ -6,14 +6,14 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { createTestClient } from '@integration/helpers/mcp-client.js';
-import { createMockServer } from '@integration/helpers/mock-server.js';
-import type { TestMCPClient } from '@integration/helpers/mcp-client.js';
-import type { MockServer } from '@integration/helpers/mock-server.js';
+import { createTestClient } from '#integration/helpers/mcp-client.js';
+import { createMockServer } from '#integration/helpers/mock-server.js';
+import type { TestMCPClient } from '#integration/helpers/mcp-client.js';
+import type { MockServer } from '#integration/helpers/mock-server.js';
 import {
   createAttachmentListFixture,
   createImageAttachmentFixture,
-} from '../../../../../../helpers/attachment.fixture.js';
+} from '#helpers/attachment.fixture.js';
 
 describe('get-attachments integration tests', () => {
   let client: TestMCPClient;

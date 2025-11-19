@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { TOOL_CLASSES } from '@composition-root/definitions/tool-definitions.js';
+import { TOOL_CLASSES } from '#composition-root/definitions/tool-definitions.js';
 
 describe('Tool Metadata Validation', () => {
   describe('Required fields', () => {

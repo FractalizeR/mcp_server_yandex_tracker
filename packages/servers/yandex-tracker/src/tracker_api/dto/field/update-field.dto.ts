@@ -9,7 +9,7 @@
  * - Можно обновить только кастомные поля (системные поля защищены)
  */
 
-import type { FieldOption, FieldOptionsProvider } from '@tracker_api/entities/index.js';
+import type { FieldOption, FieldOptionsProvider } from '#tracker_api/entities/index.js';
 
 export interface UpdateFieldDto {
   /**

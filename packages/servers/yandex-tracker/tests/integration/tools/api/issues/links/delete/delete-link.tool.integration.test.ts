@@ -1,9 +1,9 @@
 // tests/integration/tools/api/issues/links/delete/delete-link.tool.integration.test.ts
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { createTestClient } from '@integration/helpers/mcp-client.js';
-import { createMockServer } from '@integration/helpers/mock-server.js';
-import type { TestMCPClient } from '@integration/helpers/mcp-client.js';
-import type { MockServer } from '@integration/helpers/mock-server.js';
+import { createTestClient } from '#integration/helpers/mcp-client.js';
+import { createMockServer } from '#integration/helpers/mock-server.js';
+import type { TestMCPClient } from '#integration/helpers/mcp-client.js';
+import type { MockServer } from '#integration/helpers/mock-server.js';
 
 describe('delete-link integration tests', () => {
   let client: TestMCPClient;

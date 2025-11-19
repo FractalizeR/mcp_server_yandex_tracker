@@ -12,6 +12,16 @@
   "license": "MIT",
   "author": "Fractalizer",
   "type": "module",
+  "imports": {
+    "#tracker_api/*": "./src/tracker_api/*",
+    "#tools/*": "./src/tools/*",
+    "#composition-root/*": "./src/composition-root/*",
+    "#cli/*": "./src/cli/*",
+    "#constants": "./src/constants.ts",
+    "#common/*": "./src/common/*",
+    "#integration/*": "./tests/integration/*",
+    "#helpers/*": "./tests/helpers/*"
+  },
   "main": "./dist/index.js",
   "bin": {
     "mcp-connect": "./dist/cli/bin/mcp-connect.js",
@@ -39,6 +49,7 @@
     "mcp:disconnect": "npm run build && node dist/cli/bin/mcp-connect.js disconnect",
     "mcp:list": "npm run build && node dist/cli/bin/mcp-connect.js list",
     "mcp:status": "npm run build && node dist/cli/bin/mcp-connect.js status",
+    "migrate:subpath-imports": "tsx scripts/migrate-to-subpath-imports.ts",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:quiet": "vitest run --reporter=dot --silent",

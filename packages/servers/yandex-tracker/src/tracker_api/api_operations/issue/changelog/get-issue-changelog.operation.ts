@@ -13,8 +13,8 @@
  * API v3: GET /v3/issues/{issueKey}/changelog
  */
 
-import { BaseOperation } from '@tracker_api/api_operations/base-operation.js';
-import type { ChangelogEntryWithUnknownFields } from '@tracker_api/entities/index.js';
+import { BaseOperation } from '#tracker_api/api_operations/base-operation.js';
+import type { ChangelogEntryWithUnknownFields } from '#tracker_api/entities/index.js';
 
 export class GetIssueChangelogOperation extends BaseOperation {
   /**

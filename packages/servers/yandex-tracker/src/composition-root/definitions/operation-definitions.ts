@@ -7,7 +7,7 @@
  * 3. Всё остальное произойдёт автоматически (DI регистрация)
  */
 
-import { PingOperation } from '@tracker_api/api_operations/user/ping.operation.js';
+import { PingOperation } from '#tracker_api/api_operations/user/ping.operation.js';
 import {
   GetIssuesOperation,
   FindIssuesOperation,
@@ -16,7 +16,7 @@ import {
   GetIssueChangelogOperation,
   GetIssueTransitionsOperation,
   TransitionIssueOperation,
-} from '@tracker_api/api_operations/issue/index.js';
+} from '#tracker_api/api_operations/issue/index.js';
 import {
   GetQueuesOperation,
   GetQueueOperation,
@@ -24,76 +24,76 @@ import {
   UpdateQueueOperation,
   GetQueueFieldsOperation,
   ManageQueueAccessOperation,
-} from '@tracker_api/api_operations/queue/index.js';
+} from '#tracker_api/api_operations/queue/index.js';
 import {
   GetComponentsOperation,
   CreateComponentOperation,
   UpdateComponentOperation,
   DeleteComponentOperation,
-} from '@tracker_api/api_operations/component/index.js';
+} from '#tracker_api/api_operations/component/index.js';
 import {
   GetIssueLinksOperation,
   CreateLinkOperation,
   DeleteLinkOperation,
-} from '@tracker_api/api_operations/link/index.js';
+} from '#tracker_api/api_operations/link/index.js';
 import {
   AddCommentOperation,
   GetCommentsOperation,
   EditCommentOperation,
   DeleteCommentOperation,
-} from '@tracker_api/api_operations/comment/index.js';
+} from '#tracker_api/api_operations/comment/index.js';
 import {
   GetAttachmentsOperation,
   UploadAttachmentOperation,
   DownloadAttachmentOperation,
   DeleteAttachmentOperation,
   GetThumbnailOperation,
-} from '@tracker_api/api_operations/attachment/index.js';
+} from '#tracker_api/api_operations/attachment/index.js';
 import {
   GetChecklistOperation,
   AddChecklistItemOperation,
   UpdateChecklistItemOperation,
   DeleteChecklistItemOperation,
-} from '@tracker_api/api_operations/checklist/index.js';
+} from '#tracker_api/api_operations/checklist/index.js';
 import {
   GetWorklogsOperation,
   AddWorklogOperation,
   UpdateWorklogOperation,
   DeleteWorklogOperation,
-} from '@tracker_api/api_operations/worklog/index.js';
+} from '#tracker_api/api_operations/worklog/index.js';
 import {
   GetProjectsOperation,
   GetProjectOperation,
   CreateProjectOperation,
   UpdateProjectOperation,
   DeleteProjectOperation,
-} from '@tracker_api/api_operations/project/index.js';
+} from '#tracker_api/api_operations/project/index.js';
 import {
   BulkUpdateIssuesOperation,
   BulkTransitionIssuesOperation,
   BulkMoveIssuesOperation,
   GetBulkChangeStatusOperation,
-} from '@tracker_api/api_operations/bulk-change/index.js';
+} from '#tracker_api/api_operations/bulk-change/index.js';
 import {
   GetFieldsOperation,
   GetFieldOperation,
   CreateFieldOperation,
   UpdateFieldOperation,
   DeleteFieldOperation,
-} from '@tracker_api/api_operations/field/index.js';
+} from '#tracker_api/api_operations/field/index.js';
 import {
   GetBoardsOperation,
   GetBoardOperation,
   CreateBoardOperation,
   UpdateBoardOperation,
   DeleteBoardOperation,
-} from '@tracker_api/api_operations/board/index.js';
+} from '#tracker_api/api_operations/board/index.js';
 import {
   GetSprintsOperation,
   GetSprintOperation,
   CreateSprintOperation,
   UpdateSprintOperation,
-} from '@tracker_api/api_operations/sprint/index.js';
+} from '#tracker_api/api_operations/sprint/index.js';
 
 /**
  * Массив всех Operation классов в проекте

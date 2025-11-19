@@ -3,8 +3,8 @@
  */
 
 import { describe, expect, test } from 'vitest';
-import type { Comment, CommentWithUnknownFields } from '@tracker_api/entities/comment/index.js';
-import type { WithUnknownFields } from '@tracker_api/entities/types.js';
+import type { Comment, CommentWithUnknownFields } from '#tracker_api/entities/comment/index.js';
+import type { WithUnknownFields } from '#tracker_api/entities/types.js';
 
 describe('Comment Entity', () => {
   describe('Type structure', () => {

@@ -9,8 +9,8 @@
  * API: GET /v2/boards
  */
 
-import { BaseOperation } from '@tracker_api/api_operations/base-operation.js';
-import type { BoardsListOutput } from '@tracker_api/dto/index.js';
+import { BaseOperation } from '#tracker_api/api_operations/base-operation.js';
+import type { BoardsListOutput } from '#tracker_api/dto/index.js';
 
 export interface GetBoardsParams {
   /** Локализация полей */

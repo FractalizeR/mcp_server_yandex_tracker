@@ -6,13 +6,13 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { HttpClient } from '@mcp-framework/infrastructure/http/client/http-client.js';
 import type { CacheManager } from '@mcp-framework/infrastructure/cache/cache-manager.interface.js';
 import type { Logger } from '@mcp-framework/infrastructure/logging/logger.js';
-import type { AttachmentWithUnknownFields } from '@tracker_api/entities/index.js';
-import { DownloadAttachmentOperation } from '@tracker_api/api_operations/attachment/download-attachment.operation.js';
+import type { AttachmentWithUnknownFields } from '#tracker_api/entities/index.js';
+import { DownloadAttachmentOperation } from '#tracker_api/api_operations/attachment/download-attachment.operation.js';
 import {
   createAttachmentFixture,
   createAttachmentListFixture,
-} from '../../../helpers/attachment.fixture.js';
-import { createMockFileBuffer, compareBuffers } from '../../../helpers/file-upload.helper.js';
+} from '#helpers/attachment.fixture.js';
+import { createMockFileBuffer, compareBuffers } from '#helpers/file-upload.helper.js';
 
 describe('DownloadAttachmentOperation', () => {
   let operation: DownloadAttachmentOperation;

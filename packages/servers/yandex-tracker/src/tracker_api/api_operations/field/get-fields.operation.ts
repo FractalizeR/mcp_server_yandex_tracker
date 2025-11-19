@@ -14,9 +14,9 @@
  * - Результат кешируется для оптимизации производительности
  */
 
-import { BaseOperation } from '@tracker_api/api_operations/base-operation.js';
+import { BaseOperation } from '#tracker_api/api_operations/base-operation.js';
 import { EntityCacheKey, EntityType } from '@mcp-framework/infrastructure';
-import type { FieldsListOutput } from '@tracker_api/dto/index.js';
+import type { FieldsListOutput } from '#tracker_api/dto/index.js';
 
 export class GetFieldsOperation extends BaseOperation {
   /**

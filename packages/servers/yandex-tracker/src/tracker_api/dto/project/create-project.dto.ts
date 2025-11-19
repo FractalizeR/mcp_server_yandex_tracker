@@ -4,7 +4,7 @@
  * ВАЖНО: Ключ проекта должен быть уникальным в рамках организации.
  */
 
-import type { ProjectStatus } from '@tracker_api/entities/index.js';
+import type { ProjectStatus } from '#tracker_api/entities/index.js';
 
 export interface CreateProjectDto {
   /** Уникальный ключ проекта */

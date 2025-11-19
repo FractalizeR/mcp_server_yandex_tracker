@@ -14,12 +14,12 @@
  * 9. Проверить changelog (Changelog)
  */
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { createTestClient } from '@integration/helpers/mcp-client.js';
-import { createMockServer } from '@integration/helpers/mock-server.js';
-import type { TestMCPClient } from '@integration/helpers/mcp-client.js';
-import type { MockServer } from '@integration/helpers/mock-server.js';
+import { createTestClient } from '#integration/helpers/mcp-client.js';
+import { createMockServer } from '#integration/helpers/mock-server.js';
+import type { TestMCPClient } from '#integration/helpers/mcp-client.js';
+import type { MockServer } from '#integration/helpers/mock-server.js';
 import { buildToolName } from '@mcp-framework/core';
-import { MCP_TOOL_PREFIX } from '@constants';
+import { MCP_TOOL_PREFIX } from '#constants';
 
 describe('Full Issue Lifecycle E2E', () => {
   let client: TestMCPClient;

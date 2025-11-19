@@ -12,7 +12,7 @@
  */
 
 import { BaseOperation } from '../base-operation.js';
-import type { BulkChangeOperationWithUnknownFields } from '@tracker_api/entities/index.js';
+import type { BulkChangeOperationWithUnknownFields } from '#tracker_api/entities/index.js';
 
 export class GetBulkChangeStatusOperation extends BaseOperation {
   /**

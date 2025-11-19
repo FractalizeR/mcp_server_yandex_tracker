@@ -2,9 +2,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { HttpClient } from '@mcp-framework/infrastructure/http/client/http-client.js';
 import type { CacheManager } from '@mcp-framework/infrastructure/cache/cache-manager.interface.js';
 import type { Logger } from '@mcp-framework/infrastructure/logging/logger.js';
-import type { ComponentOutput } from '@tracker_api/dto/index.js';
-import { DeleteComponentOperation } from '@tracker_api/api_operations/component/delete-component.operation.js';
-import { createComponentFixture, createQueueRef } from '../../../helpers/component.fixture.js';
+import type { ComponentOutput } from '#tracker_api/dto/index.js';
+import { DeleteComponentOperation } from '#tracker_api/api_operations/component/delete-component.operation.js';
+import { createComponentFixture, createQueueRef } from '#helpers/component.fixture.js';
 import { EntityCacheKey, EntityType } from '@mcp-framework/infrastructure';
 
 describe('DeleteComponentOperation', () => {

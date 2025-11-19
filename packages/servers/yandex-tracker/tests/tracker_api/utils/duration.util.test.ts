@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { DurationUtil } from '@tracker_api/utils/duration.util.js';
+import { DurationUtil } from '#tracker_api/utils/duration.util.js';
 
 describe('DurationUtil', () => {
   describe('parseHumanReadable', () => {

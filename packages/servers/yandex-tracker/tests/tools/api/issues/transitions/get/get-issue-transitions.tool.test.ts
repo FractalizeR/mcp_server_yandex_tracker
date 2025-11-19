@@ -3,13 +3,13 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { GetIssueTransitionsTool } from '@tools/api/issues/transitions/get/index.js';
-import type { YandexTrackerFacade } from '@tracker_api/facade/yandex-tracker.facade.js';
+import { GetIssueTransitionsTool } from '#tools/api/issues/transitions/get/index.js';
+import type { YandexTrackerFacade } from '#tracker_api/facade/yandex-tracker.facade.js';
 import type { Logger } from '@mcp-framework/infrastructure/logging/index.js';
-import type { TransitionWithUnknownFields } from '@tracker_api/entities/index.js';
+import type { TransitionWithUnknownFields } from '#tracker_api/entities/index.js';
 import { buildToolName } from '@mcp-framework/core';
-import { MCP_TOOL_PREFIX } from '@constants';
-import { STANDARD_TRANSITION_FIELDS } from '@helpers/test-fields.js';
+import { MCP_TOOL_PREFIX } from '#constants';
+import { STANDARD_TRANSITION_FIELDS } from '#helpers/test-fields.js';
 
 describe('GetIssueTransitionsTool', () => {
   let mockTrackerFacade: YandexTrackerFacade;

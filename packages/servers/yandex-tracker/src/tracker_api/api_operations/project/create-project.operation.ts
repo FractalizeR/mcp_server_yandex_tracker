@@ -9,9 +9,9 @@
  * API: POST /v2/projects
  */
 
-import { BaseOperation } from '@tracker_api/api_operations/base-operation.js';
+import { BaseOperation } from '#tracker_api/api_operations/base-operation.js';
 import { EntityCacheKey, EntityType } from '@mcp-framework/infrastructure';
-import type { CreateProjectDto, ProjectOutput } from '@tracker_api/dto/index.js';
+import type { CreateProjectDto, ProjectOutput } from '#tracker_api/dto/index.js';
 
 export class CreateProjectOperation extends BaseOperation {
   /**

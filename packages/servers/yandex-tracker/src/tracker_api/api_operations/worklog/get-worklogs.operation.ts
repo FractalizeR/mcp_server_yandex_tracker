@@ -8,8 +8,8 @@
  * API: GET /v2/issues/{issueId}/worklog
  */
 
-import { BaseOperation } from '@tracker_api/api_operations/base-operation.js';
-import type { WorklogWithUnknownFields } from '@tracker_api/entities/index.js';
+import { BaseOperation } from '#tracker_api/api_operations/base-operation.js';
+import type { WorklogWithUnknownFields } from '#tracker_api/entities/index.js';
 
 export class GetWorklogsOperation extends BaseOperation {
   /**

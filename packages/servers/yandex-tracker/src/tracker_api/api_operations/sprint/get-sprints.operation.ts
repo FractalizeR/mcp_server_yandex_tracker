@@ -8,8 +8,8 @@
  * API: GET /v2/boards/{boardId}/sprints
  */
 
-import { BaseOperation } from '@tracker_api/api_operations/base-operation.js';
-import type { SprintsListOutput } from '@tracker_api/dto/index.js';
+import { BaseOperation } from '#tracker_api/api_operations/base-operation.js';
+import type { SprintsListOutput } from '#tracker_api/dto/index.js';
 
 export interface GetSprintsParams {
   /** ID доски, для которой получаем спринты */

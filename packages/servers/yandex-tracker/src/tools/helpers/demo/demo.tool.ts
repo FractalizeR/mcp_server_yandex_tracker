@@ -11,7 +11,7 @@
 
 import { BaseTool } from '@mcp-framework/core';
 import type { ToolDefinition } from '@mcp-framework/core';
-import type { YandexTrackerFacade } from '@tracker_api/facade/index.js';
+import type { YandexTrackerFacade } from '#tracker_api/facade/index.js';
 import type { ToolCallParams, ToolResult } from '@mcp-framework/infrastructure';
 import { DemoDefinition } from './demo.definition.js';
 import { DemoParamsSchema } from './demo.schema.js';

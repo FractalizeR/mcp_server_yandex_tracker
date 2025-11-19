@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { HttpClient } from '@mcp-framework/infrastructure/http/client/http-client.js';
 import type { CacheManager } from '@mcp-framework/infrastructure/cache/cache-manager.interface.js';
 import type { Logger } from '@mcp-framework/infrastructure/logging/logger.js';
-import { DeleteWorklogOperation } from '@tracker_api/api_operations/worklog/delete-worklog.operation.js';
+import { DeleteWorklogOperation } from '#tracker_api/api_operations/worklog/delete-worklog.operation.js';
 
 describe('DeleteWorklogOperation', () => {
   let operation: DeleteWorklogOperation;

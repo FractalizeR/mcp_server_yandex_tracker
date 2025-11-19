@@ -8,11 +8,11 @@
  */
 
 import { BaseTool } from '@mcp-framework/core';
-import type { YandexTrackerFacade } from '@tracker_api/facade/index.js';
+import type { YandexTrackerFacade } from '#tracker_api/facade/index.js';
 import type { ToolDefinition } from '@mcp-framework/core';
 import type { ToolCallParams, ToolResult } from '@mcp-framework/infrastructure';
-import { DeleteCommentDefinition } from '@tools/api/comments/delete/delete-comment.definition.js';
-import { DeleteCommentParamsSchema } from '@tools/api/comments/delete/delete-comment.schema.js';
+import { DeleteCommentDefinition } from '#tools/api/comments/delete/delete-comment.definition.js';
+import { DeleteCommentParamsSchema } from '#tools/api/comments/delete/delete-comment.schema.js';
 
 import { DELETE_COMMENT_TOOL_METADATA } from './delete-comment.metadata.js';
 

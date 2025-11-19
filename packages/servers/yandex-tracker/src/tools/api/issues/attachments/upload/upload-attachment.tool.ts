@@ -8,10 +8,10 @@
  */
 
 import { BaseTool, ResponseFieldFilter } from '@mcp-framework/core';
-import type { YandexTrackerFacade } from '@tracker_api/facade/index.js';
+import type { YandexTrackerFacade } from '#tracker_api/facade/index.js';
 import type { ToolDefinition } from '@mcp-framework/core';
 import type { ToolCallParams, ToolResult } from '@mcp-framework/infrastructure';
-import type { AttachmentWithUnknownFields } from '@tracker_api/entities/index.js';
+import type { AttachmentWithUnknownFields } from '#tracker_api/entities/index.js';
 import { UploadAttachmentDefinition } from './upload-attachment.definition.js';
 import { UploadAttachmentParamsSchema } from './upload-attachment.schema.js';
 import { readFile } from 'node:fs/promises';

@@ -11,7 +11,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import type { MCPServerConfig } from '@cli/connectors/base/connector.interface.js';
+import type { MCPServerConfig } from '#cli/connectors/base/connector.interface.js';
 import * as os from 'os';
 import * as path from 'path';
 
@@ -33,7 +33,7 @@ vi.mock('@cli/utils/file-manager.js', () => ({
 }));
 
 // Импортируем ПОСЛЕ определения моков
-import { ClaudeDesktopConnector } from '@cli/connectors/claude-desktop/claude-desktop.connector.js';
+import { ClaudeDesktopConnector } from '#cli/connectors/claude-desktop/claude-desktop.connector.js';
 
 describe('ClaudeDesktopConnector', () => {
   let connector: ClaudeDesktopConnector;

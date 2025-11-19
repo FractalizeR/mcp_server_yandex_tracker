@@ -26,7 +26,7 @@ import type { StaticToolIndex, StrategyType } from '@mcp-framework/search/types.
 import type { ToolRegistry } from '@mcp-framework/core/tool-registry.js';
 import type { BaseTool } from '@mcp-framework/core/tools/base/base-tool.js';
 import type { Logger } from '@mcp-framework/infrastructure/logging/index.js';
-import { MCP_TOOL_PREFIX } from '@constants';
+import { MCP_TOOL_PREFIX } from '#constants';
 
 describe('SearchToolsTool (E2E)', () => {
   // Mock ToolRegistry

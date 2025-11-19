@@ -2,7 +2,7 @@
  * DTO для создания спринта в Яндекс.Трекере
  */
 
-import type { SprintStatus } from '@tracker_api/entities/index.js';
+import type { SprintStatus } from '#tracker_api/entities/index.js';
 
 export interface CreateSprintDto {
   /** Название спринта */

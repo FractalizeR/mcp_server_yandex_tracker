@@ -9,10 +9,10 @@
  * API: PATCH /v2/issues/{issueId}/worklog/{worklogId}
  */
 
-import { BaseOperation } from '@tracker_api/api_operations/base-operation.js';
-import { DurationUtil } from '@tracker_api/utils/duration.util.js';
-import type { UpdateWorklogInput } from '@tracker_api/dto/index.js';
-import type { WorklogWithUnknownFields } from '@tracker_api/entities/index.js';
+import { BaseOperation } from '#tracker_api/api_operations/base-operation.js';
+import { DurationUtil } from '#tracker_api/utils/duration.util.js';
+import type { UpdateWorklogInput } from '#tracker_api/dto/index.js';
+import type { WorklogWithUnknownFields } from '#tracker_api/entities/index.js';
 
 export class UpdateWorklogOperation extends BaseOperation {
   /**

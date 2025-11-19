@@ -11,8 +11,8 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import type { MCPServerConfig } from '@cli/connectors/base/connector.interface.js';
-import { MCP_SERVER_NAME } from '@constants';
+import type { MCPServerConfig } from '#cli/connectors/base/connector.interface.js';
+import { MCP_SERVER_NAME } from '#constants';
 import * as os from 'os';
 import * as path from 'path';
 
@@ -42,7 +42,7 @@ vi.mock('@cli/utils/file-manager.js', () => ({
 }));
 
 // Импортируем ПОСЛЕ определения моков
-import { CodexConnector } from '@cli/connectors/codex/codex.connector.js';
+import { CodexConnector } from '#cli/connectors/codex/codex.connector.js';
 
 describe('CodexConnector', () => {
   let connector: CodexConnector;

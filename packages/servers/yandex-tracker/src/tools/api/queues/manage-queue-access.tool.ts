@@ -3,13 +3,13 @@
  */
 
 import { BaseTool, ResponseFieldFilter } from '@mcp-framework/core';
-import type { YandexTrackerFacade } from '@tracker_api/facade/index.js';
+import type { YandexTrackerFacade } from '#tracker_api/facade/index.js';
 import type { ToolDefinition } from '@mcp-framework/core';
 import type { ToolCallParams, ToolResult } from '@mcp-framework/infrastructure';
 import { ManageQueueAccessDefinition } from './manage-queue-access.definition.js';
 import { ManageQueueAccessParamsSchema } from './manage-queue-access.schema.js';
 
-import type { QueuePermissionWithUnknownFields } from '@tracker_api/entities/index.js';
+import type { QueuePermissionWithUnknownFields } from '#tracker_api/entities/index.js';
 import { MANAGE_QUEUE_ACCESS_TOOL_METADATA } from './manage-queue-access.metadata.js';
 
 export class ManageQueueAccessTool extends BaseTool<YandexTrackerFacade> {

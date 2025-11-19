@@ -3,13 +3,13 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { EditCommentTool } from '@tools/api/comments/edit/index.js';
-import type { YandexTrackerFacade } from '@tracker_api/facade/yandex-tracker.facade.js';
+import { EditCommentTool } from '#tools/api/comments/edit/index.js';
+import type { YandexTrackerFacade } from '#tracker_api/facade/yandex-tracker.facade.js';
 import type { Logger } from '@mcp-framework/infrastructure/logging/index.js';
-import type { CommentWithUnknownFields } from '@tracker_api/entities/index.js';
+import type { CommentWithUnknownFields } from '#tracker_api/entities/index.js';
 import { buildToolName } from '@mcp-framework/core';
-import { MCP_TOOL_PREFIX } from '@constants';
-import { createEditedCommentFixture } from '../../../../helpers/comment.fixture.js';
+import { MCP_TOOL_PREFIX } from '#constants';
+import { createEditedCommentFixture } from '#helpers/comment.fixture.js';
 
 describe('EditCommentTool', () => {
   let mockTrackerFacade: YandexTrackerFacade;

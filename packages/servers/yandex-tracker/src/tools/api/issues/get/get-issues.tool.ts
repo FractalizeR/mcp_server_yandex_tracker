@@ -8,13 +8,13 @@
  */
 
 import { BaseTool } from '@mcp-framework/core';
-import type { YandexTrackerFacade } from '@tracker_api/facade/index.js';
+import type { YandexTrackerFacade } from '#tracker_api/facade/index.js';
 import type { ToolDefinition } from '@mcp-framework/core';
 import type { ToolCallParams, ToolResult } from '@mcp-framework/infrastructure';
 import { ResponseFieldFilter, BatchResultProcessor, ResultLogger } from '@mcp-framework/core';
-import type { IssueWithUnknownFields } from '@tracker_api/entities/index.js';
-import { GetIssuesDefinition } from '@tools/api/issues/get/get-issues.definition.js';
-import { GetIssuesParamsSchema } from '@tools/api/issues/get/get-issues.schema.js';
+import type { IssueWithUnknownFields } from '#tracker_api/entities/index.js';
+import { GetIssuesDefinition } from '#tools/api/issues/get/get-issues.definition.js';
+import { GetIssuesParamsSchema } from '#tools/api/issues/get/get-issues.schema.js';
 
 import { GET_ISSUES_TOOL_METADATA } from './get-issues.metadata.js';
 /**

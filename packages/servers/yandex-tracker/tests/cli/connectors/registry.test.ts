@@ -11,7 +11,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import type { MCPConnector } from '@cli/connectors/base/connector.interface.js';
+import type { MCPConnector } from '#cli/connectors/base/connector.interface.js';
 
 // Hoisted моки - создаём ДО импорта модулей
 const { CommandExecutor, FileManager } = vi.hoisted(() => {
@@ -42,7 +42,7 @@ vi.mock('@cli/utils/file-manager.js', () => ({
 }));
 
 // Импортируем ПОСЛЕ определения моков
-import { ConnectorRegistry } from '@cli/connectors/registry.js';
+import { ConnectorRegistry } from '#cli/connectors/registry.js';
 
 describe('ConnectorRegistry', () => {
   let registry: ConnectorRegistry;

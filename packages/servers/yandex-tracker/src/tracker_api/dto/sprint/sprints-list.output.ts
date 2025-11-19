@@ -2,7 +2,7 @@
  * Тип для ответа API при получении списка спринтов
  */
 
-import type { Sprint } from '@tracker_api/entities/index.js';
+import type { Sprint } from '#tracker_api/entities/index.js';
 
 /**
  * Output для списка спринтов

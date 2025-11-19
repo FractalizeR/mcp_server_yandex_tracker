@@ -9,9 +9,9 @@
  * API: POST /v3/issues/{issueId}/comments
  */
 
-import { BaseOperation } from '@tracker_api/api_operations/base-operation.js';
-import type { AddCommentInput } from '@tracker_api/dto/index.js';
-import type { CommentWithUnknownFields } from '@tracker_api/entities/index.js';
+import { BaseOperation } from '#tracker_api/api_operations/base-operation.js';
+import type { AddCommentInput } from '#tracker_api/dto/index.js';
+import type { CommentWithUnknownFields } from '#tracker_api/entities/index.js';
 
 export class AddCommentOperation extends BaseOperation {
   /**

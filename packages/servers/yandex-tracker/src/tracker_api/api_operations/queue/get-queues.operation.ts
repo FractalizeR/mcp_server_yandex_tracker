@@ -9,8 +9,8 @@
  * API: GET /v3/queues/
  */
 
-import { BaseOperation } from '@tracker_api/api_operations/base-operation.js';
-import type { GetQueuesDto, QueuesListOutput } from '@tracker_api/dto/index.js';
+import { BaseOperation } from '#tracker_api/api_operations/base-operation.js';
+import type { GetQueuesDto, QueuesListOutput } from '#tracker_api/dto/index.js';
 
 export class GetQueuesOperation extends BaseOperation {
   /**

@@ -3,7 +3,7 @@
  */
 
 import { z } from 'zod';
-import { IssueKeySchema, ExpandSchema, FieldsSchema } from '../../../../common/schemas/index.js';
+import { IssueKeySchema, ExpandSchema, FieldsSchema } from '#common/schemas/index.js';
 
 /**
  * Схема параметров для получения комментариев

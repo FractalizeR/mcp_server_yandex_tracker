@@ -2,9 +2,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { HttpClient } from '@mcp-framework/infrastructure/http/client/http-client.js';
 import type { CacheManager } from '@mcp-framework/infrastructure/cache/cache-manager.interface.js';
 import type { Logger } from '@mcp-framework/infrastructure/logging/logger.js';
-import type { CommentWithUnknownFields } from '@tracker_api/entities/index.js';
-import type { GetCommentsInput } from '@tracker_api/dto/index.js';
-import { GetCommentsOperation } from '@tracker_api/api_operations/comment/get-comments.operation.js';
+import type { CommentWithUnknownFields } from '#tracker_api/entities/index.js';
+import type { GetCommentsInput } from '#tracker_api/dto/index.js';
+import { GetCommentsOperation } from '#tracker_api/api_operations/comment/get-comments.operation.js';
 
 describe('GetCommentsOperation', () => {
   let operation: GetCommentsOperation;

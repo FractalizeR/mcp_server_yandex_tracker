@@ -8,8 +8,8 @@
  * API: GET /v2/issues/{issueId}/checklistItems
  */
 
-import { BaseOperation } from '@tracker_api/api_operations/base-operation.js';
-import type { ChecklistItemWithUnknownFields } from '@tracker_api/entities/index.js';
+import { BaseOperation } from '#tracker_api/api_operations/base-operation.js';
+import type { ChecklistItemWithUnknownFields } from '#tracker_api/entities/index.js';
 
 export class GetChecklistOperation extends BaseOperation {
   /**

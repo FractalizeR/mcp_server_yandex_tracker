@@ -2,15 +2,15 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { HttpClient } from '@mcp-framework/infrastructure/http/client/http-client.js';
 import type { CacheManager } from '@mcp-framework/infrastructure/cache/cache-manager.interface.js';
 import type { Logger } from '@mcp-framework/infrastructure/logging/logger.js';
-import type { ComponentOutput } from '@tracker_api/dto/index.js';
-import { CreateComponentOperation } from '@tracker_api/api_operations/component/create-component.operation.js';
-import { createComponentFixture } from '../../../helpers/component.fixture.js';
+import type { ComponentOutput } from '#tracker_api/dto/index.js';
+import { CreateComponentOperation } from '#tracker_api/api_operations/component/create-component.operation.js';
+import { createComponentFixture } from '#helpers/component.fixture.js';
 import {
   createCreateComponentDto,
   createMinimalCreateComponentDto,
   createFullCreateComponentDto,
   createInvalidCreateComponentDto,
-} from '../../../helpers/component-dto.fixture.js';
+} from '#helpers/component-dto.fixture.js';
 import { EntityCacheKey, EntityType } from '@mcp-framework/infrastructure';
 
 describe('CreateComponentOperation', () => {

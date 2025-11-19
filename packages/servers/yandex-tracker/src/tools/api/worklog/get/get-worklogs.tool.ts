@@ -8,12 +8,12 @@
  */
 
 import { BaseTool, ResponseFieldFilter } from '@mcp-framework/core';
-import type { YandexTrackerFacade } from '@tracker_api/facade/index.js';
+import type { YandexTrackerFacade } from '#tracker_api/facade/index.js';
 import type { ToolDefinition } from '@mcp-framework/core';
 import type { ToolCallParams, ToolResult } from '@mcp-framework/infrastructure';
-import type { WorklogWithUnknownFields } from '@tracker_api/entities/index.js';
-import { GetWorklogsDefinition } from '@tools/api/worklog/get/get-worklogs.definition.js';
-import { GetWorklogsParamsSchema } from '@tools/api/worklog/get/get-worklogs.schema.js';
+import type { WorklogWithUnknownFields } from '#tracker_api/entities/index.js';
+import { GetWorklogsDefinition } from '#tools/api/worklog/get/get-worklogs.definition.js';
+import { GetWorklogsParamsSchema } from '#tools/api/worklog/get/get-worklogs.schema.js';
 
 import { GET_WORKLOGS_TOOL_METADATA } from './get-worklogs.metadata.js';
 

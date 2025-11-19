@@ -17,7 +17,7 @@ import {
   createChangelogField,
   createMinimalChangelogEntry,
   createFullChangelogEntry,
-} from '@tracker_api/entities/entity.factories.js';
+} from '#tracker_api/entities/entity.factories.js';
 
 describe('Entity Factories', () => {
   describe('createUser', () => {

@@ -3,11 +3,11 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { DeleteChecklistItemTool } from '@tools/api/checklists/delete/index.js';
-import type { YandexTrackerFacade } from '@tracker_api/facade/yandex-tracker.facade.js';
+import { DeleteChecklistItemTool } from '#tools/api/checklists/delete/index.js';
+import type { YandexTrackerFacade } from '#tracker_api/facade/yandex-tracker.facade.js';
 import type { Logger } from '@mcp-framework/infrastructure/logging/index.js';
 import { buildToolName } from '@mcp-framework/core';
-import { MCP_TOOL_PREFIX } from '@constants';
+import { MCP_TOOL_PREFIX } from '#constants';
 
 describe('DeleteChecklistItemTool', () => {
   let mockTrackerFacade: YandexTrackerFacade;

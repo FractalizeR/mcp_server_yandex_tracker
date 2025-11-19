@@ -8,12 +8,12 @@
  */
 
 import { BaseTool, ResponseFieldFilter } from '@mcp-framework/core';
-import type { YandexTrackerFacade } from '@tracker_api/facade/index.js';
+import type { YandexTrackerFacade } from '#tracker_api/facade/index.js';
 import type { ToolDefinition } from '@mcp-framework/core';
 import type { ToolCallParams, ToolResult } from '@mcp-framework/infrastructure';
-import type { ChecklistItemWithUnknownFields } from '@tracker_api/entities/index.js';
-import { UpdateChecklistItemDefinition } from '@tools/api/checklists/update/update-checklist-item.definition.js';
-import { UpdateChecklistItemParamsSchema } from '@tools/api/checklists/update/update-checklist-item.schema.js';
+import type { ChecklistItemWithUnknownFields } from '#tracker_api/entities/index.js';
+import { UpdateChecklistItemDefinition } from '#tools/api/checklists/update/update-checklist-item.definition.js';
+import { UpdateChecklistItemParamsSchema } from '#tools/api/checklists/update/update-checklist-item.schema.js';
 
 import { UPDATE_CHECKLIST_ITEM_TOOL_METADATA } from './update-checklist-item.metadata.js';
 

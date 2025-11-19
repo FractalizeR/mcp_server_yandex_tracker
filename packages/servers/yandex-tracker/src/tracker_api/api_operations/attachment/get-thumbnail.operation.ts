@@ -12,9 +12,9 @@
  * Для других типов файлов API вернет ошибку.
  */
 
-import { BaseOperation } from '@tracker_api/api_operations/base-operation.js';
-import { FileDownloadUtil } from '@tracker_api/utils/index.js';
-import type { AttachmentWithUnknownFields } from '@tracker_api/entities/index.js';
+import { BaseOperation } from '#tracker_api/api_operations/base-operation.js';
+import { FileDownloadUtil } from '#tracker_api/utils/index.js';
+import type { AttachmentWithUnknownFields } from '#tracker_api/entities/index.js';
 
 /**
  * Получение миниатюры изображения

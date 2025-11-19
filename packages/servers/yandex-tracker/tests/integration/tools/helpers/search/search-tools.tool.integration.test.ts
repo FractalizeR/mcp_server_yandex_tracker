@@ -9,10 +9,10 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { createTestClient } from '@integration/helpers/mcp-client.js';
-import type { TestMCPClient } from '@integration/helpers/mcp-client.js';
+import { createTestClient } from '#integration/helpers/mcp-client.js';
+import type { TestMCPClient } from '#integration/helpers/mcp-client.js';
 import { buildToolName } from '@mcp-framework/core';
-import { MCP_TOOL_PREFIX } from '@constants';
+import { MCP_TOOL_PREFIX } from '#constants';
 
 // SearchToolsTool - framework tool, регистрируется БЕЗ префикса
 const SEARCH_TOOLS_NAME = buildToolName('search_tools');

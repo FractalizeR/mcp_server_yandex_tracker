@@ -12,8 +12,8 @@
  */
 
 import { BaseOperation } from '../base-operation.js';
-import type { BulkMoveIssuesInputDto } from '@tracker_api/dto/index.js';
-import type { BulkChangeOperationWithUnknownFields } from '@tracker_api/entities/index.js';
+import type { BulkMoveIssuesInputDto } from '#tracker_api/dto/index.js';
+import type { BulkChangeOperationWithUnknownFields } from '#tracker_api/entities/index.js';
 
 export class BulkMoveIssuesOperation extends BaseOperation {
   /**

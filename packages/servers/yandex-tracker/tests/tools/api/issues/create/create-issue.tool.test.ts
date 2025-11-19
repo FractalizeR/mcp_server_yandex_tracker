@@ -3,13 +3,13 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { CreateIssueTool } from '@tools/api/issues/create/index.js';
-import type { YandexTrackerFacade } from '@tracker_api/facade/yandex-tracker.facade.js';
+import { CreateIssueTool } from '#tools/api/issues/create/index.js';
+import type { YandexTrackerFacade } from '#tracker_api/facade/yandex-tracker.facade.js';
 import type { Logger } from '@mcp-framework/infrastructure/logging/index.js';
-import type { IssueWithUnknownFields } from '@tracker_api/entities/index.js';
+import type { IssueWithUnknownFields } from '#tracker_api/entities/index.js';
 import { buildToolName } from '@mcp-framework/core';
-import { MCP_TOOL_PREFIX } from '@constants';
-import { STANDARD_ISSUE_FIELDS } from '@helpers/test-fields.js';
+import { MCP_TOOL_PREFIX } from '#constants';
+import { STANDARD_ISSUE_FIELDS } from '#helpers/test-fields.js';
 
 describe('CreateIssueTool', () => {
   let mockTrackerFacade: YandexTrackerFacade;

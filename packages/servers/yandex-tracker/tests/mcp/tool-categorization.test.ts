@@ -1,14 +1,14 @@
 import { describe, it, expect } from 'vitest';
-import { CreateIssueTool } from '@tools/api/issues/create/index.js';
-import { GetIssuesTool } from '@tools/api/issues/get/index.js';
-import { FindIssuesTool } from '@tools/api/issues/find/index.js';
-import { UpdateIssueTool } from '@tools/api/issues/update/index.js';
-import { GetIssueChangelogTool } from '@tools/api/issues/changelog/index.js';
-import { GetIssueTransitionsTool } from '@tools/api/issues/transitions/get/index.js';
-import { TransitionIssueTool } from '@tools/api/issues/transitions/execute/index.js';
-import { PingTool } from '@tools/ping.tool.js';
-import { IssueUrlTool } from '@tools/helpers/issue-url/index.js';
-import { DemoTool } from '@tools/helpers/demo/index.js';
+import { CreateIssueTool } from '#tools/api/issues/create/index.js';
+import { GetIssuesTool } from '#tools/api/issues/get/index.js';
+import { FindIssuesTool } from '#tools/api/issues/find/index.js';
+import { UpdateIssueTool } from '#tools/api/issues/update/index.js';
+import { GetIssueChangelogTool } from '#tools/api/issues/changelog/index.js';
+import { GetIssueTransitionsTool } from '#tools/api/issues/transitions/get/index.js';
+import { TransitionIssueTool } from '#tools/api/issues/transitions/execute/index.js';
+import { PingTool } from '#tools/ping.tool.js';
+import { IssueUrlTool } from '#tools/helpers/issue-url/index.js';
+import { DemoTool } from '#tools/helpers/demo/index.js';
 
 describe('Tool Categorization', () => {
   describe('Issues category', () => {

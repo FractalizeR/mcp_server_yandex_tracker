@@ -2,9 +2,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { HttpClient } from '@mcp-framework/infrastructure/http/client/http-client.js';
 import type { CacheManager } from '@mcp-framework/infrastructure/cache/cache-manager.interface.js';
 import type { Logger } from '@mcp-framework/infrastructure/logging/logger.js';
-import type { ChecklistItemWithUnknownFields } from '@tracker_api/entities/index.js';
-import type { AddChecklistItemInput } from '@tracker_api/dto/index.js';
-import { AddChecklistItemOperation } from '@tracker_api/api_operations/checklist/add-checklist-item.operation.js';
+import type { ChecklistItemWithUnknownFields } from '#tracker_api/entities/index.js';
+import type { AddChecklistItemInput } from '#tracker_api/dto/index.js';
+import { AddChecklistItemOperation } from '#tracker_api/api_operations/checklist/add-checklist-item.operation.js';
 
 describe('AddChecklistItemOperation', () => {
   let operation: AddChecklistItemOperation;

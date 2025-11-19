@@ -7,7 +7,7 @@ import {
 } from './helpers/mock-factories.js';
 import type { Logger } from '@mcp-framework/infrastructure/logging/logger.js';
 import type { HttpClient } from '@mcp-framework/infrastructure/http/client/http-client.js';
-import type { YandexTrackerFacade } from '@tracker_api/facade/yandex-tracker.facade.js';
+import type { YandexTrackerFacade } from '#tracker_api/facade/yandex-tracker.facade.js';
 
 /**
  * ПРИМЕР: Как использовать mock factories в новых тестах

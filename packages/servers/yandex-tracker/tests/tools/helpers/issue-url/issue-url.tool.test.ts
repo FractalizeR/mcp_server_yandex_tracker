@@ -3,11 +3,11 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { IssueUrlTool } from '@tools/helpers/issue-url/issue-url.tool.js';
+import { IssueUrlTool } from '#tools/helpers/issue-url/issue-url.tool.js';
 import { ToolCategory, buildToolName } from '@mcp-framework/core';
 import type { Logger } from '@mcp-framework/infrastructure/logging/logger.js';
-import type { YandexTrackerFacade } from '@tracker_api/facade/yandex-tracker.facade.js';
-import { MCP_TOOL_PREFIX } from '@constants';
+import type { YandexTrackerFacade } from '#tracker_api/facade/yandex-tracker.facade.js';
+import { MCP_TOOL_PREFIX } from '#constants';
 
 describe('IssueUrlTool', () => {
   let tool: IssueUrlTool;

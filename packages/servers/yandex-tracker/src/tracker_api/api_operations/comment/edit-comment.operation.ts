@@ -8,9 +8,9 @@
  * API: PATCH /v3/issues/{issueId}/comments/{commentId}
  */
 
-import { BaseOperation } from '@tracker_api/api_operations/base-operation.js';
-import type { EditCommentInput } from '@tracker_api/dto/index.js';
-import type { CommentWithUnknownFields } from '@tracker_api/entities/index.js';
+import { BaseOperation } from '#tracker_api/api_operations/base-operation.js';
+import type { EditCommentInput } from '#tracker_api/dto/index.js';
+import type { CommentWithUnknownFields } from '#tracker_api/entities/index.js';
 
 export class EditCommentOperation extends BaseOperation {
   /**

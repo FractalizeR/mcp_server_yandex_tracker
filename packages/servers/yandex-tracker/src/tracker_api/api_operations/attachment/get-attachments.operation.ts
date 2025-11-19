@@ -9,9 +9,9 @@
  * API: GET /v2/issues/{issueId}/attachments
  */
 
-import { BaseOperation } from '@tracker_api/api_operations/base-operation.js';
+import { BaseOperation } from '#tracker_api/api_operations/base-operation.js';
 import { EntityCacheKey, EntityType } from '@mcp-framework/infrastructure';
-import type { AttachmentWithUnknownFields } from '@tracker_api/entities/index.js';
+import type { AttachmentWithUnknownFields } from '#tracker_api/entities/index.js';
 
 /**
  * Получение списка прикрепленных файлов задачи

@@ -14,9 +14,9 @@
  * - Требуются права администратора
  */
 
-import { BaseOperation } from '@tracker_api/api_operations/base-operation.js';
+import { BaseOperation } from '#tracker_api/api_operations/base-operation.js';
 import { EntityCacheKey, EntityType } from '@mcp-framework/infrastructure';
-import type { UpdateFieldDto, FieldOutput } from '@tracker_api/dto/index.js';
+import type { UpdateFieldDto, FieldOutput } from '#tracker_api/dto/index.js';
 
 export class UpdateFieldOperation extends BaseOperation {
   /**

@@ -10,9 +10,9 @@
  * API: GET /v2/projects/{projectId}
  */
 
-import { BaseOperation } from '@tracker_api/api_operations/base-operation.js';
+import { BaseOperation } from '#tracker_api/api_operations/base-operation.js';
 import { EntityCacheKey, EntityType } from '@mcp-framework/infrastructure';
-import type { ProjectOutput } from '@tracker_api/dto/index.js';
+import type { ProjectOutput } from '#tracker_api/dto/index.js';
 
 export interface GetProjectParams {
   /** ID или ключ проекта */

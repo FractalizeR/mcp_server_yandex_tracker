@@ -7,7 +7,7 @@
  * - UpdateFieldOperation (PATCH /v2/fields/{fieldId})
  */
 
-import type { FieldWithUnknownFields } from '@tracker_api/entities/index.js';
+import type { FieldWithUnknownFields } from '#tracker_api/entities/index.js';
 
 /**
  * Output для одиночного поля

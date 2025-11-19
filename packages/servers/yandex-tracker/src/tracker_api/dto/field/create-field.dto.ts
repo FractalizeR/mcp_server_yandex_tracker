@@ -9,7 +9,7 @@
  * - Поле доступно во всей организации
  */
 
-import type { FieldSchema, FieldOption, FieldOptionsProvider } from '@tracker_api/entities/index.js';
+import type { FieldSchema, FieldOption, FieldOptionsProvider } from '#tracker_api/entities/index.js';
 
 export interface CreateFieldDto {
   /**

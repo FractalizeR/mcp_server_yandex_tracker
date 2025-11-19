@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { HttpClient } from '@mcp-framework/infrastructure/http/client/http-client.js';
 import type { CacheManager } from '@mcp-framework/infrastructure/cache/cache-manager.interface.js';
 import type { Logger } from '@mcp-framework/infrastructure/logging/logger.js';
-import { DeleteProjectOperation } from '@tracker_api/api_operations/project/delete-project.operation.js';
+import { DeleteProjectOperation } from '#tracker_api/api_operations/project/delete-project.operation.js';
 import { EntityCacheKey, EntityType } from '@mcp-framework/infrastructure';
 
 describe('DeleteProjectOperation', () => {

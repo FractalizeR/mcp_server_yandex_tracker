@@ -3,12 +3,12 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { CreateProjectTool } from '@tools/api/projects/create-project.tool.js';
-import type { YandexTrackerFacade } from '@tracker_api/facade/yandex-tracker.facade.js';
+import { CreateProjectTool } from '#tools/api/projects/create-project.tool.js';
+import type { YandexTrackerFacade } from '#tracker_api/facade/yandex-tracker.facade.js';
 import type { Logger } from '@mcp-framework/infrastructure/logging/index.js';
 import { buildToolName } from '@mcp-framework/core';
-import { MCP_TOOL_PREFIX } from '@constants';
-import { createProjectFixture } from '../../../helpers/project.fixture.js';
+import { MCP_TOOL_PREFIX } from '#constants';
+import { createProjectFixture } from '#helpers/project.fixture.js';
 
 describe('CreateProjectTool', () => {
   let mockTrackerFacade: YandexTrackerFacade;
