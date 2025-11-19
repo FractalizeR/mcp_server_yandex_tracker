@@ -7,6 +7,7 @@ import { createTestClient } from '@integration/helpers/mcp-client.js';
 import { createMockServer } from '@integration/helpers/mock-server.js';
 import type { TestMCPClient } from '@integration/helpers/mcp-client.js';
 import type { MockServer } from '@integration/helpers/mock-server.js';
+import { STANDARD_COMPONENT_FIELDS } from '../../../../helpers/test-fields.js';
 
 describe('update-component integration tests', () => {
   let client: TestMCPClient;
@@ -31,6 +32,7 @@ describe('update-component integration tests', () => {
       const result = await client.callTool('fr_yandex_tracker_update_component', {
         componentId,
         name: 'Updated Component',
+        fields: STANDARD_COMPONENT_FIELDS,
       });
 
       // Assert
@@ -52,6 +54,7 @@ describe('update-component integration tests', () => {
       const result = await client.callTool('fr_yandex_tracker_update_component', {
         componentId,
         description: 'New description',
+        fields: STANDARD_COMPONENT_FIELDS,
       });
 
       // Assert
@@ -76,6 +79,7 @@ describe('update-component integration tests', () => {
         name: 'New Name',
         description: 'New Description',
         assignAuto: true,
+        fields: STANDARD_COMPONENT_FIELDS,
       });
 
       // Assert
@@ -97,6 +101,7 @@ describe('update-component integration tests', () => {
         componentId,
         lead: 'newlead',
         assignAuto: true,
+        fields: STANDARD_COMPONENT_FIELDS,
       });
 
       // Assert
@@ -117,6 +122,7 @@ describe('update-component integration tests', () => {
       const result = await client.callTool('fr_yandex_tracker_update_component', {
         componentId,
         name: 'New Name',
+        fields: STANDARD_COMPONENT_FIELDS,
       });
 
       // Assert
@@ -135,6 +141,7 @@ describe('update-component integration tests', () => {
       const result = await client.callTool('fr_yandex_tracker_update_component', {
         componentId,
         name: 'Updated',
+        fields: STANDARD_COMPONENT_FIELDS,
       });
 
       // Assert

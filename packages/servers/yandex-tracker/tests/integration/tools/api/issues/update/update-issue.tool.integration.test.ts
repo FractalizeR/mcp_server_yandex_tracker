@@ -4,6 +4,7 @@ import { createTestClient } from '@integration/helpers/mcp-client.js';
 import { createMockServer } from '@integration/helpers/mock-server.js';
 import type { TestMCPClient } from '@integration/helpers/mcp-client.js';
 import type { MockServer } from '@integration/helpers/mock-server.js';
+import { STANDARD_ISSUE_FIELDS } from '../../../../../../helpers/test-fields.js';
 
 describe('update-issue integration tests', () => {
   let client: TestMCPClient;
@@ -29,6 +30,7 @@ describe('update-issue integration tests', () => {
     const result = await client.callTool('fr_yandex_tracker_update_issue', {
       issueKey,
       summary: 'Updated summary',
+      fields: STANDARD_ISSUE_FIELDS,
     });
 
     // Assert
@@ -54,6 +56,7 @@ describe('update-issue integration tests', () => {
       summary: 'New summary',
       description: 'New description',
       priority: 'critical',
+      fields: STANDARD_ISSUE_FIELDS,
     });
 
     // Assert
@@ -72,6 +75,7 @@ describe('update-issue integration tests', () => {
     const result = await client.callTool('fr_yandex_tracker_update_issue', {
       issueKey,
       summary: 'Test',
+      fields: STANDARD_ISSUE_FIELDS,
     });
 
     // Assert

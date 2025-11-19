@@ -7,6 +7,7 @@ import { createTestClient } from '@integration/helpers/mcp-client.js';
 import { createMockServer } from '@integration/helpers/mock-server.js';
 import type { TestMCPClient } from '@integration/helpers/mcp-client.js';
 import type { MockServer } from '@integration/helpers/mock-server.js';
+import { STANDARD_QUEUE_FIELDS } from '../../../../../helpers/test-fields.js';
 
 describe('create-queue integration tests', () => {
   let client: TestMCPClient;
@@ -36,6 +37,7 @@ describe('create-queue integration tests', () => {
         lead: 'testuser',
         defaultType: 'task',
         defaultPriority: 'normal',
+        fields: STANDARD_QUEUE_FIELDS,
       });
 
       // Assert
@@ -63,6 +65,7 @@ describe('create-queue integration tests', () => {
         defaultType: 'task',
         defaultPriority: 'normal',
         description: 'Project queue description',
+        fields: STANDARD_QUEUE_FIELDS,
       });
 
       // Assert
@@ -86,6 +89,7 @@ describe('create-queue integration tests', () => {
         lead: 'testuser',
         defaultType: 'task',
         defaultPriority: 'normal',
+        fields: STANDARD_QUEUE_FIELDS,
       });
 
       // Assert
@@ -106,6 +110,7 @@ describe('create-queue integration tests', () => {
         lead: 'admin',
         defaultType: 'task',
         defaultPriority: 'normal',
+        fields: STANDARD_QUEUE_FIELDS,
       });
 
       // Assert

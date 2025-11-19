@@ -4,6 +4,7 @@ import { createTestClient } from '@integration/helpers/mcp-client.js';
 import { createMockServer } from '@integration/helpers/mock-server.js';
 import type { TestMCPClient } from '@integration/helpers/mcp-client.js';
 import type { MockServer } from '@integration/helpers/mock-server.js';
+import { STANDARD_CHANGELOG_FIELDS } from '../../../../../../helpers/test-fields.js';
 
 describe('get-issue-changelog integration tests', () => {
   let client: TestMCPClient;
@@ -26,6 +27,7 @@ describe('get-issue-changelog integration tests', () => {
     // Act
     const result = await client.callTool('fr_yandex_tracker_get_issue_changelog', {
       issueKey,
+      fields: STANDARD_CHANGELOG_FIELDS,
     });
 
     // Assert
@@ -49,6 +51,7 @@ describe('get-issue-changelog integration tests', () => {
     // Act
     const result = await client.callTool('fr_yandex_tracker_get_issue_changelog', {
       issueKey,
+      fields: STANDARD_CHANGELOG_FIELDS,
     });
 
     // Assert

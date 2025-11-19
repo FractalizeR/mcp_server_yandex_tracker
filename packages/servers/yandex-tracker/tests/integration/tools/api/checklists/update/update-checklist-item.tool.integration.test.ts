@@ -4,6 +4,7 @@ import { createTestClient } from '@integration/helpers/mcp-client.js';
 import { createMockServer } from '@integration/helpers/mock-server.js';
 import type { TestMCPClient } from '@integration/helpers/mcp-client.js';
 import type { MockServer } from '@integration/helpers/mock-server.js';
+import { STANDARD_CHECKLIST_FIELDS } from '../../../../helpers/test-fields.js';
 
 describe('update-checklist-item integration tests', () => {
   let client: TestMCPClient;
@@ -31,6 +32,7 @@ describe('update-checklist-item integration tests', () => {
       issueId: issueKey,
       checklistItemId,
       text: updatedText,
+      fields: STANDARD_CHECKLIST_FIELDS,
     });
 
     // Assert
@@ -54,6 +56,7 @@ describe('update-checklist-item integration tests', () => {
       issueId: issueKey,
       checklistItemId,
       checked: true,
+      fields: STANDARD_CHECKLIST_FIELDS,
     });
 
     // Assert
@@ -83,6 +86,7 @@ describe('update-checklist-item integration tests', () => {
       issueId: issueKey,
       checklistItemId,
       assignee,
+      fields: STANDARD_CHECKLIST_FIELDS,
     });
 
     // Assert
@@ -107,6 +111,7 @@ describe('update-checklist-item integration tests', () => {
       issueId: issueKey,
       checklistItemId,
       deadline,
+      fields: STANDARD_CHECKLIST_FIELDS,
     });
 
     // Assert
@@ -129,6 +134,7 @@ describe('update-checklist-item integration tests', () => {
       issueId: issueKey,
       checklistItemId,
       text: 'Some text',
+      fields: STANDARD_CHECKLIST_FIELDS,
     });
 
     // Assert
@@ -160,6 +166,7 @@ describe('update-checklist-item integration tests', () => {
       checked: true,
       assignee,
       deadline,
+      fields: STANDARD_CHECKLIST_FIELDS,
     });
 
     // Assert
