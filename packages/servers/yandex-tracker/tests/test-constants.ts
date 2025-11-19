@@ -5,7 +5,7 @@
  * консистентности между продакшн кодом и тестами
  */
 
-import { MCP_TOOL_PREFIX } from '../src/constants.js';
+import { MCP_TOOL_PREFIX } from '#constants';
 
 /**
  * Префикс для названий инструментов в тестах

@@ -145,8 +145,9 @@ import { BaseTool } from '@core/tools/base/base-tool.js';              // WRONG!
 ```
 
 **Внутри пакета:**
-- ✅ Относительные пути (`./`, `../`) для внутренних импортов
-- ✅ Алиасы только если настроены в `tsconfig.json` пакета
+- ✅ **Node.js Subpath Imports** (`#prefix/*`) для yandex-tracker (настроены в `package.json` → `"imports"`)
+- ✅ Относительные пути (`./`, `../`) для локальных файлов в том же модуле
+- ✅ Framework пакеты используют относительные пути (нет subpath imports)
 
 ### 3. Типобезопасность
 

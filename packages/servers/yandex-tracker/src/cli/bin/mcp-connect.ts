@@ -14,7 +14,7 @@ import { statusCommand } from '../commands/status.command.js';
 import { listCommand } from '../commands/list.command.js';
 import { validateCommand } from '../commands/validate.command.js';
 import { Logger } from '../utils/logger.js';
-import { MCP_SERVER_DISPLAY_NAME, MCP_SERVER_NAME } from '../../constants.js';
+import { MCP_SERVER_DISPLAY_NAME, MCP_SERVER_NAME } from '#constants';
 import type { ConnectCommandOptions } from '../commands/connect.command.js';
 import type { DisconnectCommandOptions } from '../commands/disconnect.command.js';
 

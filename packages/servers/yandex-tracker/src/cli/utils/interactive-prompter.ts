@@ -4,7 +4,7 @@
 
 import inquirer from 'inquirer';
 import type { MCPClientInfo, MCPServerConfig } from '../connectors/base/connector.interface.js';
-import { DEFAULT_LOG_LEVEL } from '../../constants.js';
+import { DEFAULT_LOG_LEVEL } from '#constants';
 
 export class InteractivePrompter {
   /**

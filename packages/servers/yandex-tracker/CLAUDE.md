@@ -41,11 +41,14 @@ import { ToolSearchEngine } from '@mcp-framework/search';
 
 **✅ Внутренние импорты (внутри yandex-tracker):**
 ```typescript
-// Относительные пути для близких файлов
-import { YandexTrackerFacade } from './facade/index.js';
+// Node.js Subpath Imports (# префикс) для модулей из package.json "imports"
+import { GetIssuesOperation } from '#tracker_api/operations/issues/get/index.js';
+import { MCP_TOOL_PREFIX } from '#constants';
+import { FieldsSchema } from '#common/schemas/index.js';
 
-// Или через пути в tsconfig (если настроены)
-import { GetIssuesOperation } from '../../api_operations/issue/get/index.js';
+// Относительные пути ТОЛЬКО для локальных файлов в том же модуле
+import { YandexTrackerFacade } from './facade/index.js';
+import { validateInput } from '../utils/validation.js';
 ```
 
 **❌ НЕ импортируй framework через относительные пути:**
