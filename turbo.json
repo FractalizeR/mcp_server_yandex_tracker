@@ -18,7 +18,7 @@
     },
     "test": {
       "dependsOn": ["build"],
-      "outputs": ["coverage/**"],
+      "outputs": [],
       "cache": true
     },
     "test:coverage": {
@@ -28,12 +28,12 @@
     },
     "test:quiet": {
       "dependsOn": ["build"],
-      "outputs": ["coverage/**"],
+      "outputs": [],
       "cache": true
     },
     "test:verbose": {
       "dependsOn": ["build"],
-      "outputs": ["coverage/**"],
+      "outputs": [],
       "cache": true
     },
     "test:watch": {
