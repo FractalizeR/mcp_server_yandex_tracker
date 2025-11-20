@@ -148,7 +148,7 @@ export class CreateIssueDefinition extends BaseToolDefinition {
    */
   private buildFieldsParam(): Record<string, unknown> {
     return this.buildArrayParam(
-      'Фильтр полей ответа (опционально, по умолчанию все). ' +
+      'Фильтр полей ответа (опционально, по умолчанию все). Указывайте только нужные поля для экономии токенов. ' +
         'Основные: key, summary, description, status, assignee, createdAt.',
       this.buildStringParam('Имя поля', {
         minLength: 1,

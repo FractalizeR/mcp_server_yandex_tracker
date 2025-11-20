@@ -80,7 +80,7 @@ export class AddWorklogDefinition extends BaseToolDefinition {
   private buildFieldsParam(): Record<string, unknown> {
     return this.buildArrayParam(
       '⚠️ ОБЯЗАТЕЛЬНЫЙ. Список полей, которые нужно вернуть в ответе. ' +
-        'Сокращает объем ответа, возвращая только нужные поля.',
+        'Указывайте только нужные поля для экономии токенов.',
       {
         items: { type: 'string' },
         examples: [
