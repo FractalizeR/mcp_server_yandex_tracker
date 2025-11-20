@@ -96,7 +96,7 @@ describe('GetIssuesTool', () => {
       expect(definition.description).toContain('Получить задачи по ключам');
       expect(definition.description).toContain('Batch-режим');
       expect(definition.inputSchema.type).toBe('object');
-      expect(definition.inputSchema.required).toEqual(['issueKeys']);
+      expect(definition.inputSchema.required).toEqual(['issueKeys', 'fields']);
       expect(definition.inputSchema.properties?.['issueKeys']).toBeDefined();
       expect(definition.inputSchema.properties?.['fields']).toBeDefined();
     });

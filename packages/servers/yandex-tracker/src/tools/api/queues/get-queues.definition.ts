@@ -27,8 +27,9 @@ export class GetQueuesDefinition extends BaseToolDefinition {
           perPage: this.buildPerPageParam(),
           page: this.buildPageParam(),
           expand: this.buildExpandParam(),
+          fields: this.buildFieldsParam(),
         },
-        required: [],
+        required: ['fields'],
       },
     };
   }
@@ -36,7 +37,7 @@ export class GetQueuesDefinition extends BaseToolDefinition {
   private buildDescription(): string {
     return (
       'Получить список всех очередей с поддержкой пагинации. ' +
-      'Возвращает массив очередей с их параметрами. ' +
+      'Параметр fields обязателен для экономии токенов. ' +
       '\n\n' +
       'Для: просмотра доступных очередей, навигации по очередям. ' +
       '\n' +
@@ -67,6 +68,28 @@ export class GetQueuesDefinition extends BaseToolDefinition {
       'Дополнительные поля для включения в ответ (опционально). Примеры: "projects", "components".',
       {
         examples: ['projects'],
+      }
+    );
+  }
+
+  private buildFieldsParam(): Record<string, unknown> {
+    return this.buildArrayParam(
+      '⚠️ ОБЯЗАТЕЛЬНЫЙ параметр - список возвращаемых полей для экономии токенов. ' +
+        'Укажите только необходимые поля. ' +
+        '\n\n' +
+        'Поля очереди: key, name, description, lead, assignAuto, defaultType, defaultPriority, ' +
+        'teamUsers, issueTypes, versions, workflows, denyVoting, issueTypesConfig. ' +
+        'Вложенные (dot-notation): lead.login, lead.display, defaultType.key, defaultPriority.key.',
+      this.buildStringParam('Имя поля', {
+        minLength: 1,
+        examples: ['key', 'name', 'lead.login'],
+      }),
+      {
+        minItems: 1,
+        examples: [
+          ['key', 'name', 'lead'],
+          ['key', 'name', 'lead.login', 'defaultType.key'],
+        ],
       }
     );
   }

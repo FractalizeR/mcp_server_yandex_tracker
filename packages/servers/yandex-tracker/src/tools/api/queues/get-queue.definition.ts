@@ -23,8 +23,9 @@ export class GetQueueDefinition extends BaseToolDefinition {
         properties: {
           queueId: this.buildQueueIdParam(),
           expand: this.buildExpandParam(),
+          fields: this.buildFieldsParam(),
         },
-        required: ['queueId'],
+        required: ['queueId', 'fields'],
       },
     };
   }
@@ -32,7 +33,7 @@ export class GetQueueDefinition extends BaseToolDefinition {
   private buildDescription(): string {
     return (
       'Получить детальную информацию об одной очереди по ID или ключу. ' +
-      'Возвращает полные параметры очереди. ' +
+      'Параметр fields обязателен для экономии токенов. ' +
       '\n\n' +
       'Для: просмотра настроек очереди, получения руководителя, типов задач. ' +
       '\n' +
@@ -55,6 +56,28 @@ export class GetQueueDefinition extends BaseToolDefinition {
       'Дополнительные поля для включения в ответ (опционально). Примеры: "projects", "components".',
       {
         examples: ['projects'],
+      }
+    );
+  }
+
+  private buildFieldsParam(): Record<string, unknown> {
+    return this.buildArrayParam(
+      '⚠️ ОБЯЗАТЕЛЬНЫЙ параметр - список возвращаемых полей для экономии токенов. ' +
+        'Укажите только необходимые поля. ' +
+        '\n\n' +
+        'Поля очереди: key, name, description, lead, assignAuto, defaultType, defaultPriority, ' +
+        'teamUsers, issueTypes, versions, workflows, denyVoting, issueTypesConfig. ' +
+        'Вложенные (dot-notation): lead.login, lead.display, defaultType.key, defaultPriority.key.',
+      this.buildStringParam('Имя поля', {
+        minLength: 1,
+        examples: ['key', 'name', 'lead.login'],
+      }),
+      {
+        minItems: 1,
+        examples: [
+          ['key', 'name', 'lead'],
+          ['key', 'name', 'lead.login', 'defaultType.key'],
+        ],
       }
     );
   }

@@ -41,8 +41,8 @@ export class FindIssuesDefinition extends BaseToolDefinition {
           expand: this.buildExpandParam(),
           fields: this.buildFieldsParam(),
         },
-        // Хотя бы один параметр поиска должен быть указан (валидация в schema)
-        required: [],
+        // fields обязателен; хотя бы один параметр поиска должен быть указан (валидация в schema)
+        required: ['fields'],
       },
     };
   }
@@ -53,7 +53,7 @@ export class FindIssuesDefinition extends BaseToolDefinition {
   private buildDescription(): string {
     return (
       'Поиск задач по query (язык запросов Трекера), filter (key-value), keys, queue или filterId. ' +
-      'Параметр fields фильтрует ответ. Поддержка пагинации (perPage, page). ' +
+      'Параметр fields обязателен для экономии токенов. Поддержка пагинации (perPage, page). ' +
       '\n\n' +
       'Для: поиска задач по условиям с логическими операторами. ' +
       '\n' +
