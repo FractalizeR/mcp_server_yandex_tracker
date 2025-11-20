@@ -39,7 +39,7 @@ export class CreateIssueDefinition extends BaseToolDefinition {
           customFields: this.buildCustomFieldsParam(),
           fields: this.buildFieldsParam(),
         },
-        required: ['queue', 'summary'],
+        required: ['queue', 'summary', 'fields'],
       },
     };
   }
@@ -49,8 +49,8 @@ export class CreateIssueDefinition extends BaseToolDefinition {
    */
   private buildDescription(): string {
     return (
-      'Создаёт задачу (queue*, summary*, description, assignee, priority, type, customFields). ' +
-      'Параметр fields фильтрует ответ. ' +
+      'Создаёт задачу (queue*, summary*, fields*, description, assignee, priority, type, customFields). ' +
+      'Параметр fields обязателен для экономии токенов. ' +
       'Для обновления: update_issue.'
     );
   }
@@ -139,7 +139,7 @@ export class CreateIssueDefinition extends BaseToolDefinition {
    */
   private buildFieldsParam(): Record<string, unknown> {
     return this.buildArrayParam(
-      'Поля для возврата. Указывайте минимум для экономии токенов.',
+      '⚠️ ОБЯЗАТЕЛЬНЫЙ. Поля для возврата. Указывайте минимум для экономии токенов.',
       this.buildStringParam('Имя поля', {
         minLength: 1,
         examples: ['key'],

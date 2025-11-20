@@ -40,7 +40,7 @@ export class UpdateIssueDefinition extends BaseToolDefinition {
           customFields: this.buildCustomFieldsParam(),
           fields: this.buildFieldsParam(),
         },
-        required: ['issueKey'],
+        required: ['issueKey', 'fields'],
       },
     };
   }
@@ -50,9 +50,9 @@ export class UpdateIssueDefinition extends BaseToolDefinition {
    */
   private buildDescription(): string {
     return (
-      'Обновляет поля (summary, description, assignee, priority, type, status, customFields). ' +
+      'Обновляет поля (issueKey*, fields*, summary, description, assignee, priority, type, status, customFields). ' +
       'Partial update: изменяются только указанные поля. ' +
-      'Параметр fields фильтрует ответ. ' +
+      'Параметр fields обязателен для экономии токенов. ' +
       'Для создания: create_issue, переходов: transition_issue.'
     );
   }
@@ -167,7 +167,7 @@ export class UpdateIssueDefinition extends BaseToolDefinition {
    */
   private buildFieldsParam(): Record<string, unknown> {
     return this.buildArrayParam(
-      'Поля для возврата. Указывайте минимум для экономии токенов.',
+      '⚠️ ОБЯЗАТЕЛЬНЫЙ. Поля для возврата. Указывайте минимум для экономии токенов.',
       this.buildStringParam('Имя поля', {
         minLength: 1,
         examples: ['key', 'summary'],

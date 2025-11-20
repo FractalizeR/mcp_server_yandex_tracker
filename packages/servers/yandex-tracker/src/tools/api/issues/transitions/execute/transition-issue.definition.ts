@@ -36,7 +36,7 @@ export class TransitionIssueDefinition extends BaseToolDefinition {
           customFields: this.buildCustomFieldsParam(),
           fields: this.buildFieldsParam(),
         },
-        required: ['issueKey', 'transitionId'],
+        required: ['issueKey', 'transitionId', 'fields'],
       },
     };
   }
@@ -46,9 +46,9 @@ export class TransitionIssueDefinition extends BaseToolDefinition {
    */
   private buildDescription(): string {
     return (
-      'Выполняет workflow-переход (issueKey*, transitionId*, comment, customFields). ' +
+      'Выполняет workflow-переход (issueKey*, transitionId*, fields*, comment, customFields). ' +
       'Можно добавить комментарий и заполнить обязательные поля формы через customFields. ' +
-      'Параметр fields фильтрует ответ. ' +
+      'Параметр fields обязателен для экономии токенов. ' +
       '⚠️ ВАЖНО: Сначала получи доступные переходы через get_issue_transitions! ' +
       'ID перехода зависит от workflow очереди и текущего статуса. ' +
       'Для просмотра переходов: get_issue_transitions, обновления полей: update_issue.'
@@ -112,7 +112,7 @@ export class TransitionIssueDefinition extends BaseToolDefinition {
    */
   private buildFieldsParam(): Record<string, unknown> {
     return this.buildArrayParam(
-      'Поля для возврата. Указывайте минимум для экономии токенов.',
+      '⚠️ ОБЯЗАТЕЛЬНЫЙ. Поля для возврата. Указывайте минимум для экономии токенов.',
       this.buildStringParam('Имя поля', {
         minLength: 1,
         examples: ['key', 'summary', 'status', 'status.key'],

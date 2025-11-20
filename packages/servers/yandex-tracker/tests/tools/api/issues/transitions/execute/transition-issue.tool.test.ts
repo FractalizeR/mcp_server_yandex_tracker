@@ -62,7 +62,7 @@ describe('TransitionIssueTool', () => {
       expect(definition.name).toBe(buildToolName('transition_issue', MCP_TOOL_PREFIX));
       expect(definition.description).toContain('Выполняет workflow-переход');
       expect(definition.inputSchema.type).toBe('object');
-      expect(definition.inputSchema.required).toEqual(['issueKey', 'transitionId']);
+      expect(definition.inputSchema.required).toEqual(['issueKey', 'transitionId', 'fields']);
       expect(definition.inputSchema.properties?.['issueKey']).toBeDefined();
       expect(definition.inputSchema.properties?.['transitionId']).toBeDefined();
       expect(definition.inputSchema.properties?.['comment']).toBeDefined();

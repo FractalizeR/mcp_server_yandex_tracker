@@ -34,7 +34,7 @@ export class GetIssueChangelogDefinition extends BaseToolDefinition {
           issueKey: this.buildIssueKeyParam(),
           fields: this.buildFieldsParam(),
         },
-        required: ['issueKey'],
+        required: ['issueKey', 'fields'],
       },
     };
   }
@@ -44,9 +44,9 @@ export class GetIssueChangelogDefinition extends BaseToolDefinition {
    */
   private buildDescription(): string {
     return (
-      'Получает историю изменений (issueKey*) в хронологическом порядке. ' +
+      'Получает историю изменений (issueKey*, fields*) в хронологическом порядке. ' +
       'Показывает кто, когда и какие поля изменил со старыми/новыми значениями. ' +
-      'Параметр fields фильтрует ответ. ' +
+      'Параметр fields обязателен для экономии токенов. ' +
       'Для текущего состояния: get_issues, комментариев: get_comments.'
     );
   }
@@ -66,7 +66,7 @@ export class GetIssueChangelogDefinition extends BaseToolDefinition {
    */
   private buildFieldsParam(): Record<string, unknown> {
     return this.buildArrayParam(
-      'Фильтр полей ответа (опционально, по умолчанию все). Указывайте только нужные поля для экономии токенов. ' +
+      '⚠️ ОБЯЗАТЕЛЬНЫЙ. Фильтр полей ответа. Указывайте только нужные поля для экономии токенов. ' +
         'Основные: id, self, updatedAt, updatedBy, type, transport, fields, issue, attachments, comments, worklog, messages, links, ranks. ' +
         'Вложенные (dot-notation): updatedBy.uid/.login/.display/.email/.firstName/.lastName/.isActive, issue.id/.key/.display, fields[].field.id/.display/.from/.to.',
       this.buildStringParam('Имя поля', {

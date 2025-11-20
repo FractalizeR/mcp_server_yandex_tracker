@@ -63,7 +63,7 @@ describe('UpdateIssueTool', () => {
       expect(definition.name).toBe(buildToolName('update_issue', MCP_TOOL_PREFIX));
       expect(definition.description).toContain('Обновляет поля');
       expect(definition.inputSchema.type).toBe('object');
-      expect(definition.inputSchema.required).toEqual(['issueKey']);
+      expect(definition.inputSchema.required).toEqual(['issueKey', 'fields']);
       expect(definition.inputSchema.properties?.['issueKey']).toBeDefined();
       expect(definition.inputSchema.properties?.['summary']).toBeDefined();
       expect(definition.inputSchema.properties?.['fields']).toBeDefined();

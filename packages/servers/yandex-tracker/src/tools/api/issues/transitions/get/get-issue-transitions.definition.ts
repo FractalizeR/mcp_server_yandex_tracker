@@ -34,7 +34,7 @@ export class GetIssueTransitionsDefinition extends BaseToolDefinition {
           issueKey: this.buildIssueKeyParam(),
           fields: this.buildFieldsParam(),
         },
-        required: ['issueKey'],
+        required: ['issueKey', 'fields'],
       },
     };
   }
@@ -44,9 +44,9 @@ export class GetIssueTransitionsDefinition extends BaseToolDefinition {
    */
   private buildDescription(): string {
     return (
-      'Получает доступные workflow-переходы (issueKey*). ' +
+      'Получает доступные workflow-переходы (issueKey*, fields*). ' +
       'Возвращает только переходы, доступные из текущего статуса. ' +
-      'Параметр fields фильтрует ответ. ' +
+      'Параметр fields обязателен для экономии токенов. ' +
       'Для выполнения: transition_issue, истории: get_issue_changelog.'
     );
   }
@@ -66,8 +66,8 @@ export class GetIssueTransitionsDefinition extends BaseToolDefinition {
    */
   private buildFieldsParam(): Record<string, unknown> {
     return this.buildArrayParam(
-      'Фильтр полей ответа (опционально, по умолчанию все). ' +
-        'Рекомендуется указывать только необходимые поля для экономии токенов (без фильтрации: ~500-1000 токенов/переход, с фильтрацией: ~50-150). ' +
+      '⚠️ ОБЯЗАТЕЛЬНЫЙ. Фильтр полей ответа. ' +
+        'Указывайте только необходимые поля для экономии токенов (без фильтрации: ~500-1000 токенов/переход, с фильтрацией: ~50-150). ' +
         '\n\n' +
         'Поля: id, self, to, screen. ' +
         'Вложенные (dot-notation): to.key, to.display, screen.id.',
