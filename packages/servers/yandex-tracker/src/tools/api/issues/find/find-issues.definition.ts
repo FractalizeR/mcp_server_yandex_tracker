@@ -203,7 +203,7 @@ export class FindIssuesDefinition extends BaseToolDefinition {
    */
   private buildFieldsParam(): Record<string, unknown> {
     return this.buildArrayParam(
-      'Фильтр полей ответа (опционально, по умолчанию все). ' +
+      'Фильтр полей ответа (опционально, по умолчанию все). Указывайте только нужные поля для экономии токенов. ' +
         'Основные: key, summary, description, status, priority, assignee, author, createdAt, updatedAt. ' +
         'Вложенные (dot-notation): assignee.login, status.key, queue.key.',
       this.buildStringParam('Имя поля', {
