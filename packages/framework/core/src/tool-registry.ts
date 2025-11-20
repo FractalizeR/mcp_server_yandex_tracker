@@ -13,8 +13,12 @@
  */
 
 import type { Container } from 'inversify';
-import type { Logger } from '@mcp-framework/infrastructure';
-import type { ToolCallParams, ToolResult } from '@mcp-framework/infrastructure';
+import type {
+  Logger,
+  ToolCallParams,
+  ToolResult,
+  ParsedCategoryFilter,
+} from '@mcp-framework/infrastructure';
 import type { BaseTool, ToolDefinition } from './tools/base/index.js';
 
 /**
@@ -215,23 +219,154 @@ export class ToolRegistry {
   }
 
   /**
+   * Получить инструменты, отфильтрованные по категориям
+   *
+   * @param filter - Фильтр категорий из конфигурации
+   * @returns Определения инструментов, соответствующих фильтру
+   */
+  getDefinitionsByCategories(filter: ParsedCategoryFilter): ToolDefinition[] {
+    this.ensureInitialized();
+
+    if (!this.tools) {
+      return [];
+    }
+
+    // Если includeAll = true, возвращаем все инструменты
+    if (filter.includeAll) {
+      return this.getDefinitions();
+    }
+
+    // Собираем известные категории и подкатегории для валидации
+    const knownCategories = new Set<string>();
+    const knownSubcategories = new Map<string, Set<string>>();
+
+    for (const tool of this.tools.values()) {
+      const toolClass = tool.constructor as typeof BaseTool;
+      const metadata = toolClass.METADATA;
+
+      if (metadata?.category) {
+        knownCategories.add(metadata.category);
+
+        if (metadata.subcategory) {
+          let subcategories = knownSubcategories.get(metadata.category);
+          if (!subcategories) {
+            subcategories = new Set();
+            knownSubcategories.set(metadata.category, subcategories);
+          }
+          subcategories.add(metadata.subcategory);
+        }
+      }
+    }
+
+    // Валидация запрошенных категорий
+    const unknownCategories: string[] = [];
+    const unknownSubcategories: Array<{ category: string; subcategory: string }> = [];
+
+    for (const cat of filter.categories) {
+      if (!knownCategories.has(cat)) {
+        unknownCategories.push(cat);
+      }
+    }
+
+    for (const [cat, subcats] of filter.categoriesWithSubcategories.entries()) {
+      if (!knownCategories.has(cat)) {
+        unknownCategories.push(cat);
+      } else {
+        for (const subcat of subcats) {
+          if (!knownSubcategories.get(cat)?.has(subcat)) {
+            unknownSubcategories.push({ category: cat, subcategory: subcat });
+          }
+        }
+      }
+    }
+
+    // Логируем warnings для неизвестных категорий/подкатегорий
+    if (unknownCategories.length > 0) {
+      this.logger.warn('⚠️  Unknown categories in filter', {
+        unknownCategories: [...new Set(unknownCategories)],
+        knownCategories: Array.from(knownCategories),
+      });
+    }
+
+    if (unknownSubcategories.length > 0) {
+      this.logger.warn('⚠️  Unknown subcategories in filter', {
+        unknownSubcategories,
+        knownSubcategories: Array.from(knownSubcategories.entries()).map(([cat, subcats]) => ({
+          category: cat,
+          subcategories: Array.from(subcats),
+        })),
+      });
+    }
+
+    const tools = Array.from(this.tools.values()).filter((tool) => {
+      const toolClass = tool.constructor as typeof BaseTool;
+      const metadata = toolClass.METADATA;
+
+      if (!metadata || !metadata.category) {
+        // Инструменты без категории всегда включены (backwards compatibility)
+        return true;
+      }
+
+      const category = metadata.category;
+      const subcategory = metadata.subcategory;
+
+      // Проверка 1: категория без подкатегории (включает все подкатегории)
+      if (filter.categories.has(category)) {
+        return true;
+      }
+
+      // Проверка 2: категория с конкретными подкатегориями
+      if (subcategory && filter.categoriesWithSubcategories.has(category)) {
+        const allowedSubcategories = filter.categoriesWithSubcategories.get(category);
+        if (allowedSubcategories) {
+          return allowedSubcategories.has(subcategory);
+        }
+      }
+
+      return false;
+    });
+
+    const sorted = this.sortByPriority(tools);
+
+    // Логирование фильтрации
+    this.logger.info('Tools filtered by categories', {
+      totalTools: this.tools.size,
+      filteredTools: sorted.length,
+      categories: Array.from(filter.categories),
+      categoriesWithSubcategories: Array.from(filter.categoriesWithSubcategories.entries()).map(
+        ([cat, subcats]) => ({ category: cat, subcategories: Array.from(subcats) })
+      ),
+    });
+
+    return sorted.map((tool) => tool.getDefinition());
+  }
+
+  /**
    * Получить определения в зависимости от режима discovery
    *
    * @param mode - режим обнаружения ('lazy' или 'eager')
    * @param essentialNames - список essential инструментов (для lazy режима)
+   * @param categoryFilter - фильтр категорий (для eager режима с фильтрацией)
    * @returns Определения инструментов
    */
   getDefinitionsByMode(
     mode: 'lazy' | 'eager',
-    essentialNames?: readonly string[]
+    essentialNames?: readonly string[],
+    categoryFilter?: ParsedCategoryFilter
   ): ToolDefinition[] {
-    if (mode === 'eager') {
-      return this.getDefinitions();
+    if (mode === 'lazy') {
+      // Lazy mode: только essential tools
+      const names = essentialNames ?? ['ping', 'search_tools'];
+      return this.getEssentialDefinitions(names);
     }
 
-    // Lazy mode: возвращаем только essential tools
-    const names = essentialNames || ['ping', 'search_tools'];
-    return this.getEssentialDefinitions(names);
+    // Eager mode: фильтрация по категориям (если указано)
+    if (categoryFilter && !categoryFilter.includeAll) {
+      return this.getDefinitionsByCategories(categoryFilter);
+    }
+
+    // Eager mode без фильтра: все инструменты
+    return this.getDefinitions();
   }
 
   /**
