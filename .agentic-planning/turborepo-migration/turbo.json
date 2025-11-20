@@ -1,0 +1,121 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "pipeline": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"],
+      "cache": true
+    },
+    "build:bundle": {
+      "dependsOn": ["build"],
+      "outputs": ["dist/**/*.bundle.*", "dist/**/*.cjs"],
+      "cache": true
+    },
+    "build:mcpb": {
+      "dependsOn": ["build"],
+      "outputs": ["*.mcpb", ".mcpb-build/**"],
+      "cache": false
+    },
+    "test": {
+      "dependsOn": ["build"],
+      "outputs": ["coverage/**"],
+      "cache": true,
+      "outputMode": "full"
+    },
+    "test:coverage": {
+      "dependsOn": ["build"],
+      "outputs": ["coverage/**"],
+      "cache": true,
+      "outputMode": "full"
+    },
+    "test:quiet": {
+      "dependsOn": ["build"],
+      "outputs": ["coverage/**"],
+      "cache": true,
+      "outputMode": "errors-only"
+    },
+    "test:verbose": {
+      "dependsOn": ["build"],
+      "outputs": ["coverage/**"],
+      "cache": true,
+      "outputMode": "full"
+    },
+    "test:watch": {
+      "dependsOn": ["build"],
+      "cache": false,
+      "persistent": true
+    },
+    "test:smoke": {
+      "dependsOn": ["build"],
+      "cache": false,
+      "outputMode": "full"
+    },
+    "lint": {
+      "cache": true,
+      "inputs": ["src/**/*.ts", "eslint.config.js", "package.json"],
+      "outputMode": "errors-only"
+    },
+    "lint:fix": {
+      "cache": false,
+      "outputMode": "errors-only"
+    },
+    "lint:quiet": {
+      "cache": true,
+      "inputs": ["src/**/*.ts", "eslint.config.js", "package.json"],
+      "outputMode": "errors-only"
+    },
+    "typecheck": {
+      "dependsOn": ["^build"],
+      "cache": true,
+      "inputs": ["src/**/*.ts", "tests/**/*.ts", "tsconfig*.json"],
+      "outputs": ["*.tsbuildinfo"]
+    },
+    "cpd": {
+      "cache": true,
+      "inputs": ["packages/**/src/**/*.ts", ".jscpd.json", "package.json"],
+      "outputs": [],
+      "outputMode": "errors-only"
+    },
+    "cpd:quiet": {
+      "cache": true,
+      "inputs": ["packages/**/src/**/*.ts", ".jscpd.json", "package.json"],
+      "outputs": [],
+      "outputMode": "errors-only"
+    },
+    "cpd:report": {
+      "cache": true,
+      "inputs": ["packages/**/src/**/*.ts", ".jscpd.json", "package.json"],
+      "outputs": ["jscpd-report/**"],
+      "outputMode": "full"
+    },
+    "depcruise": {
+      "cache": true,
+      "inputs": [
+        "packages/**/*.ts",
+        ".dependency-cruiser.cjs",
+        "tsconfig*.json"
+      ],
+      "outputs": [],
+      "outputMode": "errors-only"
+    },
+    "validate:docs": {
+      "cache": true,
+      "inputs": ["**/*.md", "!node_modules/**", "scripts/validate-docs-size.ts"],
+      "outputs": [],
+      "outputMode": "errors-only"
+    },
+    "knip": {
+      "cache": true,
+      "inputs": [
+        "packages/**/*.ts",
+        "knip.json",
+        "package.json",
+        "packages/**/package.json"
+      ],
+      "outputs": ["knip-report.json"],
+      "outputMode": "errors-only"
+    }
+  },
+  "globalDependencies": [".npmrc", "package-lock.json"],
+  "globalEnv": ["NODE_ENV"]
+}
