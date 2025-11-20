@@ -32,7 +32,7 @@ export class GetIssuesDefinition extends BaseToolDefinition {
           issueKeys: this.buildIssueKeysParam(),
           fields: this.buildFieldsParam(),
         },
-        required: ['issueKeys'],
+        required: ['issueKeys', 'fields'],
       },
     };
   }
@@ -43,7 +43,7 @@ export class GetIssuesDefinition extends BaseToolDefinition {
   private buildDescription(): string {
     return (
       'Получить задачи по ключам. Batch-режим: до 100 задач за раз. ' +
-      'Параметр fields фильтрует ответ. Partial success: возвращает успешные даже при частичных ошибках. ' +
+      'Параметр fields обязателен для экономии токенов. Partial success: возвращает успешные даже при частичных ошибках. ' +
       '\n\n' +
       'Для: получения детальной информации о конкретных задачах. ' +
       '\n' +
