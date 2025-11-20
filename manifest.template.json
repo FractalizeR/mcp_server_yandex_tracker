@@ -37,7 +37,8 @@
         "YANDEX_ORG_ID": "${user_config.org_id}",
         "YANDEX_TRACKER_API_BASE": "https://api.tracker.yandex.net",
         "LOG_LEVEL": "${user_config.log_level}",
-        "REQUEST_TIMEOUT": "${user_config.request_timeout}"
+        "REQUEST_TIMEOUT": "${user_config.request_timeout}",
+        "DISABLED_TOOL_GROUPS": "${user_config.disabled_tool_groups}"
       }
     }
   },
@@ -72,6 +73,34 @@
       "default": 30000,
       "min": 5000,
       "max": 120000,
+      "sensitive": false
+    },
+    "disabled_tool_groups": {
+      "type": "array",
+      "title": "Disabled Tool Groups",
+      "description": "Список групп инструментов, которые необходимо отключить. Доступные группы: 'issues', 'queues', 'users', 'projects', 'boards', 'sprints', 'comments', 'checklists', 'components' (API операции); 'system' (системные); 'helpers', 'search', 'url-generation', 'validation', 'demo' (вспомогательные инструменты). Пример: ['demo', 'validation'] отключит инструменты демонстрации и валидации.",
+      "required": false,
+      "default": [],
+      "items": {
+        "type": "string",
+        "enum": [
+          "issues",
+          "queues",
+          "users",
+          "projects",
+          "boards",
+          "sprints",
+          "comments",
+          "checklists",
+          "components",
+          "system",
+          "helpers",
+          "search",
+          "url-generation",
+          "validation",
+          "demo"
+        ]
+      },
       "sensitive": false
     }
   },
