@@ -47,18 +47,13 @@ export class UploadAttachmentDefinition extends BaseToolDefinition {
    */
   private buildDescription(): string {
     return (
-      'Загрузить файл в задачу Яндекс.Трекера. ' +
-      'Обязательные поля: issueId, filename и fields. ' +
-      'Параметр fields определяет, какие поля загруженного файла вернуть в ответе (например: ["id", "name", "size"]). ' +
-      'Поддерживает загрузку через base64 (fileContent) или путь к файлу (filePath). ' +
-      'Максимальный размер файла: 10 MB. ' +
+      'Загрузить файл в задачу. Обязательные поля: issueId, filename и fields. ' +
+      'Поддерживает base64 (fileContent) или путь на MCP сервере (filePath). ' +
+      'Максимальный размер: 10 MB. MIME тип определится автоматически. ' +
       '\n\n' +
       'Для: прикрепления документов, изображений, логов к задаче. ' +
       '\n' +
-      'Не для: скачивания/удаления файлов (download_attachment, delete_attachment).' +
-      '\n\n' +
-      'ВАЖНО: Указывайте либо fileContent (base64), либо filePath. ' +
-      'MIME тип определится автоматически по расширению файла.'
+      'Не для: скачивания/удаления (download_attachment, delete_attachment).'
     );
   }
 
@@ -93,8 +88,8 @@ export class UploadAttachmentDefinition extends BaseToolDefinition {
     return {
       type: 'string',
       description:
-        'Содержимое файла в формате base64. ' +
-        'Используйте это поле для передачи файла напрямую. ' +
+        'Содержимое файла в base64. ' +
+        'Рекомендуется для удаленных клиентов. ' +
         'Если указан filePath, fileContent игнорируется.',
     };
   }
@@ -105,10 +100,7 @@ export class UploadAttachmentDefinition extends BaseToolDefinition {
   private buildFilePathParam(): Record<string, unknown> {
     return {
       type: 'string',
-      description:
-        'Путь к файлу в файловой системе. ' +
-        'Используется если fileContent не указан. ' +
-        'Файл будет прочитан и загружен.',
+      description: 'Путь к файлу на MCP сервере. ' + 'Используется если fileContent не указан.',
     };
   }
 

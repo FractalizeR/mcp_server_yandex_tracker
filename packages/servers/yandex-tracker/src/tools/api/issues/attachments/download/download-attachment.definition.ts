@@ -45,16 +45,14 @@ export class DownloadAttachmentDefinition extends BaseToolDefinition {
    */
   private buildDescription(): string {
     return (
-      'Скачать прикрепленный файл из задачи Яндекс.Трекера. ' +
-      'По умолчанию возвращает файл в base64 формате. ' +
-      'Опционально можно сохранить файл по указанному пути (saveToPath). ' +
+      'Скачать файл из задачи. По умолчанию возвращает base64. ' +
+      'Опционально можно сохранить на MCP сервере (saveToPath). ' +
       '\n\n' +
-      'Для: скачивания документов, изображений, логов из задачи. ' +
+      'Для: получения документов, изображений, логов. ' +
       '\n' +
-      'Не для: загрузки/удаления файлов (upload_attachment, delete_attachment).' +
+      'Не для: загрузки/удаления (upload_attachment, delete_attachment). ' +
       '\n\n' +
-      'ВАЖНО: Требуются все 3 параметра: issueId, attachmentId и filename. ' +
-      'Получить их можно через get_attachments.'
+      'Требуются: issueId, attachmentId, filename (получить через get_attachments).'
     );
   }
 
@@ -95,9 +93,8 @@ export class DownloadAttachmentDefinition extends BaseToolDefinition {
     return {
       type: 'string',
       description:
-        'Путь для сохранения файла (опционально). ' +
-        'Если указан, файл будет сохранен по этому пути. ' +
-        'Если не указан, файл вернется в base64 формате в ответе.',
+        'Путь для сохранения на MCP сервере (опционально). ' +
+        'Если не указан, файл вернется в base64.',
     };
   }
 }
