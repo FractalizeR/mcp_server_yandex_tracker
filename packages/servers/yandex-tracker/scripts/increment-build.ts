@@ -3,8 +3,9 @@
  * Скрипт для синхронизации версии и установки build hash в manifest.json
  *
  * Автоматически вызывается при каждой сборке бандла:
- * 1. Синхронизирует версию из package.json в manifest.json
- * 2. Устанавливает build hash для избежания кеширования
+ * 1. Копирует актуальную версию из manifest.template.json в manifest.json
+ * 2. Синхронизирует версию из package.json в manifest.json
+ * 3. Устанавливает build hash для избежания кеширования
  *
  * Build hash хранится в manifest.json в секции _meta.build.hash
  * Формат версии: {version}+{gitHash}
@@ -73,7 +74,9 @@ async function setBuildHash(): Promise<void> {
   // Определяем корень пакета (packages/servers/yandex-tracker)
   const projectRoot = path.resolve(process.cwd());
   const isInWorkspace = projectRoot.includes('packages/servers/yandex-tracker');
-  const packageRoot = isInWorkspace ? projectRoot : path.join(projectRoot, 'packages/servers/yandex-tracker');
+  const packageRoot = isInWorkspace
+    ? projectRoot
+    : path.join(projectRoot, 'packages/servers/yandex-tracker');
 
   const manifestPath = path.join(packageRoot, 'manifest.json');
   const manifestTemplatePath = path.join(packageRoot, 'manifest.template.json');
@@ -81,13 +84,9 @@ async function setBuildHash(): Promise<void> {
   console.log('🔢 Установка build hash и версии...');
 
   try {
-    // Если manifest.json не существует, копируем из template
-    try {
-      await fs.access(manifestPath);
-    } catch {
-      console.log('📋 manifest.json не найден, создаём из template...');
-      await fs.copyFile(manifestTemplatePath, manifestPath);
-    }
+    // ВСЕГДА копируем актуальную версию из template
+    console.log('📋 Обновление manifest.json из template...');
+    await fs.copyFile(manifestTemplatePath, manifestPath);
 
     // Читаем manifest.json
     const manifestContent = await fs.readFile(manifestPath, 'utf-8');
