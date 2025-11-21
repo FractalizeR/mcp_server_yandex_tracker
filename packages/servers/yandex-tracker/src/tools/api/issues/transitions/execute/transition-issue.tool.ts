@@ -40,12 +40,24 @@ export class TransitionIssueTool extends BaseTool<YandexTrackerFacade> {
    */
   static override readonly METADATA = TRANSITION_ISSUE_TOOL_METADATA;
 
-  private readonly definition = new TransitionIssueDefinition();
-
-  protected buildDefinition(): ToolDefinition {
-    return this.definition.build();
+  /**
+   * Автоматическая генерация definition из Zod schema
+   * Это исключает возможность несоответствия schema ↔ definition
+   */
+  protected override getParamsSchema(): typeof TransitionIssueParamsSchema {
+    return TransitionIssueParamsSchema;
   }
 
+  /**
+   * @deprecated Используется автогенерация через getParamsSchema()
+   */
+  protected buildDefinition(): ToolDefinition {
+    // Fallback для обратной совместимости (не используется если getParamsSchema() определен)
+    const definition = new TransitionIssueDefinition();
+    return definition.build();
+  }
+
+  // eslint-disable-next-line complexity
   async execute(params: ToolCallParams): Promise<ToolResult> {
     // 1. Валидация параметров через BaseTool
     const validation = this.validateParams(params, TransitionIssueParamsSchema);

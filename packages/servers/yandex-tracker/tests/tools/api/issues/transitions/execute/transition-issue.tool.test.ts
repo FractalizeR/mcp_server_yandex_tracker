@@ -60,7 +60,8 @@ describe('TransitionIssueTool', () => {
       const definition = tool.getDefinition();
 
       expect(definition.name).toBe(buildToolName('transition_issue', MCP_TOOL_PREFIX));
-      expect(definition.description).toContain('Выполняет workflow-переход');
+      // После миграции на getParamsSchema() description берется из METADATA
+      expect(definition.description).toContain('Выполнить переход задачи');
       expect(definition.inputSchema.type).toBe('object');
       expect(definition.inputSchema.required).toEqual(['issueKey', 'transitionId']);
       expect(definition.inputSchema.properties?.['issueKey']).toBeDefined();
