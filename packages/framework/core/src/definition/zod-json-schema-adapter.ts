@@ -72,6 +72,7 @@ export interface ZodToJsonSchemaOptions {
  * // }
  * ```
  */
+// eslint-disable-next-line complexity
 export function zodToMcpInputSchema<T extends z.ZodRawShape>(
   schema: z.ZodObject<T>,
   options?: ZodToJsonSchemaOptions
@@ -79,10 +80,13 @@ export function zodToMcpInputSchema<T extends z.ZodRawShape>(
   const { includeDescriptions = true, includeExamples = true, strict = true } = options ?? {};
 
   // 1. Конвертируем через zod-to-json-schema
-  const jsonSchema = zodToJsonSchema(schema as unknown as Parameters<typeof zodToJsonSchema>[0], {
+  // TODO: Проблема с библиотекой - возвращает только $schema без полей
+  // Нужно исследовать правильный способ использования zod-to-json-schema v3.25.0
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument
+  const jsonSchema = zodToJsonSchema(schema as any, {
+    name: 'root',
     target: 'jsonSchema7',
     $refStrategy: 'none', // MCP не поддерживает $ref
-    // Включаем descriptions только если опция включена
     removeAdditionalStrategy: includeDescriptions ? 'passthrough' : 'strict',
   });
 
