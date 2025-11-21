@@ -57,7 +57,6 @@ export class TransitionIssueTool extends BaseTool<YandexTrackerFacade> {
     return definition.build();
   }
 
-  // eslint-disable-next-line complexity
   async execute(params: ToolCallParams): Promise<ToolResult> {
     // 1. Валидация параметров через BaseTool
     const validation = this.validateParams(params, TransitionIssueParamsSchema);

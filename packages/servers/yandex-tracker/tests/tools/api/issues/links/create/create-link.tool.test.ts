@@ -35,7 +35,7 @@ describe('CreateLinkTool', () => {
       const definition = tool.getDefinition();
 
       expect(definition.name).toBe(buildToolName('create_link', MCP_TOOL_PREFIX));
-      expect(definition.description).toContain('Создаёт связь');
+      expect(definition.description).toContain('Создать связь');
       expect(definition.inputSchema.type).toBe('object');
       expect(definition.inputSchema.required).toEqual([
         'issueId',

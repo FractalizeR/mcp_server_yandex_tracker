@@ -39,10 +39,21 @@ export class GetIssueChangelogTool extends BaseTool<YandexTrackerFacade> {
    */
   static override readonly METADATA = GET_ISSUE_CHANGELOG_TOOL_METADATA;
 
-  private readonly definition = new GetIssueChangelogDefinition();
+  /**
+   * Автоматическая генерация definition из Zod schema
+   * Это исключает возможность несоответствия schema ↔ definition
+   */
+  protected override getParamsSchema(): typeof GetIssueChangelogParamsSchema {
+    return GetIssueChangelogParamsSchema;
+  }
 
+  /**
+   * @deprecated Используется автогенерация через getParamsSchema()
+   */
   protected buildDefinition(): ToolDefinition {
-    return this.definition.build();
+    // Fallback для обратной совместимости (не используется если getParamsSchema() определен)
+    const definition = new GetIssueChangelogDefinition();
+    return definition.build();
   }
 
   async execute(params: ToolCallParams): Promise<ToolResult> {
@@ -61,25 +72,23 @@ export class GetIssueChangelogTool extends BaseTool<YandexTrackerFacade> {
       // 3. API v3: получение истории изменений
       const changelog = await this.facade.getIssueChangelog(issueKey);
 
-      // 4. Фильтрация полей если указаны
-      const filteredChangelog = fields
-        ? changelog.map((entry) =>
-            ResponseFieldFilter.filter<ChangelogEntryWithUnknownFields>(entry, fields)
-          )
-        : changelog;
+      // 4. Фильтрация полей
+      const filteredChangelog = changelog.map((entry) =>
+        ResponseFieldFilter.filter<ChangelogEntryWithUnknownFields>(entry, fields)
+      );
 
       // 5. Логирование результатов
       this.logger.info('История изменений получена', {
         issueKey,
         entriesCount: filteredChangelog.length,
-        fieldsCount: fields?.length ?? 'all',
+        fieldsCount: fields.length,
       });
 
       return this.formatSuccess({
         issueKey,
         totalEntries: filteredChangelog.length,
         changelog: filteredChangelog,
-        fieldsReturned: fields ?? 'all',
+        fieldsReturned: fields,
       });
     } catch (error: unknown) {
       return this.formatError(

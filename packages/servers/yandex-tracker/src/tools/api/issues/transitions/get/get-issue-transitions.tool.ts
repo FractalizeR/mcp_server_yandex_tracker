@@ -39,10 +39,21 @@ export class GetIssueTransitionsTool extends BaseTool<YandexTrackerFacade> {
    */
   static override readonly METADATA = GET_ISSUE_TRANSITIONS_TOOL_METADATA;
 
-  private readonly definition = new GetIssueTransitionsDefinition();
+  /**
+   * Автоматическая генерация definition из Zod schema
+   * Это исключает возможность несоответствия schema ↔ definition
+   */
+  protected override getParamsSchema(): typeof GetIssueTransitionsParamsSchema {
+    return GetIssueTransitionsParamsSchema;
+  }
 
+  /**
+   * @deprecated Используется автогенерация через getParamsSchema()
+   */
   protected buildDefinition(): ToolDefinition {
-    return this.definition.build();
+    // Fallback для обратной совместимости (не используется если getParamsSchema() определен)
+    const definition = new GetIssueTransitionsDefinition();
+    return definition.build();
   }
 
   async execute(params: ToolCallParams): Promise<ToolResult> {
@@ -66,25 +77,23 @@ export class GetIssueTransitionsTool extends BaseTool<YandexTrackerFacade> {
       // 3. API v3: получение доступных переходов
       const transitions = await this.facade.getIssueTransitions(issueKey);
 
-      // 4. Фильтрация полей ответа (если указано)
-      const filteredTransitions = fields
-        ? transitions.map((transition: TransitionWithUnknownFields) =>
-            ResponseFieldFilter.filter<TransitionWithUnknownFields>(transition, fields)
-          )
-        : transitions;
+      // 4. Фильтрация полей ответа
+      const filteredTransitions = transitions.map((transition: TransitionWithUnknownFields) =>
+        ResponseFieldFilter.filter<TransitionWithUnknownFields>(transition, fields)
+      );
 
       // 5. Логирование результатов
       this.logger.info(`Переходы получены для ${issueKey}`, {
         issueKey,
         transitionsCount: filteredTransitions.length,
-        fieldsCount: fields?.length ?? 'all',
+        fieldsCount: fields.length,
       });
 
       return this.formatSuccess({
         issueKey,
         transitionsCount: filteredTransitions.length,
         transitions: filteredTransitions,
-        fieldsReturned: fields ?? 'all',
+        fieldsReturned: fields,
       });
     } catch (error: unknown) {
       return this.formatError(

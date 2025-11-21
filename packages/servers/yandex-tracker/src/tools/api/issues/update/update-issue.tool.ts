@@ -39,10 +39,21 @@ export class UpdateIssueTool extends BaseTool<YandexTrackerFacade> {
    */
   static override readonly METADATA = UPDATE_ISSUE_TOOL_METADATA;
 
-  private readonly definition = new UpdateIssueDefinition();
+  /**
+   * Автоматическая генерация definition из Zod schema
+   * Это исключает возможность несоответствия schema ↔ definition
+   */
+  protected override getParamsSchema(): typeof UpdateIssueParamsSchema {
+    return UpdateIssueParamsSchema;
+  }
 
+  /**
+   * @deprecated Используется автогенерация через getParamsSchema()
+   */
   protected buildDefinition(): ToolDefinition {
-    return this.definition.build();
+    // Fallback для обратной совместимости (не используется если getParamsSchema() определен)
+    const definition = new UpdateIssueDefinition();
+    return definition.build();
   }
 
   async execute(params: ToolCallParams): Promise<ToolResult> {
@@ -87,22 +98,23 @@ export class UpdateIssueTool extends BaseTool<YandexTrackerFacade> {
       // 4. API v3: обновление задачи
       const updatedIssue = await this.facade.updateIssue(issueKey, updateData);
 
-      // 5. Фильтрация полей если указаны
-      const filteredIssue = fields
-        ? ResponseFieldFilter.filter<IssueWithUnknownFields>(updatedIssue, fields)
-        : updatedIssue;
+      // 5. Фильтрация полей
+      const filteredIssue = ResponseFieldFilter.filter<IssueWithUnknownFields>(
+        updatedIssue,
+        fields
+      );
 
       // 6. Логирование результата
       this.logger.info(`Задача ${issueKey} обновлена`, {
         updatedFields: Object.keys(updateData),
-        fieldsCount: fields?.length ?? 'all',
+        fieldsCount: fields.length,
       });
 
       return this.formatSuccess({
         issueKey,
         updatedFields: Object.keys(updateData),
         issue: filteredIssue,
-        fieldsReturned: fields ?? 'all',
+        fieldsReturned: fields,
       });
     } catch (error: unknown) {
       return this.formatError(`Ошибка при обновлении задачи ${issueKey}`, error as Error);

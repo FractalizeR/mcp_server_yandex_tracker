@@ -39,7 +39,7 @@ describe('GetIssueLinksTool', () => {
       const definition = tool.getDefinition();
 
       expect(definition.name).toBe(buildToolName('get_issue_links', MCP_TOOL_PREFIX));
-      expect(definition.description).toContain('Получает связи');
+      expect(definition.description).toContain('Получить связи');
       expect(definition.inputSchema.type).toBe('object');
       expect(definition.inputSchema.required).toEqual(['issueId', 'fields']);
       expect(definition.inputSchema.properties?.['issueId']).toBeDefined();
