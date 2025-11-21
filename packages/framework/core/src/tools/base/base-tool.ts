@@ -5,6 +5,10 @@
  * - Каждый инструмент отвечает только за свою функциональность
  * - Общая логика вынесена в базовый класс
  * - Валидация делегирована в Zod schemas
+ *
+ * Поддержка автоматической генерации definition из schema:
+ * - Если определен getParamsSchema(), definition генерируется автоматически
+ * - В противном случае используется ручной buildDefinition() (legacy)
  */
 
 import type { Logger } from '@mcp-framework/infrastructure';
@@ -12,6 +16,8 @@ import type { ToolCallParams, ToolResult } from '@mcp-framework/infrastructure';
 import type { ToolDefinition } from './base-definition.js';
 import type { ToolMetadata, StaticToolMetadata } from './tool-metadata.js';
 import type { ZodError, ZodSchema } from 'zod';
+import type { z } from 'zod';
+import { generateDefinitionFromSchema } from '../../definition/index.js';
 
 /**
  * Абстрактный базовый класс для всех инструментов
@@ -46,13 +52,45 @@ export abstract class BaseTool<TFacade = unknown> {
   /**
    * Получить определение инструмента
    *
+   * Поддерживает два режима:
+   * 1. **Автоматическая генерация (рекомендуется):**
+   *    - Если определен getParamsSchema(), definition генерируется из schema
+   *    - Исключает возможность несоответствия schema ↔ definition
+   *    - DRY принцип: schema является единственным источником истины
+   *
+   * 2. **Ручное определение (legacy):**
+   *    - Если getParamsSchema() не определен, используется buildDefinition()
+   *    - Сохранено для обратной совместимости
+   *
    * Автоматически добавляет category, subcategory, priority из METADATA
    */
   getDefinition(): ToolDefinition {
     const ToolClass = this.constructor as typeof BaseTool;
     const metadata = ToolClass.METADATA;
-    const definition = this.buildDefinition();
 
+    // Приоритет 1: Автоматическая генерация из schema (NEW)
+    const schema = this.getParamsSchema?.();
+    let definition: ToolDefinition;
+
+    if (schema) {
+      // Генерируем inputSchema автоматически из Zod schema
+      const inputSchema = generateDefinitionFromSchema(schema, {
+        includeDescriptions: true,
+        includeExamples: true,
+        strict: true,
+      });
+
+      definition = {
+        name: metadata.name,
+        description: metadata.description,
+        inputSchema,
+      };
+    } else {
+      // Приоритет 2: Ручное определение (legacy)
+      definition = this.buildDefinition();
+    }
+
+    // Добавляем метаданные из METADATA
     const result: ToolDefinition = {
       ...definition,
       category: metadata.category,
@@ -70,10 +108,34 @@ export abstract class BaseTool<TFacade = unknown> {
   }
 
   /**
-   * Построить базовое определение инструмента
+   * Получить Zod схему параметров для автогенерации definition
    *
+   * **NEW (рекомендуемый подход):**
+   * Переопределите этот метод для автоматической генерации definition из schema.
+   * Это исключает возможность несоответствия schema ↔ definition.
+   *
+   * @returns Zod схема параметров или undefined (для legacy режима)
+   *
+   * @example
+   * ```typescript
+   * protected getParamsSchema() {
+   *   return TransitionIssueParamsSchema;
+   * }
+   * ```
+   */
+  protected getParamsSchema?(): z.ZodObject<z.ZodRawShape>;
+
+  /**
+   * Построить базовое определение инструмента (LEGACY)
+   *
+   * **УСТАРЕВШИЙ ПОДХОД:**
+   * Используйте getParamsSchema() вместо этого метода для автогенерации definition.
+   *
+   * Этот метод сохранен для обратной совместимости с существующими инструментами.
    * Переопределите этот метод в наследнике для предоставления
-   * name, description и inputSchema
+   * name, description и inputSchema вручную.
+   *
+   * @deprecated Используйте getParamsSchema() для автоматической генерации
    */
   protected abstract buildDefinition(): ToolDefinition;
 
@@ -125,7 +187,7 @@ export abstract class BaseTool<TFacade = unknown> {
 
     return {
       success: true,
-      data: validationResult.data as T,
+      data: validationResult.data,
     };
   }
 
