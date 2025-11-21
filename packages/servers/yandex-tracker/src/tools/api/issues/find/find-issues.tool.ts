@@ -37,10 +37,21 @@ export class FindIssuesTool extends BaseTool<YandexTrackerFacade> {
    */
   static override readonly METADATA = FIND_ISSUES_TOOL_METADATA;
 
-  private readonly definition = new FindIssuesDefinition();
+  /**
+   * Автоматическая генерация definition из Zod schema
+   * Это исключает возможность несоответствия schema ↔ definition
+   */
+  protected override getParamsSchema(): typeof FindIssuesParamsSchema {
+    return FindIssuesParamsSchema;
+  }
 
+  /**
+   * @deprecated Используется автогенерация через getParamsSchema()
+   */
   protected buildDefinition(): ToolDefinition {
-    return this.definition.build();
+    // Fallback для обратной совместимости (не используется если getParamsSchema() определен)
+    const definition = new FindIssuesDefinition();
+    return definition.build();
   }
 
   async execute(params: ToolCallParams): Promise<ToolResult> {
@@ -83,21 +94,21 @@ export class FindIssuesTool extends BaseTool<YandexTrackerFacade> {
         ...(searchParams.expand && { expand: searchParams.expand }),
       });
 
-      // 4. Фильтрация полей (если указаны)
-      const filteredIssues = fields
-        ? issues.map((issue) => ResponseFieldFilter.filter<IssueWithUnknownFields>(issue, fields))
-        : issues;
+      // 4. Фильтрация полей
+      const filteredIssues = issues.map((issue) =>
+        ResponseFieldFilter.filter<IssueWithUnknownFields>(issue, fields)
+      );
 
       // 5. Логирование результатов
       this.logger.info('Задачи найдены', {
         count: issues.length,
-        fieldsCount: fields?.length ?? 'all',
+        fieldsCount: fields.length,
       });
 
       return this.formatSuccess({
         count: issues.length,
         issues: filteredIssues,
-        fieldsReturned: fields ?? 'all',
+        fieldsReturned: fields,
         searchCriteria: {
           hasQuery: !!searchParams.query,
           hasFilter: !!searchParams.filter,

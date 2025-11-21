@@ -37,10 +37,21 @@ export class DownloadAttachmentTool extends BaseTool<YandexTrackerFacade> {
    */
   static override readonly METADATA = DOWNLOAD_ATTACHMENT_TOOL_METADATA;
 
-  private readonly definition = new DownloadAttachmentDefinition();
+  /**
+   * Автоматическая генерация definition из Zod schema
+   * Это исключает возможность несоответствия schema ↔ definition
+   */
+  protected override getParamsSchema(): typeof DownloadAttachmentParamsSchema {
+    return DownloadAttachmentParamsSchema;
+  }
 
+  /**
+   * @deprecated Используется автогенерация через getParamsSchema()
+   */
   protected buildDefinition(): ToolDefinition {
-    return this.definition.build();
+    // Fallback для обратной совместимости (не используется если getParamsSchema() определен)
+    const definition = new DownloadAttachmentDefinition();
+    return definition.build();
   }
 
   async execute(params: ToolCallParams): Promise<ToolResult> {

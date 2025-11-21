@@ -38,10 +38,21 @@ export class UploadAttachmentTool extends BaseTool<YandexTrackerFacade> {
    */
   static override readonly METADATA = UPLOAD_ATTACHMENT_TOOL_METADATA;
 
-  private readonly definition = new UploadAttachmentDefinition();
+  /**
+   * Автоматическая генерация definition из Zod schema
+   * Это исключает возможность несоответствия schema ↔ definition
+   */
+  protected override getParamsSchema(): typeof UploadAttachmentParamsSchema {
+    return UploadAttachmentParamsSchema;
+  }
 
+  /**
+   * @deprecated Используется автогенерация через getParamsSchema()
+   */
   protected buildDefinition(): ToolDefinition {
-    return this.definition.build();
+    // Fallback для обратной совместимости (не используется если getParamsSchema() определен)
+    const definition = new UploadAttachmentDefinition();
+    return definition.build();
   }
 
   async execute(params: ToolCallParams): Promise<ToolResult> {

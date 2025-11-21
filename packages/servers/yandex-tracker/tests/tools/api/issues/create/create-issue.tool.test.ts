@@ -61,9 +61,9 @@ describe('CreateIssueTool', () => {
       const definition = tool.getDefinition();
 
       expect(definition.name).toBe(buildToolName('create_issue', MCP_TOOL_PREFIX));
-      expect(definition.description).toContain('Создаёт задачу');
+      expect(definition.description).toContain('Создать');
       expect(definition.inputSchema.type).toBe('object');
-      expect(definition.inputSchema.required).toEqual(['queue', 'summary']);
+      expect(definition.inputSchema.required).toEqual(['queue', 'summary', 'fields']);
       expect(definition.inputSchema.properties?.['queue']).toBeDefined();
       expect(definition.inputSchema.properties?.['summary']).toBeDefined();
       expect(definition.inputSchema.properties?.['description']).toBeDefined();

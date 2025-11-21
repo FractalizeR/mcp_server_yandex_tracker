@@ -37,10 +37,21 @@ export class CreateIssueTool extends BaseTool<YandexTrackerFacade> {
    */
   static override readonly METADATA = CREATE_ISSUE_TOOL_METADATA;
 
-  private readonly definition = new CreateIssueDefinition();
+  /**
+   * Автоматическая генерация definition из Zod schema
+   * Это исключает возможность несоответствия schema ↔ definition
+   */
+  protected override getParamsSchema(): typeof CreateIssueParamsSchema {
+    return CreateIssueParamsSchema;
+  }
 
+  /**
+   * @deprecated Используется автогенерация через getParamsSchema()
+   */
   protected buildDefinition(): ToolDefinition {
-    return this.definition.build();
+    // Fallback для обратной совместимости (не используется если getParamsSchema() определен)
+    const definition = new CreateIssueDefinition();
+    return definition.build();
   }
 
   /**
@@ -81,7 +92,7 @@ export class CreateIssueTool extends BaseTool<YandexTrackerFacade> {
         hasPriority: Boolean(priority),
         hasType: Boolean(type),
         hasCustomFields: Boolean(customFields),
-        fieldsCount: fields?.length ?? 'all',
+        fieldsCount: fields.length,
       });
 
       // 3. Подготовка данных для API
@@ -95,22 +106,23 @@ export class CreateIssueTool extends BaseTool<YandexTrackerFacade> {
       // 4. API v3: создание задачи
       const createdIssue = await this.facade.createIssue(issueData);
 
-      // 5. Фильтрация полей ответа (если указаны)
-      const filteredIssue = fields
-        ? ResponseFieldFilter.filter<IssueWithUnknownFields>(createdIssue, fields)
-        : createdIssue;
+      // 5. Фильтрация полей ответа
+      const filteredIssue = ResponseFieldFilter.filter<IssueWithUnknownFields>(
+        createdIssue,
+        fields
+      );
 
       // 6. Логирование результата
       this.logger.info('Задача успешно создана', {
         issueKey: createdIssue.key,
         queue: createdIssue.queue,
-        fieldsReturned: fields?.length ?? 'all',
+        fieldsReturned: fields.length,
       });
 
       return this.formatSuccess({
         issueKey: createdIssue.key,
         issue: filteredIssue,
-        fieldsReturned: fields ?? 'all',
+        fieldsReturned: fields,
       });
     } catch (error: unknown) {
       return this.formatError(`Ошибка при создании задачи в очереди ${queue}`, error as Error);

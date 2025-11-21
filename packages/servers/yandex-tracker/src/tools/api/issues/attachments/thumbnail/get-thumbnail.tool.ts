@@ -38,10 +38,21 @@ export class GetThumbnailTool extends BaseTool<YandexTrackerFacade> {
    */
   static override readonly METADATA = GET_THUMBNAIL_TOOL_METADATA;
 
-  private readonly definition = new GetThumbnailDefinition();
+  /**
+   * Автоматическая генерация definition из Zod schema
+   * Это исключает возможность несоответствия schema ↔ definition
+   */
+  protected override getParamsSchema(): typeof GetThumbnailParamsSchema {
+    return GetThumbnailParamsSchema;
+  }
 
+  /**
+   * @deprecated Используется автогенерация через getParamsSchema()
+   */
   protected buildDefinition(): ToolDefinition {
-    return this.definition.build();
+    // Fallback для обратной совместимости (не используется если getParamsSchema() определен)
+    const definition = new GetThumbnailDefinition();
+    return definition.build();
   }
 
   async execute(params: ToolCallParams): Promise<ToolResult> {

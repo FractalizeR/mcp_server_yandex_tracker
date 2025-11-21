@@ -58,9 +58,9 @@ describe('GetIssueTransitionsTool', () => {
       const definition = tool.getDefinition();
 
       expect(definition.name).toBe(buildToolName('get_issue_transitions', MCP_TOOL_PREFIX));
-      expect(definition.description).toContain('Получает доступные workflow-переходы');
+      expect(definition.description).toContain('Доступные переходы');
       expect(definition.inputSchema.type).toBe('object');
-      expect(definition.inputSchema.required).toEqual(['issueKey']);
+      expect(definition.inputSchema.required).toEqual(['issueKey', 'fields']);
       expect(definition.inputSchema.properties?.['issueKey']).toBeDefined();
       expect(definition.inputSchema.properties?.['fields']).toBeDefined();
     });

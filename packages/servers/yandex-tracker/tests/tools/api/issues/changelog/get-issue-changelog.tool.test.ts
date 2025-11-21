@@ -84,9 +84,9 @@ describe('GetIssueChangelogTool', () => {
       const definition = tool.getDefinition();
 
       expect(definition.name).toBe(buildToolName('get_issue_changelog', MCP_TOOL_PREFIX));
-      expect(definition.description).toContain('Получает историю изменений');
+      expect(definition.description).toContain('История изменений');
       expect(definition.inputSchema.type).toBe('object');
-      expect(definition.inputSchema.required).toEqual(['issueKey']);
+      expect(definition.inputSchema.required).toEqual(['issueKey', 'fields']);
       expect(definition.inputSchema.properties?.['issueKey']).toBeDefined();
       expect(definition.inputSchema.properties?.['fields']).toBeDefined();
     });
