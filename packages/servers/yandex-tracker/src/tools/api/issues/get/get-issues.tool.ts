@@ -38,10 +38,21 @@ export class GetIssuesTool extends BaseTool<YandexTrackerFacade> {
    */
   static override readonly METADATA = GET_ISSUES_TOOL_METADATA;
 
-  private readonly definition = new GetIssuesDefinition();
+  /**
+   * Автоматическая генерация definition из Zod schema
+   * Это исключает возможность несоответствия schema ↔ definition
+   */
+  protected override getParamsSchema(): typeof GetIssuesParamsSchema {
+    return GetIssuesParamsSchema;
+  }
 
+  /**
+   * @deprecated Используется автогенерация через getParamsSchema()
+   */
   protected buildDefinition(): ToolDefinition {
-    return this.definition.build();
+    // Fallback для обратной совместимости (не используется если getParamsSchema() определен)
+    const definition = new GetIssuesDefinition();
+    return definition.build();
   }
 
   async execute(params: ToolCallParams): Promise<ToolResult> {
@@ -63,10 +74,8 @@ export class GetIssuesTool extends BaseTool<YandexTrackerFacade> {
       // 4. Обработка результатов через BatchResultProcessor
       const processedResults = BatchResultProcessor.process(
         results,
-        fields
-          ? (issue: IssueWithUnknownFields): Partial<IssueWithUnknownFields> =>
-              ResponseFieldFilter.filter<IssueWithUnknownFields>(issue, fields)
-          : undefined
+        (issue: IssueWithUnknownFields): Partial<IssueWithUnknownFields> =>
+          ResponseFieldFilter.filter<IssueWithUnknownFields>(issue, fields)
       );
 
       // 5. Логирование результатов
@@ -77,7 +86,7 @@ export class GetIssuesTool extends BaseTool<YandexTrackerFacade> {
           totalRequested: issueKeys.length,
           successCount: processedResults.successful.length,
           failedCount: processedResults.failed.length,
-          fieldsCount: fields?.length ?? 'all',
+          fieldsCount: fields.length,
         },
         processedResults
       );
@@ -91,7 +100,7 @@ export class GetIssuesTool extends BaseTool<YandexTrackerFacade> {
           issue: item.data,
         })),
         errors: processedResults.failed,
-        fieldsReturned: fields ?? 'all',
+        fieldsReturned: fields,
       });
     } catch (error: unknown) {
       return this.formatError(
