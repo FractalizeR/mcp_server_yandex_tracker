@@ -30,10 +30,21 @@ export class DeleteWorklogTool extends BaseTool<YandexTrackerFacade> {
    */
   static override readonly METADATA = DELETE_WORKLOG_TOOL_METADATA;
 
-  private readonly definition = new DeleteWorklogDefinition();
+  /**
+   * Автоматическая генерация definition из Zod schema
+   * Это исключает возможность несоответствия schema ↔ definition
+   */
+  protected override getParamsSchema(): typeof DeleteWorklogParamsSchema {
+    return DeleteWorklogParamsSchema;
+  }
 
+  /**
+   * @deprecated Используется автогенерация через getParamsSchema()
+   */
   protected buildDefinition(): ToolDefinition {
-    return this.definition.build();
+    // Fallback для обратной совместимости (не используется если getParamsSchema() определен)
+    const definition = new DeleteWorklogDefinition();
+    return definition.build();
   }
 
   async execute(params: ToolCallParams): Promise<ToolResult> {

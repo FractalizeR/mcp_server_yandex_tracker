@@ -17,10 +17,21 @@ import { DELETE_COMPONENT_TOOL_METADATA } from './delete-component.metadata.js';
 export class DeleteComponentTool extends BaseTool<YandexTrackerFacade> {
   static override readonly METADATA = DELETE_COMPONENT_TOOL_METADATA;
 
-  private readonly definition = new DeleteComponentDefinition();
+  /**
+   * Автоматическая генерация definition из Zod schema
+   * Это исключает возможность несоответствия schema ↔ definition
+   */
+  protected override getParamsSchema(): typeof DeleteComponentParamsSchema {
+    return DeleteComponentParamsSchema;
+  }
 
+  /**
+   * @deprecated Используется автогенерация через getParamsSchema()
+   */
   protected buildDefinition(): ToolDefinition {
-    return this.definition.build();
+    // Fallback для обратной совместимости (не используется если getParamsSchema() определен)
+    const definition = new DeleteComponentDefinition();
+    return definition.build();
   }
 
   async execute(params: ToolCallParams): Promise<ToolResult> {
