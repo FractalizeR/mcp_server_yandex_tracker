@@ -48,7 +48,7 @@ describe('GetChecklistTool', () => {
     it('должен иметь корректное описание', () => {
       const definition = tool.getDefinition();
 
-      expect(definition.description).toContain('Получает чеклист');
+      expect(definition.description).toContain('Получить чеклист');
     });
 
     it('должен иметь корректную схему с обязательными полями', () => {

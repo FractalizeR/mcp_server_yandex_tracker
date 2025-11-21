@@ -33,11 +33,23 @@ export class IssueUrlTool extends BaseTool<YandexTrackerFacade> {
    */
   static override readonly METADATA = ISSUE_URL_TOOL_METADATA;
 
-  private readonly definition = new IssueUrlDefinition();
   private readonly TRACKER_BASE_URL = 'https://tracker.yandex.ru';
 
+  /**
+   * Автоматическая генерация definition из Zod schema
+   * Это исключает возможность несоответствия schema ↔ definition
+   */
+  protected override getParamsSchema(): typeof IssueUrlParamsSchema {
+    return IssueUrlParamsSchema;
+  }
+
+  /**
+   * @deprecated Используется автогенерация через getParamsSchema()
+   */
   protected buildDefinition(): ToolDefinition {
-    return this.definition.build();
+    // Fallback для обратной совместимости (не используется если getParamsSchema() определен)
+    const definition = new IssueUrlDefinition();
+    return definition.build();
   }
 
   execute(params: ToolCallParams): Promise<ToolResult> {

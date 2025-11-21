@@ -35,7 +35,7 @@ describe('UpdateComponentTool', () => {
       const definition = tool.getDefinition();
 
       expect(definition.name).toBe(buildToolName('update_component', MCP_TOOL_PREFIX));
-      expect(definition.description).toContain('Обновляет компонент');
+      expect(definition.description).toContain('Обновить компонент');
       expect(definition.inputSchema.type).toBe('object');
       expect(definition.inputSchema.required).toContain('componentId');
       expect(definition.inputSchema.required).toContain('fields');

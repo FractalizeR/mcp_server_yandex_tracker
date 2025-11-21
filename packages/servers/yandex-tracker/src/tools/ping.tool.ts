@@ -23,13 +23,14 @@ export class PingTool extends BaseTool<YandexTrackerFacade> {
    */
   static override readonly METADATA = PING_TOOL_METADATA;
 
-  private readonly definition = new PingDefinition();
-
   /**
-   * Определение инструмента для MCP
+   * Ping не имеет параметров, schema не нужна
+   * @deprecated Используется автогенерация через отсутствие параметров
    */
   protected buildDefinition(): ToolDefinition {
-    return this.definition.build();
+    // Fallback для обратной совместимости
+    const definition = new PingDefinition();
+    return definition.build();
   }
 
   /**

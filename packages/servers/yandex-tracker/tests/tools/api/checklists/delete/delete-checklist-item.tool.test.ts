@@ -44,7 +44,7 @@ describe('DeleteChecklistItemTool', () => {
     it('должен иметь корректное описание', () => {
       const definition = tool.getDefinition();
 
-      expect(definition.description).toContain('Удаляет элемент чеклиста');
+      expect(definition.description).toContain('Удалить элемент');
     });
 
     it('должен иметь корректную схему с обязательными полями', () => {

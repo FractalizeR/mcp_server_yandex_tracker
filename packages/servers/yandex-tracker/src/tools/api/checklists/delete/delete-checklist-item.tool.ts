@@ -30,10 +30,21 @@ export class DeleteChecklistItemTool extends BaseTool<YandexTrackerFacade> {
    */
   static override readonly METADATA = DELETE_CHECKLIST_ITEM_TOOL_METADATA;
 
-  private readonly definition = new DeleteChecklistItemDefinition();
+  /**
+   * Автоматическая генерация definition из Zod schema
+   * Это исключает возможность несоответствия schema ↔ definition
+   */
+  protected override getParamsSchema(): typeof DeleteChecklistItemParamsSchema {
+    return DeleteChecklistItemParamsSchema;
+  }
 
+  /**
+   * @deprecated Используется автогенерация через getParamsSchema()
+   */
   protected buildDefinition(): ToolDefinition {
-    return this.definition.build();
+    // Fallback для обратной совместимости (не используется если getParamsSchema() определен)
+    const definition = new DeleteChecklistItemDefinition();
+    return definition.build();
   }
 
   async execute(params: ToolCallParams): Promise<ToolResult> {

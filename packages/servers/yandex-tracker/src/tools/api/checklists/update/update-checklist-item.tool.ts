@@ -31,10 +31,21 @@ export class UpdateChecklistItemTool extends BaseTool<YandexTrackerFacade> {
    */
   static override readonly METADATA = UPDATE_CHECKLIST_ITEM_TOOL_METADATA;
 
-  private readonly definition = new UpdateChecklistItemDefinition();
+  /**
+   * Автоматическая генерация definition из Zod schema
+   * Это исключает возможность несоответствия schema ↔ definition
+   */
+  protected override getParamsSchema(): typeof UpdateChecklistItemParamsSchema {
+    return UpdateChecklistItemParamsSchema;
+  }
 
+  /**
+   * @deprecated Используется автогенерация через getParamsSchema()
+   */
   protected buildDefinition(): ToolDefinition {
-    return this.definition.build();
+    // Fallback для обратной совместимости (не используется если getParamsSchema() определен)
+    const definition = new UpdateChecklistItemDefinition();
+    return definition.build();
   }
 
   async execute(params: ToolCallParams): Promise<ToolResult> {

@@ -153,7 +153,7 @@ describe('ToolRegistry', () => {
 
       expect(pingDef?.description).toContain('API Яндекс.Трекера');
       expect(getIssuesDef?.description).toContain('задач');
-      expect(demoDef?.description).toContain('Демонстрационный');
+      expect(demoDef?.description).toContain('Тестовый');
     });
 
     it('все определения должны иметь корректную структуру', () => {
