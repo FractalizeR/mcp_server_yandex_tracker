@@ -20,7 +20,7 @@ import type { CacheManager } from '@mcp-framework/infrastructure';
 import { NoOpCache } from '@mcp-framework/infrastructure';
 
 // Yandex Tracker Facade
-import type { YandexTrackerFacade } from '#tracker_api/facade/yandex-tracker.facade.js';
+import { YandexTrackerFacade } from '#tracker_api/facade/yandex-tracker.facade.js';
 
 // Tool Registry
 import { ToolRegistry } from '@mcp-framework/core';
@@ -125,13 +125,23 @@ function bindOperations(container: Container): void {
 
     const symbol = Symbol.for(className);
 
-    container.bind(symbol).toDynamicValue(() => {
+    // Factory function для создания операции
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const factory = (): any => {
       const httpClient = container.get<HttpClient>(TYPES.HttpClient);
       const cacheManager = container.get<CacheManager>(TYPES.CacheManager);
       const loggerInstance = container.get<Logger>(TYPES.Logger);
       const configInstance = container.get<ServerConfig>(TYPES.ServerConfig);
-      return new OperationClass(httpClient, cacheManager, loggerInstance, configInstance);
-    });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call
+      return new (OperationClass as any)(httpClient, cacheManager, loggerInstance, configInstance);
+    };
+
+    // Двойная регистрация:
+    // 1. Symbol-based (для обратной совместимости со старым кодом)
+    container.bind(symbol).toDynamicValue(factory);
+
+    // 2. Class-based (для новых сервисов с декораторами @inject)
+    container.bind(OperationClass).toDynamicValue(factory);
   }
 }
 
@@ -144,7 +154,10 @@ function bindOperations(container: Container): void {
  * - Facade имеет декоратор @injectable() и регистрируется через toSelf()
  */
 function bindFacade(container: Container): void {
-  container.bind<YandexTrackerFacade>(TYPES.YandexTrackerFacade).toSelf().inSingletonScope();
+  container
+    .bind<YandexTrackerFacade>(TYPES.YandexTrackerFacade)
+    .to(YandexTrackerFacade)
+    .inSingletonScope();
 }
 
 /**

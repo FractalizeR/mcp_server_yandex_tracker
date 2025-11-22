@@ -1,6 +1,21 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import type { Container } from 'inversify';
 import { YandexTrackerFacade } from '#tracker_api/facade/yandex-tracker.facade.js';
+import type {
+  UserService,
+  IssueService,
+  IssueLinkService,
+  IssueAttachmentService,
+  QueueService,
+  ComponentService,
+  FieldService,
+  CommentService,
+  ChecklistService,
+  WorklogService,
+  BulkChangeService,
+  ProjectService,
+  BoardService,
+  SprintService,
+} from '#tracker_api/facade/services/index.js';
 import type { PingResult } from '#tracker_api/api_operations/user/ping.operation.js';
 import type { BatchIssueResult } from '#tracker_api/api_operations/issue/get-issues.operation.js';
 import type { FindIssuesResult } from '#tracker_api/api_operations/issue/find/index.js';
@@ -20,15 +35,10 @@ import type {
   FieldOutput,
   FieldsListOutput,
   GetBoardsDto,
-  GetBoardDto,
   CreateBoardDto,
-  UpdateBoardDto,
   BoardOutput,
   BoardsListOutput,
-  GetSprintsDto,
-  GetSprintDto,
   CreateSprintDto,
-  UpdateSprintDto,
   SprintOutput,
   SprintsListOutput,
 } from '#tracker_api/dto/index.js';
@@ -40,283 +50,145 @@ import type {
 
 describe('YandexTrackerFacade', () => {
   let facade: YandexTrackerFacade;
-  let mockContainer: Container;
-  let mockPingOperation: { execute: () => Promise<PingResult> };
-  let mockGetIssuesOperation: { execute: (keys: string[]) => Promise<BatchIssueResult[]> };
-  let mockFindIssuesOperation: {
-    execute: (params: FindIssuesInputDto) => Promise<FindIssuesResult>;
-  };
-  let mockCreateIssueOperation: {
-    execute: (data: CreateIssueDto) => Promise<IssueWithUnknownFields>;
-  };
-  let mockUpdateIssueOperation: {
-    execute: (key: string, data: UpdateIssueDto) => Promise<IssueWithUnknownFields>;
-  };
-  let mockGetIssueChangelogOperation: {
-    execute: (key: string) => Promise<ChangelogEntryWithUnknownFields[]>;
-  };
-  let mockGetIssueTransitionsOperation: {
-    execute: (key: string) => Promise<TransitionWithUnknownFields[]>;
-  };
-  let mockTransitionIssueOperation: {
-    execute: (
-      key: string,
-      id: string,
-      data?: ExecuteTransitionDto
-    ) => Promise<IssueWithUnknownFields>;
-  };
-  let mockGetWorklogsOperation: {
-    execute: (id: string) => Promise<WorklogWithUnknownFields[]>;
-  };
-  let mockAddWorklogOperation: {
-    execute: (id: string, data: AddWorklogInput) => Promise<WorklogWithUnknownFields>;
-  };
-  let mockUpdateWorklogOperation: {
-    execute: (
-      id: string,
-      wId: string,
-      data: UpdateWorklogInput
-    ) => Promise<WorklogWithUnknownFields>;
-  };
-  let mockDeleteWorklogOperation: {
-    execute: (id: string, wId: string) => Promise<void>;
-  };
-  let mockGetFieldsOperation: {
-    execute: () => Promise<FieldsListOutput>;
-  };
-  let mockGetFieldOperation: {
-    execute: (id: string) => Promise<FieldOutput>;
-  };
-  let mockCreateFieldOperation: {
-    execute: (input: CreateFieldDto) => Promise<FieldOutput>;
-  };
-  let mockUpdateFieldOperation: {
-    execute: (id: string, input: UpdateFieldDto) => Promise<FieldOutput>;
-  };
-  let mockDeleteFieldOperation: {
-    execute: (id: string) => Promise<void>;
-  };
-  let mockGetBoardsOperation: {
-    execute: (params?: GetBoardsDto) => Promise<BoardsListOutput>;
-  };
-  let mockGetBoardOperation: {
-    execute: (params: GetBoardDto) => Promise<BoardOutput>;
-  };
-  let mockCreateBoardOperation: {
-    execute: (input: CreateBoardDto) => Promise<BoardOutput>;
-  };
-  let mockUpdateBoardOperation: {
-    execute: (input: UpdateBoardDto) => Promise<BoardOutput>;
-  };
-  let mockDeleteBoardOperation: {
-    execute: (params: { boardId: string }) => Promise<void>;
-  };
-  let mockGetSprintsOperation: {
-    execute: (params: GetSprintsDto) => Promise<SprintsListOutput>;
-  };
-  let mockGetSprintOperation: {
-    execute: (params: GetSprintDto) => Promise<SprintOutput>;
-  };
-  let mockCreateSprintOperation: {
-    execute: (input: CreateSprintDto) => Promise<SprintOutput>;
-  };
-  let mockUpdateSprintOperation: {
-    execute: (input: UpdateSprintDto) => Promise<SprintOutput>;
-  };
+
+  // Mock Services
+  let mockUserService: UserService;
+  let mockIssueService: IssueService;
+  let mockIssueLinkService: IssueLinkService;
+  let mockIssueAttachmentService: IssueAttachmentService;
+  let mockQueueService: QueueService;
+  let mockComponentService: ComponentService;
+  let mockFieldService: FieldService;
+  let mockCommentService: CommentService;
+  let mockChecklistService: ChecklistService;
+  let mockWorklogService: WorklogService;
+  let mockBulkChangeService: BulkChangeService;
+  let mockProjectService: ProjectService;
+  let mockBoardService: BoardService;
+  let mockSprintService: SprintService;
 
   beforeEach(() => {
-    // Mock PingOperation
-    mockPingOperation = {
-      execute: vi.fn(),
-    };
+    // Create mock services
+    mockUserService = {
+      ping: vi.fn(),
+    } as unknown as UserService;
 
-    // Mock GetIssuesOperation
-    mockGetIssuesOperation = {
-      execute: vi.fn(),
-    };
+    mockIssueService = {
+      getIssues: vi.fn(),
+      findIssues: vi.fn(),
+      createIssue: vi.fn(),
+      updateIssue: vi.fn(),
+      getIssueChangelog: vi.fn(),
+      getIssueTransitions: vi.fn(),
+      transitionIssue: vi.fn(),
+    } as unknown as IssueService;
 
-    // Mock FindIssuesOperation
-    mockFindIssuesOperation = {
-      execute: vi.fn(),
-    };
+    mockIssueLinkService = {
+      getIssueLinks: vi.fn(),
+      createLink: vi.fn(),
+      deleteLink: vi.fn(),
+    } as unknown as IssueLinkService;
 
-    // Mock CreateIssueOperation
-    mockCreateIssueOperation = {
-      execute: vi.fn(),
-    };
+    mockIssueAttachmentService = {
+      getAttachments: vi.fn(),
+      uploadAttachment: vi.fn(),
+      downloadAttachment: vi.fn(),
+      deleteAttachment: vi.fn(),
+      getThumbnail: vi.fn(),
+    } as unknown as IssueAttachmentService;
 
-    // Mock UpdateIssueOperation
-    mockUpdateIssueOperation = {
-      execute: vi.fn(),
-    };
+    mockQueueService = {
+      getQueues: vi.fn(),
+      getQueue: vi.fn(),
+      createQueue: vi.fn(),
+      updateQueue: vi.fn(),
+      getQueueFields: vi.fn(),
+      manageQueueAccess: vi.fn(),
+    } as unknown as QueueService;
 
-    // Mock GetIssueChangelogOperation
-    mockGetIssueChangelogOperation = {
-      execute: vi.fn(),
-    };
+    mockComponentService = {
+      getComponents: vi.fn(),
+      createComponent: vi.fn(),
+      updateComponent: vi.fn(),
+      deleteComponent: vi.fn(),
+    } as unknown as ComponentService;
 
-    // Mock GetIssueTransitionsOperation
-    mockGetIssueTransitionsOperation = {
-      execute: vi.fn(),
-    };
+    mockFieldService = {
+      getFields: vi.fn(),
+      getField: vi.fn(),
+      createField: vi.fn(),
+      updateField: vi.fn(),
+      deleteField: vi.fn(),
+    } as unknown as FieldService;
 
-    // Mock TransitionIssueOperation
-    mockTransitionIssueOperation = {
-      execute: vi.fn(),
-    };
+    mockCommentService = {
+      addComment: vi.fn(),
+      getComments: vi.fn(),
+      editComment: vi.fn(),
+      deleteComment: vi.fn(),
+    } as unknown as CommentService;
 
-    // Mock Worklog Operations
-    mockGetWorklogsOperation = {
-      execute: vi.fn(),
-    };
-    mockAddWorklogOperation = {
-      execute: vi.fn(),
-    };
-    mockUpdateWorklogOperation = {
-      execute: vi.fn(),
-    };
-    mockDeleteWorklogOperation = {
-      execute: vi.fn(),
-    };
+    mockChecklistService = {
+      getChecklist: vi.fn(),
+      addChecklistItem: vi.fn(),
+      updateChecklistItem: vi.fn(),
+      deleteChecklistItem: vi.fn(),
+    } as unknown as ChecklistService;
 
-    // Mock Field Operations
-    mockGetFieldsOperation = {
-      execute: vi.fn(),
-    };
-    mockGetFieldOperation = {
-      execute: vi.fn(),
-    };
-    mockCreateFieldOperation = {
-      execute: vi.fn(),
-    };
-    mockUpdateFieldOperation = {
-      execute: vi.fn(),
-    };
-    mockDeleteFieldOperation = {
-      execute: vi.fn(),
-    };
+    mockWorklogService = {
+      getWorklogs: vi.fn(),
+      addWorklog: vi.fn(),
+      updateWorklog: vi.fn(),
+      deleteWorklog: vi.fn(),
+    } as unknown as WorklogService;
 
-    // Mock Board Operations
-    mockGetBoardsOperation = {
-      execute: vi.fn(),
-    };
-    mockGetBoardOperation = {
-      execute: vi.fn(),
-    };
-    mockCreateBoardOperation = {
-      execute: vi.fn(),
-    };
-    mockUpdateBoardOperation = {
-      execute: vi.fn(),
-    };
-    mockDeleteBoardOperation = {
-      execute: vi.fn(),
-    };
+    mockBulkChangeService = {
+      bulkUpdateIssues: vi.fn(),
+      bulkTransitionIssues: vi.fn(),
+      bulkMoveIssues: vi.fn(),
+      getBulkChangeStatus: vi.fn(),
+    } as unknown as BulkChangeService;
 
-    // Mock Sprint Operations
-    mockGetSprintsOperation = {
-      execute: vi.fn(),
-    };
-    mockGetSprintOperation = {
-      execute: vi.fn(),
-    };
-    mockCreateSprintOperation = {
-      execute: vi.fn(),
-    };
-    mockUpdateSprintOperation = {
-      execute: vi.fn(),
-    };
+    mockProjectService = {
+      getProjects: vi.fn(),
+      getProject: vi.fn(),
+      createProject: vi.fn(),
+      updateProject: vi.fn(),
+      deleteProject: vi.fn(),
+    } as unknown as ProjectService;
 
-    // Mock InversifyJS Container
-    mockContainer = {
-      get: vi.fn((symbol: symbol) => {
-        if (symbol === Symbol.for('PingOperation')) {
-          return mockPingOperation;
-        }
-        if (symbol === Symbol.for('GetIssuesOperation')) {
-          return mockGetIssuesOperation;
-        }
-        if (symbol === Symbol.for('FindIssuesOperation')) {
-          return mockFindIssuesOperation;
-        }
-        if (symbol === Symbol.for('CreateIssueOperation')) {
-          return mockCreateIssueOperation;
-        }
-        if (symbol === Symbol.for('UpdateIssueOperation')) {
-          return mockUpdateIssueOperation;
-        }
-        if (symbol === Symbol.for('GetIssueChangelogOperation')) {
-          return mockGetIssueChangelogOperation;
-        }
-        if (symbol === Symbol.for('GetIssueTransitionsOperation')) {
-          return mockGetIssueTransitionsOperation;
-        }
-        if (symbol === Symbol.for('TransitionIssueOperation')) {
-          return mockTransitionIssueOperation;
-        }
-        // Worklog Operations
-        if (symbol === Symbol.for('GetWorklogsOperation')) {
-          return mockGetWorklogsOperation;
-        }
-        if (symbol === Symbol.for('AddWorklogOperation')) {
-          return mockAddWorklogOperation;
-        }
-        if (symbol === Symbol.for('UpdateWorklogOperation')) {
-          return mockUpdateWorklogOperation;
-        }
-        if (symbol === Symbol.for('DeleteWorklogOperation')) {
-          return mockDeleteWorklogOperation;
-        }
-        // Field Operations
-        if (symbol === Symbol.for('GetFieldsOperation')) {
-          return mockGetFieldsOperation;
-        }
-        if (symbol === Symbol.for('GetFieldOperation')) {
-          return mockGetFieldOperation;
-        }
-        if (symbol === Symbol.for('CreateFieldOperation')) {
-          return mockCreateFieldOperation;
-        }
-        if (symbol === Symbol.for('UpdateFieldOperation')) {
-          return mockUpdateFieldOperation;
-        }
-        if (symbol === Symbol.for('DeleteFieldOperation')) {
-          return mockDeleteFieldOperation;
-        }
-        // Board Operations
-        if (symbol === Symbol.for('GetBoardsOperation')) {
-          return mockGetBoardsOperation;
-        }
-        if (symbol === Symbol.for('GetBoardOperation')) {
-          return mockGetBoardOperation;
-        }
-        if (symbol === Symbol.for('CreateBoardOperation')) {
-          return mockCreateBoardOperation;
-        }
-        if (symbol === Symbol.for('UpdateBoardOperation')) {
-          return mockUpdateBoardOperation;
-        }
-        if (symbol === Symbol.for('DeleteBoardOperation')) {
-          return mockDeleteBoardOperation;
-        }
-        // Sprint Operations
-        if (symbol === Symbol.for('GetSprintsOperation')) {
-          return mockGetSprintsOperation;
-        }
-        if (symbol === Symbol.for('GetSprintOperation')) {
-          return mockGetSprintOperation;
-        }
-        if (symbol === Symbol.for('CreateSprintOperation')) {
-          return mockCreateSprintOperation;
-        }
-        if (symbol === Symbol.for('UpdateSprintOperation')) {
-          return mockUpdateSprintOperation;
-        }
-        throw new Error(`Unknown symbol: ${symbol.toString()}`);
-      }),
-    } as unknown as Container;
+    mockBoardService = {
+      getBoards: vi.fn(),
+      getBoard: vi.fn(),
+      createBoard: vi.fn(),
+      updateBoard: vi.fn(),
+      deleteBoard: vi.fn(),
+    } as unknown as BoardService;
 
-    facade = new YandexTrackerFacade(mockContainer);
+    mockSprintService = {
+      getSprints: vi.fn(),
+      getSprint: vi.fn(),
+      createSprint: vi.fn(),
+      updateSprint: vi.fn(),
+    } as unknown as SprintService;
+
+    // Create facade with mocked services
+    facade = new YandexTrackerFacade(
+      mockUserService,
+      mockIssueService,
+      mockIssueLinkService,
+      mockIssueAttachmentService,
+      mockQueueService,
+      mockComponentService,
+      mockFieldService,
+      mockCommentService,
+      mockChecklistService,
+      mockWorklogService,
+      mockBulkChangeService,
+      mockProjectService,
+      mockBoardService,
+      mockSprintService
+    );
   });
 
   afterEach(() => {
@@ -324,14 +196,14 @@ describe('YandexTrackerFacade', () => {
   });
 
   describe('ping', () => {
-    it('должна успешно вызвать операцию ping', async () => {
+    it('должна успешно вызвать UserService.ping', async () => {
       // Arrange
       const pingResult: PingResult = {
         success: true,
         message: `Успешно подключено к API Яндекс.Трекера. Текущий пользователь: Test User (testuser)`,
       };
 
-      vi.mocked(mockPingOperation.execute).mockResolvedValue(pingResult);
+      vi.mocked(mockUserService.ping).mockResolvedValue(pingResult);
 
       // Act
       const result: PingResult = await facade.ping();
@@ -339,18 +211,17 @@ describe('YandexTrackerFacade', () => {
       // Assert
       expect(result.success).toBe(true);
       expect(result.message).toContain('Test User');
-      expect(mockPingOperation.execute).toHaveBeenCalledOnce();
-      expect(mockContainer.get).toHaveBeenCalledWith(Symbol.for('PingOperation'));
+      expect(mockUserService.ping).toHaveBeenCalledOnce();
     });
 
-    it('должна делегировать обработку ошибок операции ping', async () => {
+    it('должна делегировать обработку ошибок UserService.ping', async () => {
       // Arrange
       const pingResult: PingResult = {
         success: false,
         message: 'Ошибка подключения к API Яндекс.Трекера',
       };
 
-      vi.mocked(mockPingOperation.execute).mockResolvedValue(pingResult);
+      vi.mocked(mockUserService.ping).mockResolvedValue(pingResult);
 
       // Act
       const result: PingResult = await facade.ping();
@@ -358,12 +229,12 @@ describe('YandexTrackerFacade', () => {
       // Assert
       expect(result.success).toBe(false);
       expect(result.message).toContain('Ошибка подключения');
-      expect(mockPingOperation.execute).toHaveBeenCalledOnce();
+      expect(mockUserService.ping).toHaveBeenCalledOnce();
     });
   });
 
   describe('getIssues', () => {
-    it('должна успешно получить несколько задач', async () => {
+    it('должна успешно делегировать вызов IssueService.getIssues', async () => {
       // Arrange
       const issueKeys = ['TEST-1', 'TEST-2'];
 
@@ -412,18 +283,18 @@ describe('YandexTrackerFacade', () => {
         {
           status: 'fulfilled',
           value: mockIssue1 as IssueWithUnknownFields,
-          key: 'ISSUE-1',
+          key: 'TEST-1',
           index: 0,
         },
         {
           status: 'fulfilled',
           value: mockIssue2 as IssueWithUnknownFields,
-          key: 'ISSUE-2',
+          key: 'TEST-2',
           index: 1,
         },
       ];
 
-      vi.mocked(mockGetIssuesOperation.execute).mockResolvedValue(batchResults);
+      vi.mocked(mockIssueService.getIssues).mockResolvedValue(batchResults);
 
       // Act
       const results: BatchIssueResult[] = await facade.getIssues(issueKeys);
@@ -440,8 +311,7 @@ describe('YandexTrackerFacade', () => {
         expect(results[1]!.value.key).toBe('TEST-2');
       }
 
-      expect(mockGetIssuesOperation.execute).toHaveBeenCalledWith(issueKeys);
-      expect(mockContainer.get).toHaveBeenCalledWith(Symbol.for('GetIssuesOperation'));
+      expect(mockIssueService.getIssues).toHaveBeenCalledWith(issueKeys);
     });
 
     it('должна обработать частичные ошибки при получении задач', async () => {
@@ -484,13 +354,13 @@ describe('YandexTrackerFacade', () => {
         {
           status: 'fulfilled',
           value: mockIssue as IssueWithUnknownFields,
-          key: 'ISSUE-1',
+          key: 'TEST-1',
           index: 0,
         },
-        { status: 'rejected', reason: apiError, key: 'ISSUE-2', index: 1 },
+        { status: 'rejected', reason: apiError, key: 'INVALID', index: 1 },
       ];
 
-      vi.mocked(mockGetIssuesOperation.execute).mockResolvedValue(batchResults);
+      vi.mocked(mockIssueService.getIssues).mockResolvedValue(batchResults);
 
       // Act
       const results: BatchIssueResult[] = await facade.getIssues(issueKeys);
@@ -507,26 +377,13 @@ describe('YandexTrackerFacade', () => {
         expect(results[1]!.reason).toBeInstanceOf(Error);
         expect(results[1]!.reason.message).toBe('Not Found');
       }
-    });
 
-    it('должна вернуть пустой массив для пустого списка ключей', async () => {
-      // Arrange
-      const issueKeys: string[] = [];
-      const batchResults: BatchIssueResult[] = [];
-
-      vi.mocked(mockGetIssuesOperation.execute).mockResolvedValue(batchResults);
-
-      // Act
-      const results: BatchIssueResult[] = await facade.getIssues(issueKeys);
-
-      // Assert
-      expect(results).toHaveLength(0);
-      expect(mockGetIssuesOperation.execute).toHaveBeenCalledWith(issueKeys);
+      expect(mockIssueService.getIssues).toHaveBeenCalledWith(issueKeys);
     });
   });
 
   describe('findIssues', () => {
-    it('должна вызвать FindIssuesOperation.execute с правильными params', async () => {
+    it('должна делегировать вызов IssueService.findIssues', async () => {
       const params: FindIssuesInputDto = { query: 'status: open', perPage: 50 };
       const mockResult: FindIssuesResult = [
         {
@@ -541,25 +398,25 @@ describe('YandexTrackerFacade', () => {
         },
       ];
 
-      vi.mocked(mockFindIssuesOperation.execute).mockResolvedValue(mockResult);
+      vi.mocked(mockIssueService.findIssues).mockResolvedValue(mockResult);
 
       const result = await facade.findIssues(params);
 
-      expect(mockFindIssuesOperation.execute).toHaveBeenCalledWith(params);
+      expect(mockIssueService.findIssues).toHaveBeenCalledWith(params);
       expect(result).toEqual(mockResult);
     });
 
-    it('должна обрабатывать ошибки от FindIssuesOperation', async () => {
+    it('должна обрабатывать ошибки от IssueService.findIssues', async () => {
       const params: FindIssuesInputDto = { query: 'invalid' };
       const error = new Error('Find failed');
-      vi.mocked(mockFindIssuesOperation.execute).mockRejectedValue(error);
+      vi.mocked(mockIssueService.findIssues).mockRejectedValue(error);
 
       await expect(facade.findIssues(params)).rejects.toThrow('Find failed');
     });
   });
 
   describe('createIssue', () => {
-    it('должна вызвать CreateIssueOperation.execute с правильными данными', async () => {
+    it('должна делегировать вызов IssueService.createIssue', async () => {
       const issueData: CreateIssueDto = { queue: 'TEST', summary: 'New Issue' };
       const mockResult: IssueWithUnknownFields = {
         id: '1',
@@ -572,25 +429,25 @@ describe('YandexTrackerFacade', () => {
         updatedAt: '2024-01-01',
       };
 
-      vi.mocked(mockCreateIssueOperation.execute).mockResolvedValue(mockResult);
+      vi.mocked(mockIssueService.createIssue).mockResolvedValue(mockResult);
 
       const result = await facade.createIssue(issueData);
 
-      expect(mockCreateIssueOperation.execute).toHaveBeenCalledWith(issueData);
+      expect(mockIssueService.createIssue).toHaveBeenCalledWith(issueData);
       expect(result).toEqual(mockResult);
     });
 
-    it('должна обрабатывать ошибки от CreateIssueOperation', async () => {
+    it('должна обрабатывать ошибки от IssueService.createIssue', async () => {
       const issueData: CreateIssueDto = { queue: 'TEST', summary: '' };
       const error = new Error('Create failed');
-      vi.mocked(mockCreateIssueOperation.execute).mockRejectedValue(error);
+      vi.mocked(mockIssueService.createIssue).mockRejectedValue(error);
 
       await expect(facade.createIssue(issueData)).rejects.toThrow('Create failed');
     });
   });
 
   describe('updateIssue', () => {
-    it('должна вызвать UpdateIssueOperation.execute с правильными параметрами', async () => {
+    it('должна делегировать вызов IssueService.updateIssue', async () => {
       const issueKey = 'TEST-123';
       const updateData: UpdateIssueDto = { summary: 'Updated' };
       const mockResult: IssueWithUnknownFields = {
@@ -604,26 +461,26 @@ describe('YandexTrackerFacade', () => {
         updatedAt: '2024-01-02',
       };
 
-      vi.mocked(mockUpdateIssueOperation.execute).mockResolvedValue(mockResult);
+      vi.mocked(mockIssueService.updateIssue).mockResolvedValue(mockResult);
 
       const result = await facade.updateIssue(issueKey, updateData);
 
-      expect(mockUpdateIssueOperation.execute).toHaveBeenCalledWith(issueKey, updateData);
+      expect(mockIssueService.updateIssue).toHaveBeenCalledWith(issueKey, updateData);
       expect(result).toEqual(mockResult);
     });
 
-    it('должна обрабатывать ошибки от UpdateIssueOperation', async () => {
+    it('должна обрабатывать ошибки от IssueService.updateIssue', async () => {
       const issueKey = 'TEST-123';
       const updateData: UpdateIssueDto = { summary: '' };
       const error = new Error('Update failed');
-      vi.mocked(mockUpdateIssueOperation.execute).mockRejectedValue(error);
+      vi.mocked(mockIssueService.updateIssue).mockRejectedValue(error);
 
       await expect(facade.updateIssue(issueKey, updateData)).rejects.toThrow('Update failed');
     });
   });
 
   describe('getIssueChangelog', () => {
-    it('должна вызвать GetIssueChangelogOperation.execute с правильным ключом', async () => {
+    it('должна делегировать вызов IssueService.getIssueChangelog', async () => {
       const issueKey = 'TEST-123';
       const mockResult: ChangelogEntryWithUnknownFields[] = [
         {
@@ -637,25 +494,25 @@ describe('YandexTrackerFacade', () => {
         },
       ];
 
-      vi.mocked(mockGetIssueChangelogOperation.execute).mockResolvedValue(mockResult);
+      vi.mocked(mockIssueService.getIssueChangelog).mockResolvedValue(mockResult);
 
       const result = await facade.getIssueChangelog(issueKey);
 
-      expect(mockGetIssueChangelogOperation.execute).toHaveBeenCalledWith(issueKey);
+      expect(mockIssueService.getIssueChangelog).toHaveBeenCalledWith(issueKey);
       expect(result).toEqual(mockResult);
     });
 
-    it('должна обрабатывать ошибки от GetIssueChangelogOperation', async () => {
+    it('должна обрабатывать ошибки от IssueService.getIssueChangelog', async () => {
       const issueKey = 'TEST-123';
       const error = new Error('Changelog failed');
-      vi.mocked(mockGetIssueChangelogOperation.execute).mockRejectedValue(error);
+      vi.mocked(mockIssueService.getIssueChangelog).mockRejectedValue(error);
 
       await expect(facade.getIssueChangelog(issueKey)).rejects.toThrow('Changelog failed');
     });
   });
 
   describe('getIssueTransitions', () => {
-    it('должна вызвать GetIssueTransitionsOperation.execute с правильным ключом', async () => {
+    it('должна делегировать вызов IssueService.getIssueTransitions', async () => {
       const issueKey = 'TEST-123';
       const mockResult: TransitionWithUnknownFields[] = [
         {
@@ -665,25 +522,25 @@ describe('YandexTrackerFacade', () => {
         },
       ];
 
-      vi.mocked(mockGetIssueTransitionsOperation.execute).mockResolvedValue(mockResult);
+      vi.mocked(mockIssueService.getIssueTransitions).mockResolvedValue(mockResult);
 
       const result = await facade.getIssueTransitions(issueKey);
 
-      expect(mockGetIssueTransitionsOperation.execute).toHaveBeenCalledWith(issueKey);
+      expect(mockIssueService.getIssueTransitions).toHaveBeenCalledWith(issueKey);
       expect(result).toEqual(mockResult);
     });
 
-    it('должна обрабатывать ошибки от GetIssueTransitionsOperation', async () => {
+    it('должна обрабатывать ошибки от IssueService.getIssueTransitions', async () => {
       const issueKey = 'TEST-123';
       const error = new Error('Transitions failed');
-      vi.mocked(mockGetIssueTransitionsOperation.execute).mockRejectedValue(error);
+      vi.mocked(mockIssueService.getIssueTransitions).mockRejectedValue(error);
 
       await expect(facade.getIssueTransitions(issueKey)).rejects.toThrow('Transitions failed');
     });
   });
 
   describe('transitionIssue', () => {
-    it('должна вызвать TransitionIssueOperation.execute с правильными параметрами', async () => {
+    it('должна делегировать вызов IssueService.transitionIssue', async () => {
       const issueKey = 'TEST-123';
       const transitionId = 'trans1';
       const transitionData: ExecuteTransitionDto = { comment: 'Moving' };
@@ -698,11 +555,11 @@ describe('YandexTrackerFacade', () => {
         updatedAt: '2024-01-02',
       };
 
-      vi.mocked(mockTransitionIssueOperation.execute).mockResolvedValue(mockResult);
+      vi.mocked(mockIssueService.transitionIssue).mockResolvedValue(mockResult);
 
       const result = await facade.transitionIssue(issueKey, transitionId, transitionData);
 
-      expect(mockTransitionIssueOperation.execute).toHaveBeenCalledWith(
+      expect(mockIssueService.transitionIssue).toHaveBeenCalledWith(
         issueKey,
         transitionId,
         transitionData
@@ -710,11 +567,11 @@ describe('YandexTrackerFacade', () => {
       expect(result).toEqual(mockResult);
     });
 
-    it('должна обрабатывать ошибки от TransitionIssueOperation', async () => {
+    it('должна обрабатывать ошибки от IssueService.transitionIssue', async () => {
       const issueKey = 'TEST-123';
       const transitionId = 'trans1';
       const error = new Error('Transition failed');
-      vi.mocked(mockTransitionIssueOperation.execute).mockRejectedValue(error);
+      vi.mocked(mockIssueService.transitionIssue).mockRejectedValue(error);
 
       await expect(facade.transitionIssue(issueKey, transitionId)).rejects.toThrow(
         'Transition failed'
@@ -723,9 +580,24 @@ describe('YandexTrackerFacade', () => {
   });
 
   describe('constructor', () => {
-    it('должна правильно инициализировать фасад с контейнером', () => {
+    it('должна правильно инициализировать фасад с сервисами', () => {
       // Act - создание нового экземпляра
-      const newFacade = new YandexTrackerFacade(mockContainer);
+      const newFacade = new YandexTrackerFacade(
+        mockUserService,
+        mockIssueService,
+        mockIssueLinkService,
+        mockIssueAttachmentService,
+        mockQueueService,
+        mockComponentService,
+        mockFieldService,
+        mockCommentService,
+        mockChecklistService,
+        mockWorklogService,
+        mockBulkChangeService,
+        mockProjectService,
+        mockBoardService,
+        mockSprintService
+      );
 
       // Assert - проверяем, что можем вызвать методы
       expect(newFacade.ping).toBeDefined();
@@ -737,7 +609,7 @@ describe('YandexTrackerFacade', () => {
 
   describe('Worklog methods', () => {
     describe('getWorklogs', () => {
-      it('должна вызвать GetWorklogsOperation.execute с правильным issueId', async () => {
+      it('должна делегировать вызов WorklogService.getWorklogs', async () => {
         const issueId = 'TEST-1';
         const mockResult: WorklogWithUnknownFields[] = [
           {
@@ -750,17 +622,17 @@ describe('YandexTrackerFacade', () => {
           },
         ];
 
-        vi.mocked(mockGetWorklogsOperation.execute).mockResolvedValue(mockResult);
+        vi.mocked(mockWorklogService.getWorklogs).mockResolvedValue(mockResult);
 
         const result = await facade.getWorklogs(issueId);
 
-        expect(mockGetWorklogsOperation.execute).toHaveBeenCalledWith(issueId);
+        expect(mockWorklogService.getWorklogs).toHaveBeenCalledWith(issueId);
         expect(result).toEqual(mockResult);
       });
     });
 
     describe('addWorklog', () => {
-      it('должна вызвать AddWorklogOperation.execute с правильными параметрами', async () => {
+      it('должна делегировать вызов WorklogService.addWorklog', async () => {
         const issueId = 'TEST-1';
         const input: AddWorklogInput = { duration: 'PT1H', comment: 'Work done' };
         const mockResult: WorklogWithUnknownFields = {
@@ -772,17 +644,17 @@ describe('YandexTrackerFacade', () => {
           duration: 'PT1H',
         };
 
-        vi.mocked(mockAddWorklogOperation.execute).mockResolvedValue(mockResult);
+        vi.mocked(mockWorklogService.addWorklog).mockResolvedValue(mockResult);
 
         const result = await facade.addWorklog(issueId, input);
 
-        expect(mockAddWorklogOperation.execute).toHaveBeenCalledWith(issueId, input);
+        expect(mockWorklogService.addWorklog).toHaveBeenCalledWith(issueId, input);
         expect(result).toEqual(mockResult);
       });
     });
 
     describe('updateWorklog', () => {
-      it('должна вызвать UpdateWorklogOperation.execute с правильными параметрами', async () => {
+      it('должна делегировать вызов WorklogService.updateWorklog', async () => {
         const issueId = 'TEST-1';
         const worklogId = '123';
         const input: UpdateWorklogInput = { duration: 'PT2H' };
@@ -795,32 +667,32 @@ describe('YandexTrackerFacade', () => {
           duration: 'PT2H',
         };
 
-        vi.mocked(mockUpdateWorklogOperation.execute).mockResolvedValue(mockResult);
+        vi.mocked(mockWorklogService.updateWorklog).mockResolvedValue(mockResult);
 
         const result = await facade.updateWorklog(issueId, worklogId, input);
 
-        expect(mockUpdateWorklogOperation.execute).toHaveBeenCalledWith(issueId, worklogId, input);
+        expect(mockWorklogService.updateWorklog).toHaveBeenCalledWith(issueId, worklogId, input);
         expect(result).toEqual(mockResult);
       });
     });
 
     describe('deleteWorklog', () => {
-      it('должна вызвать DeleteWorklogOperation.execute с правильными параметрами', async () => {
+      it('должна делегировать вызов WorklogService.deleteWorklog', async () => {
         const issueId = 'TEST-1';
         const worklogId = '123';
 
-        vi.mocked(mockDeleteWorklogOperation.execute).mockResolvedValue(undefined);
+        vi.mocked(mockWorklogService.deleteWorklog).mockResolvedValue(undefined);
 
         await facade.deleteWorklog(issueId, worklogId);
 
-        expect(mockDeleteWorklogOperation.execute).toHaveBeenCalledWith(issueId, worklogId);
+        expect(mockWorklogService.deleteWorklog).toHaveBeenCalledWith(issueId, worklogId);
       });
     });
   });
 
   describe('Field methods', () => {
     describe('getFields', () => {
-      it('должна вызвать GetFieldsOperation.execute', async () => {
+      it('должна делегировать вызов FieldService.getFields', async () => {
         const mockResult: FieldsListOutput = [
           {
             id: 'field1',
@@ -830,17 +702,17 @@ describe('YandexTrackerFacade', () => {
           },
         ];
 
-        vi.mocked(mockGetFieldsOperation.execute).mockResolvedValue(mockResult);
+        vi.mocked(mockFieldService.getFields).mockResolvedValue(mockResult);
 
         const result = await facade.getFields();
 
-        expect(mockGetFieldsOperation.execute).toHaveBeenCalled();
+        expect(mockFieldService.getFields).toHaveBeenCalled();
         expect(result).toEqual(mockResult);
       });
     });
 
     describe('getField', () => {
-      it('должна вызвать GetFieldOperation.execute с правильным fieldId', async () => {
+      it('должна делегировать вызов FieldService.getField', async () => {
         const fieldId = 'customField123';
         const mockResult: FieldOutput = {
           id: 'customField123',
@@ -849,17 +721,17 @@ describe('YandexTrackerFacade', () => {
           name: 'Custom Field',
         };
 
-        vi.mocked(mockGetFieldOperation.execute).mockResolvedValue(mockResult);
+        vi.mocked(mockFieldService.getField).mockResolvedValue(mockResult);
 
         const result = await facade.getField(fieldId);
 
-        expect(mockGetFieldOperation.execute).toHaveBeenCalledWith(fieldId);
+        expect(mockFieldService.getField).toHaveBeenCalledWith(fieldId);
         expect(result).toEqual(mockResult);
       });
     });
 
     describe('createField', () => {
-      it('должна вызвать CreateFieldOperation.execute с правильными данными', async () => {
+      it('должна делегировать вызов FieldService.createField', async () => {
         const input: CreateFieldDto = { name: 'Custom Field', type: 'string' };
         const mockResult: FieldOutput = {
           id: 'newField',
@@ -868,17 +740,17 @@ describe('YandexTrackerFacade', () => {
           name: 'Custom Field',
         };
 
-        vi.mocked(mockCreateFieldOperation.execute).mockResolvedValue(mockResult);
+        vi.mocked(mockFieldService.createField).mockResolvedValue(mockResult);
 
         const result = await facade.createField(input);
 
-        expect(mockCreateFieldOperation.execute).toHaveBeenCalledWith(input);
+        expect(mockFieldService.createField).toHaveBeenCalledWith(input);
         expect(result).toEqual(mockResult);
       });
     });
 
     describe('updateField', () => {
-      it('должна вызвать UpdateFieldOperation.execute с правильными параметрами', async () => {
+      it('должна делегировать вызов FieldService.updateField', async () => {
         const fieldId = 'customField123';
         const input: UpdateFieldDto = { name: 'Updated Field' };
         const mockResult: FieldOutput = {
@@ -888,31 +760,31 @@ describe('YandexTrackerFacade', () => {
           name: 'Updated Field',
         };
 
-        vi.mocked(mockUpdateFieldOperation.execute).mockResolvedValue(mockResult);
+        vi.mocked(mockFieldService.updateField).mockResolvedValue(mockResult);
 
         const result = await facade.updateField(fieldId, input);
 
-        expect(mockUpdateFieldOperation.execute).toHaveBeenCalledWith(fieldId, input);
+        expect(mockFieldService.updateField).toHaveBeenCalledWith(fieldId, input);
         expect(result).toEqual(mockResult);
       });
     });
 
     describe('deleteField', () => {
-      it('должна вызвать DeleteFieldOperation.execute с правильным fieldId', async () => {
+      it('должна делегировать вызов FieldService.deleteField', async () => {
         const fieldId = 'customField123';
 
-        vi.mocked(mockDeleteFieldOperation.execute).mockResolvedValue(undefined);
+        vi.mocked(mockFieldService.deleteField).mockResolvedValue(undefined);
 
         await facade.deleteField(fieldId);
 
-        expect(mockDeleteFieldOperation.execute).toHaveBeenCalledWith(fieldId);
+        expect(mockFieldService.deleteField).toHaveBeenCalledWith(fieldId);
       });
     });
   });
 
   describe('Board methods', () => {
     describe('getBoards', () => {
-      it('должна вызвать GetBoardsOperation.execute без параметров', async () => {
+      it('должна делегировать вызов BoardService.getBoards без параметров', async () => {
         const mockResult: BoardsListOutput = [
           {
             id: '1',
@@ -921,15 +793,15 @@ describe('YandexTrackerFacade', () => {
           },
         ];
 
-        vi.mocked(mockGetBoardsOperation.execute).mockResolvedValue(mockResult);
+        vi.mocked(mockBoardService.getBoards).mockResolvedValue(mockResult);
 
         const result = await facade.getBoards();
 
-        expect(mockGetBoardsOperation.execute).toHaveBeenCalledWith(undefined);
+        expect(mockBoardService.getBoards).toHaveBeenCalledWith(undefined);
         expect(result).toEqual(mockResult);
       });
 
-      it('должна вызвать GetBoardsOperation.execute с параметрами', async () => {
+      it('должна делегировать вызов BoardService.getBoards с параметрами', async () => {
         const params: GetBoardsDto = { filter: 'active' };
         const mockResult: BoardsListOutput = [
           {
@@ -939,17 +811,17 @@ describe('YandexTrackerFacade', () => {
           },
         ];
 
-        vi.mocked(mockGetBoardsOperation.execute).mockResolvedValue(mockResult);
+        vi.mocked(mockBoardService.getBoards).mockResolvedValue(mockResult);
 
         const result = await facade.getBoards(params);
 
-        expect(mockGetBoardsOperation.execute).toHaveBeenCalledWith(params);
+        expect(mockBoardService.getBoards).toHaveBeenCalledWith(params);
         expect(result).toEqual(mockResult);
       });
     });
 
     describe('getBoard', () => {
-      it('должна вызвать GetBoardOperation.execute с boardId', async () => {
+      it('должна делегировать вызов BoardService.getBoard', async () => {
         const boardId = '1';
         const mockResult: BoardOutput = {
           id: '1',
@@ -957,15 +829,15 @@ describe('YandexTrackerFacade', () => {
           name: 'Sprint Board',
         };
 
-        vi.mocked(mockGetBoardOperation.execute).mockResolvedValue(mockResult);
+        vi.mocked(mockBoardService.getBoard).mockResolvedValue(mockResult);
 
         const result = await facade.getBoard(boardId);
 
-        expect(mockGetBoardOperation.execute).toHaveBeenCalledWith({ boardId });
+        expect(mockBoardService.getBoard).toHaveBeenCalledWith(boardId, undefined);
         expect(result).toEqual(mockResult);
       });
 
-      it('должна вызвать GetBoardOperation.execute с boardId и params', async () => {
+      it('должна делегировать вызов BoardService.getBoard с params', async () => {
         const boardId = '1';
         const params = { localized: true };
         const mockResult: BoardOutput = {
@@ -974,17 +846,17 @@ describe('YandexTrackerFacade', () => {
           name: 'Sprint Board',
         };
 
-        vi.mocked(mockGetBoardOperation.execute).mockResolvedValue(mockResult);
+        vi.mocked(mockBoardService.getBoard).mockResolvedValue(mockResult);
 
         const result = await facade.getBoard(boardId, params);
 
-        expect(mockGetBoardOperation.execute).toHaveBeenCalledWith({ boardId, ...params });
+        expect(mockBoardService.getBoard).toHaveBeenCalledWith(boardId, params);
         expect(result).toEqual(mockResult);
       });
     });
 
     describe('createBoard', () => {
-      it('должна вызвать CreateBoardOperation.execute с правильными данными', async () => {
+      it('должна делегировать вызов BoardService.createBoard', async () => {
         const input: CreateBoardDto = { name: 'Sprint Board', filter: { query: 'status: open' } };
         const mockResult: BoardOutput = {
           id: '1',
@@ -992,17 +864,17 @@ describe('YandexTrackerFacade', () => {
           name: 'Sprint Board',
         };
 
-        vi.mocked(mockCreateBoardOperation.execute).mockResolvedValue(mockResult);
+        vi.mocked(mockBoardService.createBoard).mockResolvedValue(mockResult);
 
         const result = await facade.createBoard(input);
 
-        expect(mockCreateBoardOperation.execute).toHaveBeenCalledWith(input);
+        expect(mockBoardService.createBoard).toHaveBeenCalledWith(input);
         expect(result).toEqual(mockResult);
       });
     });
 
     describe('updateBoard', () => {
-      it('должна вызвать UpdateBoardOperation.execute с правильными параметрами', async () => {
+      it('должна делегировать вызов BoardService.updateBoard', async () => {
         const boardId = '1';
         const input = { name: 'Updated Board' };
         const mockResult: BoardOutput = {
@@ -1011,31 +883,31 @@ describe('YandexTrackerFacade', () => {
           name: 'Updated Board',
         };
 
-        vi.mocked(mockUpdateBoardOperation.execute).mockResolvedValue(mockResult);
+        vi.mocked(mockBoardService.updateBoard).mockResolvedValue(mockResult);
 
         const result = await facade.updateBoard(boardId, input);
 
-        expect(mockUpdateBoardOperation.execute).toHaveBeenCalledWith({ boardId, ...input });
+        expect(mockBoardService.updateBoard).toHaveBeenCalledWith(boardId, input);
         expect(result).toEqual(mockResult);
       });
     });
 
     describe('deleteBoard', () => {
-      it('должна вызвать DeleteBoardOperation.execute с правильным boardId', async () => {
+      it('должна делегировать вызов BoardService.deleteBoard', async () => {
         const boardId = '1';
 
-        vi.mocked(mockDeleteBoardOperation.execute).mockResolvedValue(undefined);
+        vi.mocked(mockBoardService.deleteBoard).mockResolvedValue(undefined);
 
         await facade.deleteBoard(boardId);
 
-        expect(mockDeleteBoardOperation.execute).toHaveBeenCalledWith({ boardId });
+        expect(mockBoardService.deleteBoard).toHaveBeenCalledWith(boardId);
       });
     });
   });
 
   describe('Sprint methods', () => {
     describe('getSprints', () => {
-      it('должна вызвать GetSprintsOperation.execute с boardId', async () => {
+      it('должна делегировать вызов SprintService.getSprints', async () => {
         const boardId = '1';
         const mockResult: SprintsListOutput = [
           {
@@ -1045,17 +917,17 @@ describe('YandexTrackerFacade', () => {
           },
         ];
 
-        vi.mocked(mockGetSprintsOperation.execute).mockResolvedValue(mockResult);
+        vi.mocked(mockSprintService.getSprints).mockResolvedValue(mockResult);
 
         const result = await facade.getSprints(boardId);
 
-        expect(mockGetSprintsOperation.execute).toHaveBeenCalledWith({ boardId });
+        expect(mockSprintService.getSprints).toHaveBeenCalledWith(boardId);
         expect(result).toEqual(mockResult);
       });
     });
 
     describe('getSprint', () => {
-      it('должна вызвать GetSprintOperation.execute с sprintId', async () => {
+      it('должна делегировать вызов SprintService.getSprint', async () => {
         const sprintId = '10';
         const mockResult: SprintOutput = {
           id: '10',
@@ -1063,17 +935,17 @@ describe('YandexTrackerFacade', () => {
           name: 'Sprint 1',
         };
 
-        vi.mocked(mockGetSprintOperation.execute).mockResolvedValue(mockResult);
+        vi.mocked(mockSprintService.getSprint).mockResolvedValue(mockResult);
 
         const result = await facade.getSprint(sprintId);
 
-        expect(mockGetSprintOperation.execute).toHaveBeenCalledWith({ sprintId });
+        expect(mockSprintService.getSprint).toHaveBeenCalledWith(sprintId);
         expect(result).toEqual(mockResult);
       });
     });
 
     describe('createSprint', () => {
-      it('должна вызвать CreateSprintOperation.execute с правильными данными', async () => {
+      it('должна делегировать вызов SprintService.createSprint', async () => {
         const input: CreateSprintDto = {
           name: 'Sprint 1',
           boardId: '1',
@@ -1086,17 +958,17 @@ describe('YandexTrackerFacade', () => {
           name: 'Sprint 1',
         };
 
-        vi.mocked(mockCreateSprintOperation.execute).mockResolvedValue(mockResult);
+        vi.mocked(mockSprintService.createSprint).mockResolvedValue(mockResult);
 
         const result = await facade.createSprint(input);
 
-        expect(mockCreateSprintOperation.execute).toHaveBeenCalledWith(input);
+        expect(mockSprintService.createSprint).toHaveBeenCalledWith(input);
         expect(result).toEqual(mockResult);
       });
     });
 
     describe('updateSprint', () => {
-      it('должна вызвать UpdateSprintOperation.execute с правильными параметрами', async () => {
+      it('должна делегировать вызов SprintService.updateSprint', async () => {
         const sprintId = '10';
         const input = { name: 'Sprint 1 Updated' };
         const mockResult: SprintOutput = {
@@ -1105,11 +977,11 @@ describe('YandexTrackerFacade', () => {
           name: 'Sprint 1 Updated',
         };
 
-        vi.mocked(mockUpdateSprintOperation.execute).mockResolvedValue(mockResult);
+        vi.mocked(mockSprintService.updateSprint).mockResolvedValue(mockResult);
 
         const result = await facade.updateSprint(sprintId, input);
 
-        expect(mockUpdateSprintOperation.execute).toHaveBeenCalledWith({ sprintId, ...input });
+        expect(mockSprintService.updateSprint).toHaveBeenCalledWith(sprintId, input);
         expect(result).toEqual(mockResult);
       });
     });
