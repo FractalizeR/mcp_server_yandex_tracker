@@ -39,9 +39,9 @@ export class GetComponentsOperation extends BaseOperation {
 
     // Проверяем кеш
     const cacheKey = EntityCacheKey.createKey(EntityType.QUEUE, `${queueId}/components`);
-    const cached = this.cacheManager.get<ComponentsListOutput>(cacheKey);
+    const cached = await this.cacheManager.get<ComponentsListOutput>(cacheKey);
 
-    if (cached) {
+    if (cached !== null) {
       this.logger.debug(`Компоненты очереди ${queueId} получены из кеша`);
       return cached;
     }
@@ -52,7 +52,7 @@ export class GetComponentsOperation extends BaseOperation {
     );
 
     // Кешируем результат
-    this.cacheManager.set(cacheKey, components);
+    await this.cacheManager.set(cacheKey, components);
 
     this.logger.info(`Получено ${components.length} компонентов для очереди ${queueId}`);
 

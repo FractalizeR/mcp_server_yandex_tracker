@@ -244,7 +244,7 @@ export class ToolRegistry {
     const tool = this.tools?.get(name);
 
     if (!tool) {
-      // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+       
       const allTools = Array.from(this.tools?.keys() || []);
 
       // Fuzzy поиск похожих имен

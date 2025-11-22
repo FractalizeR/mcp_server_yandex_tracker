@@ -11,49 +11,50 @@
  * @example
  * // Вместо:
  * if (cache) {
- *   const value = cache.get(key);
+ *   const value = await cache.get(key);
  * }
  *
  * // Используем:
- * const cache = config.enableCache ? new MemoryCache() : new NoOpCache();
- * const value = cache.get(key); // Всегда undefined для NoOpCache
+ * const cache = config.enableCache ? new InMemoryCache() : new NoOpCache();
+ * const value = await cache.get(key); // Всегда null для NoOpCache
  */
 
 import type { CacheManager } from './cache-manager.interface.js';
 
 export class NoOpCache implements CacheManager {
   /**
-   * Всегда возвращает undefined (cache miss)
+   * Всегда возвращает null (cache miss)
    */
-  get<T>(_key: string): T | undefined {
-    return undefined;
+  // eslint-disable-next-line @typescript-eslint/require-await
+  async get<T>(_key: string): Promise<T | null> {
+    return null;
   }
 
   /**
    * Ничего не делает (не сохраняет)
    */
-  set<T>(_key: string, _value: T, _ttl?: number): void {
+  async set<T>(_key: string, _value: T, _ttl?: number): Promise<void> {
     // Ничего не делаем
   }
 
   /**
    * Ничего не делает (нечего удалять)
    */
-  delete(_key: string): void {
+  async delete(_key: string): Promise<void> {
     // Ничего не делаем
   }
 
   /**
    * Ничего не делает (нечего очищать)
    */
-  clear(): void {
+  async clear(): Promise<void> {
     // Ничего не делаем
   }
 
   /**
    * Ничего не делает (нечего удалять)
    */
-  prune(): void {
+  async prune(): Promise<void> {
     // Ничего не делаем
   }
 }

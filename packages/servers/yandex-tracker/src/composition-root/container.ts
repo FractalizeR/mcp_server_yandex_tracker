@@ -16,7 +16,7 @@ import { AxiosHttpClient, ExponentialBackoffStrategy } from '@mcp-framework/infr
 
 // Cache Layer
 import type { CacheManager } from '@mcp-framework/infrastructure';
-import { NoOpCache } from '@mcp-framework/infrastructure';
+import { InMemoryCacheManager } from '@mcp-framework/infrastructure';
 
 // Yandex Tracker Facade
 import { YandexTrackerFacade } from '#tracker_api/facade/yandex-tracker.facade.js';
@@ -88,7 +88,9 @@ function bindHttpLayer(container: Container): void {
  * Регистрация кеша
  */
 function bindCacheLayer(container: Container): void {
-  container.bind<CacheManager>(TYPES.CacheManager).to(NoOpCache);
+  container
+    .bind<CacheManager>(TYPES.CacheManager)
+    .toConstantValue(new InMemoryCacheManager(300000)); // 5 минут TTL по умолчанию
 }
 
 /**
@@ -131,7 +133,7 @@ function bindOperations(container: Container): void {
       const cacheManager = container.get<CacheManager>(TYPES.CacheManager);
       const loggerInstance = container.get<Logger>(TYPES.Logger);
       const configInstance = container.get<ServerConfig>(TYPES.ServerConfig);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return new (OperationClass as any)(httpClient, cacheManager, loggerInstance, configInstance);
     };
 
@@ -271,7 +273,7 @@ function bindToolRegistry(container: Container): void {
     const loggerInstance = container.get<Logger>(TYPES.Logger);
     // Передаём контейнер, logger и только стандартные tool классы
     // SearchToolsTool будет добавлен позже через registerToolFromContainer
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return new ToolRegistry(container, loggerInstance, TOOL_CLASSES as any);
   });
 }

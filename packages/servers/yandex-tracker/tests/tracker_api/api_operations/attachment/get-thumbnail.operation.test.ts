@@ -29,7 +29,7 @@ describe('GetThumbnailOperation', () => {
     } as unknown as HttpClient;
 
     mockCacheManager = {
-      get: vi.fn().mockReturnValue(undefined),
+      get: vi.fn().mockResolvedValue(null),
       set: vi.fn(),
       delete: vi.fn(),
       clear: vi.fn(),

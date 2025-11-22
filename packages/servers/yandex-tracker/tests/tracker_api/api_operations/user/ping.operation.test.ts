@@ -25,13 +25,13 @@ describe('PingOperation', () => {
       delete: vi.fn(),
     } as unknown as HttpClient;
 
-    // Mock CacheManager - по умолчанию возвращает undefined (нет кеша)
+    // Mock CacheManager - по умолчанию возвращает null (нет кеша)
     mockCacheManager = {
-      get: vi.fn().mockReturnValue(undefined),
-      set: vi.fn(),
+      get: vi.fn().mockResolvedValue(null),
+      set: vi.fn().mockResolvedValue(undefined),
       has: vi.fn(),
-      delete: vi.fn(),
-      clear: vi.fn(),
+      delete: vi.fn().mockResolvedValue(undefined),
+      clear: vi.fn().mockResolvedValue(undefined),
     } as unknown as CacheManager;
 
     // Mock Logger
@@ -106,14 +106,14 @@ describe('PingOperation', () => {
       };
 
       // Первый раз кеша нет
-      vi.mocked(mockCacheManager.get).mockReturnValueOnce(undefined);
+      vi.mocked(mockCacheManager.get).mockResolvedValueOnce(null);
       vi.mocked(mockHttpClient.get).mockResolvedValue(mockUser);
 
       // Act - первый вызов
       const result1 = await operation.execute();
 
       // Второй раз данные из кеша
-      vi.mocked(mockCacheManager.get).mockReturnValueOnce(mockUser);
+      vi.mocked(mockCacheManager.get).mockResolvedValueOnce(mockUser);
 
       // Act - второй вызов
       const result2 = await operation.execute();

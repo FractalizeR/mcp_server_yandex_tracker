@@ -63,6 +63,122 @@ import { LogLevel } from '@mcp-framework/infrastructure';
 
 ---
 
+### BREAKING: CacheManager теперь асинхронный
+
+**Причина:** Подготовка к поддержке внешних кешей (Redis, Memcached). Синхронный интерфейс ограничивал возможность использования внешних storage.
+
+#### Изменения интерфейса
+
+**ДО (v1.x):**
+```typescript
+interface CacheManager {
+  get<T>(key: string): T | undefined;
+  set<T>(key: string, value: T, ttl?: number): void;
+  delete(key: string): void;
+  clear(): void;
+  prune(): void;
+}
+
+// Использование:
+const value = cacheManager.get<Issue>('issue:123');
+if (value) {
+  return value;
+}
+cacheManager.set('issue:123', issue);
+cacheManager.delete('issue:123');
+```
+
+**ПОСЛЕ (v2.0.0):**
+```typescript
+interface CacheManager {
+  get<T>(key: string): Promise<T | null>;
+  set<T>(key: string, value: T, ttl?: number): Promise<void>;
+  delete(key: string): Promise<void>;
+  clear(): Promise<void>;
+  prune(): Promise<void>;
+}
+
+// Использование:
+const value = await cacheManager.get<Issue>('issue:123');
+if (value !== null) {
+  return value;
+}
+await cacheManager.set('issue:123', issue);
+await cacheManager.delete('issue:123');
+```
+
+#### Новые реализации
+
+**InMemoryCacheManager** — новая реализация in-memory кеша с async интерфейсом:
+```typescript
+import { InMemoryCacheManager } from '@mcp-framework/infrastructure';
+
+// В DI контейнере:
+container
+  .bind<CacheManager>(TYPES.CacheManager)
+  .toConstantValue(new InMemoryCacheManager(300000)); // 5 минут TTL
+```
+
+**NoOpCache** — обновлён до async (для отключения кеширования):
+```typescript
+import { NoOpCache } from '@mcp-framework/infrastructure';
+
+const cache = new NoOpCache();
+await cache.get('key'); // всегда null
+```
+
+#### Миграция кода
+
+1. **Добавить `await` ко всем вызовам методов CacheManager:**
+   ```typescript
+   // БЫЛО:
+   const cached = this.cacheManager.get<T>(key);
+   this.cacheManager.set(key, value);
+   this.cacheManager.delete(key);
+
+   // СТАЛО:
+   const cached = await this.cacheManager.get<T>(key);
+   await this.cacheManager.set(key, value);
+   await this.cacheManager.delete(key);
+   ```
+
+2. **Изменить проверку на null вместо undefined:**
+   ```typescript
+   // БЫЛО:
+   if (cached !== undefined) { ... }
+
+   // СТАЛО:
+   if (cached !== null) { ... }
+   ```
+
+3. **Обновить тестовые моки:**
+   ```typescript
+   // БЫЛО:
+   const mockCache = {
+     get: vi.fn().mockReturnValue(cachedValue),
+     set: vi.fn(),
+     delete: vi.fn()
+   };
+
+   // СТАЛО:
+   const mockCache = {
+     get: vi.fn().mockResolvedValue(cachedValue),
+     set: vi.fn().mockResolvedValue(undefined),
+     delete: vi.fn().mockResolvedValue(undefined)
+   };
+   ```
+
+#### Затронутые файлы
+
+- `packages/framework/infrastructure/src/cache/cache-manager.interface.ts` — интерфейс async
+- `packages/framework/infrastructure/src/cache/no-op-cache.ts` — async реализация
+- `packages/framework/infrastructure/src/cache/in-memory-cache-manager.ts` — новый класс
+- `packages/servers/yandex-tracker/src/tracker_api/api_operations/base-operation.ts` — withCache async
+- Все 25+ operations файлов — добавлен await
+- Все 46 тестовых файлов — обновлены моки
+
+---
+
 ## v2.x → v2.y: Обязательный параметр `fields`
 
 ### Breaking Change

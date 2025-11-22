@@ -23,10 +23,10 @@ describe('CreateLinkOperation', () => {
     } as unknown as HttpClient;
 
     mockCacheManager = {
-      get: vi.fn(),
-      set: vi.fn(),
-      delete: vi.fn(),
-      clear: vi.fn(),
+      get: vi.fn().mockResolvedValue(null),
+      set: vi.fn().mockResolvedValue(undefined),
+      delete: vi.fn().mockResolvedValue(undefined),
+      clear: vi.fn().mockResolvedValue(undefined),
       has: vi.fn(),
     } as unknown as CacheManager;
 
