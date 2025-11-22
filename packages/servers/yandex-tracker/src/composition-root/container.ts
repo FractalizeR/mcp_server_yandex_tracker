@@ -131,7 +131,7 @@ function bindOperations(container: Container): void {
       const cacheManager = container.get<CacheManager>(TYPES.CacheManager);
       const loggerInstance = container.get<Logger>(TYPES.Logger);
       const configInstance = container.get<ServerConfig>(TYPES.ServerConfig);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call
       return new (OperationClass as any)(httpClient, cacheManager, loggerInstance, configInstance);
     };
 
@@ -153,10 +153,7 @@ function bindOperations(container: Container): void {
  * - Facade имеет декоратор @injectable() и регистрируется через toSelf()
  */
 function bindFacade(container: Container): void {
-  container
-    .bind<YandexTrackerFacade>(TYPES.YandexTrackerFacade)
-    .to(YandexTrackerFacade)
-    .inSingletonScope();
+  container.bind<YandexTrackerFacade>(TYPES.YandexTrackerFacade).to(YandexTrackerFacade);
 }
 
 /**
@@ -274,7 +271,7 @@ function bindToolRegistry(container: Container): void {
     const loggerInstance = container.get<Logger>(TYPES.Logger);
     // Передаём контейнер, logger и только стандартные tool классы
     // SearchToolsTool будет добавлен позже через registerToolFromContainer
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument
     return new ToolRegistry(container, loggerInstance, TOOL_CLASSES as any);
   });
 }

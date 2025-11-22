@@ -4,14 +4,22 @@
  * Регистрация доменных сервисов Facade в DI контейнере.
  *
  * Архитектура:
- * - Каждый сервис регистрируется как Singleton
- * - Используем class-based tokens (как Operations)
- * - Сервисы автоматически получают зависимости через @inject()
+ * - Каждый сервис регистрируется как Singleton (defaultScope)
+ * - Используем DECORATOR PATTERN: @injectable() + @inject()
+ * - Class-based tokens (НЕ Symbols!)
+ * - Auto-wiring зависимостей через InversifyJS
+ *
+ * Почему decorators, а не factory?
+ * - Каждый Service имеет РАЗНЫЕ зависимости (3-14 операций)
+ * - Декораторы экономят ~90% boilerplate кода
+ * - Type-safe auto-wiring
  *
  * Для добавления нового сервиса:
  * 1. Создать сервис с @injectable() декоратором
- * 2. Добавить bind() здесь
+ * 2. Добавить `container.bind(NewService).toSelf();` здесь
  * 3. Экспортировать из services/index.ts
+ *
+ * ВАЖНО: НЕ добавлять `.inSingletonScope()` (redundant, defaultScope: 'Singleton')
  */
 
 import type { Container } from 'inversify';
@@ -34,44 +42,44 @@ import {
 
 export function bindFacadeServices(container: Container): void {
   // User Service
-  container.bind(UserService).toSelf().inSingletonScope();
+  container.bind(UserService).toSelf();
 
   // Issue Link Service
-  container.bind(IssueLinkService).toSelf().inSingletonScope();
+  container.bind(IssueLinkService).toSelf();
 
   // Component Service
-  container.bind(ComponentService).toSelf().inSingletonScope();
+  container.bind(ComponentService).toSelf();
 
   // Field Service
-  container.bind(FieldService).toSelf().inSingletonScope();
+  container.bind(FieldService).toSelf();
 
   // Comment Service
-  container.bind(CommentService).toSelf().inSingletonScope();
+  container.bind(CommentService).toSelf();
 
   // Checklist Service
-  container.bind(ChecklistService).toSelf().inSingletonScope();
+  container.bind(ChecklistService).toSelf();
 
   // Worklog Service
-  container.bind(WorklogService).toSelf().inSingletonScope();
+  container.bind(WorklogService).toSelf();
 
   // Sprint Service
-  container.bind(SprintService).toSelf().inSingletonScope();
+  container.bind(SprintService).toSelf();
 
   // Project Service
-  container.bind(ProjectService).toSelf().inSingletonScope();
+  container.bind(ProjectService).toSelf();
 
   // Board Service
-  container.bind(BoardService).toSelf().inSingletonScope();
+  container.bind(BoardService).toSelf();
 
   // Queue Service
-  container.bind(QueueService).toSelf().inSingletonScope();
+  container.bind(QueueService).toSelf();
 
   // Issue Attachment Service
-  container.bind(IssueAttachmentService).toSelf().inSingletonScope();
+  container.bind(IssueAttachmentService).toSelf();
 
   // Bulk Change Service
-  container.bind(BulkChangeService).toSelf().inSingletonScope();
+  container.bind(BulkChangeService).toSelf();
 
   // Issue Service
-  container.bind(IssueService).toSelf().inSingletonScope();
+  container.bind(IssueService).toSelf();
 }
