@@ -22,6 +22,8 @@ import {
   FieldService,
   CommentService,
   ChecklistService,
+  SprintService,
+  ProjectService,
   BoardService,
 } from '#tracker_api/facade/services/index.js';
 
@@ -44,6 +46,12 @@ export function bindFacadeServices(container: Container): void {
   // Checklist Service
   container.bind(ChecklistService).toSelf().inSingletonScope();
 
+  // Sprint Service
+  container.bind(SprintService).toSelf().inSingletonScope();
+
+  // Project Service
+  container.bind(ProjectService).toSelf().inSingletonScope();
+
   // Board Service
   container.bind(BoardService).toSelf().inSingletonScope();
 
@@ -52,7 +60,5 @@ export function bindFacadeServices(container: Container): void {
   // container.bind(IssueAttachmentService).toSelf().inSingletonScope();
   // container.bind(WorklogService).toSelf().inSingletonScope();
   // container.bind(QueueService).toSelf().inSingletonScope();
-  // container.bind(ProjectService).toSelf().inSingletonScope();
-  // container.bind(SprintService).toSelf().inSingletonScope();
   // container.bind(BulkChangeService).toSelf().inSingletonScope();
 }
