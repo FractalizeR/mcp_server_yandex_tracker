@@ -118,7 +118,7 @@
 | 2.2 | ToolRegistry | ✅ Completed | 2025-11-22 |
 | 2.3 | Framework Improvements | ✅ Completed | 2025-11-22 |
 | 3.1 | Post-Architecture | ✅ Completed | 2025-11-22 |
-| 4.1 | Polish | ⏭️ Skipped (optional) | - |
+| 4.1 | Polish | ✅ Completed | 2025-11-22 |
 
 **Легенда:** ⏸️ Pending | 🏗️ In Progress | ✅ Completed | ⏭️ Skipped | ❌ Blocked
 
@@ -231,11 +231,14 @@ git push -u origin HEAD
 
 **Создано:** 2025-11-21
 **Обновлено:** 2025-11-22
-**Статус:** ✅ ВЫПОЛНЕНО (все основные этапы завершены, этап 4.1 опциональный пропущен)
+**Статус:** ✅ ВЫПОЛНЕНО ПОЛНОСТЬЮ (все этапы включая опциональный 4.1)
 **Итоговые результаты:**
 - YandexTrackerFacade рефакторинг: 14 сервисов созданы, Facade сокращен с 1080 до 410 строк кода
 - Infrastructure extraction: domain-specific код перенесен в yandex-tracker
 - ToolRegistry: рефакторинг с contract tests, сложность снижена с 28 до 12
 - Framework improvements: IHttpClient interface добавлен, generated-index перемещен
 - Post-architecture: DI container tests добавлены, text utils extracted
-- Все тесты проходят (2521 passed), валидация успешна
+- Polish (этап 4.1): npm scripts consistency, test monitoring, documentation optimization
+- Все тесты проходят (1921 passed), валидация успешна
+- Test/source ratio: 149% (в целевом диапазоне)
+- CPD: 1.73% duplication (< 5% threshold)
