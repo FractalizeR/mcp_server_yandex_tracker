@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Logger } from '@mcp-framework/infrastructure/logging/index.js';
 import type { CacheManager } from '@mcp-framework/infrastructure/cache/cache-manager.interface.js';
-import type { HttpClient } from '@mcp-framework/infrastructure/http/client/http-client.js';
+import type { IHttpClient } from '@mcp-framework/infrastructure/http/client/i-http-client.interface.js';
 import { ParallelExecutor } from '@mcp-framework/infrastructure/async/parallel-executor.js';
 import type { ServerConfig } from '#config';
 import type { IssueWithUnknownFields } from '#tracker_api/entities/index.js';
@@ -10,7 +10,7 @@ import { GetIssuesOperation } from '#tracker_api/api_operations/issue/get-issues
 
 describe('GetIssuesOperation', () => {
   let operation: GetIssuesOperation;
-  let mockHttpClient: HttpClient;
+  let mockHttpClient: IHttpClient;
   let mockCacheManager: CacheManager;
   let mockLogger: Logger;
   let mockConfig: ServerConfig;

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { HttpClient } from '@mcp-framework/infrastructure/http/client/http-client.js';
+import type { IHttpClient } from '@mcp-framework/infrastructure/http/client/i-http-client.interface.js';
 import type { CacheManager } from '@mcp-framework/infrastructure/cache/cache-manager.interface.js';
 import type { Logger } from '@mcp-framework/infrastructure/logging/logger.js';
 import type { ChecklistItemWithUnknownFields } from '#tracker_api/entities/index.js';
@@ -7,7 +7,7 @@ import { GetChecklistOperation } from '#tracker_api/api_operations/checklist/get
 
 describe('GetChecklistOperation', () => {
   let operation: GetChecklistOperation;
-  let mockHttpClient: HttpClient;
+  let mockHttpClient: IHttpClient;
   let mockCacheManager: CacheManager;
   let mockLogger: Logger;
 

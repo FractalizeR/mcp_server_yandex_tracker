@@ -8,8 +8,16 @@
  */
 
 // Client
-export { HttpClient } from './client/http-client.js';
+export type { IHttpClient } from './client/i-http-client.interface.js';
+export { AxiosHttpClient } from './client/axios-http-client.js';
+export { MockHttpClient } from './client/mock-http-client.js';
 export type { HttpConfig } from './client/http-config.interface.js';
+
+/**
+ * @deprecated Use AxiosHttpClient instead
+ * Backward compatibility alias
+ */
+export { AxiosHttpClient as HttpClient } from './client/axios-http-client.js';
 
 // Retry
 export type { RetryStrategy } from './retry/retry-strategy.interface.js';

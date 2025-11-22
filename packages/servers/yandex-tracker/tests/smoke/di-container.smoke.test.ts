@@ -10,7 +10,7 @@ import { createContainer } from '#composition-root/container.js';
 import { TYPES } from '#composition-root/types.js';
 import type { ServerConfig } from '#config';
 import type { Logger } from '@mcp-framework/infrastructure/logging/index.js';
-import type { HttpClient } from '@mcp-framework/infrastructure/http/client/http-client.js';
+import type { IHttpClient } from '@mcp-framework/infrastructure/http/client/i-http-client.interface.js';
 import type { CacheManager } from '@mcp-framework/infrastructure/cache/cache-manager.interface.js';
 import type { YandexTrackerFacade } from '#tracker_api/facade/yandex-tracker.facade.js';
 import type { ToolRegistry } from '@mcp-framework/core/tool-registry.js';
@@ -59,7 +59,7 @@ describe('DI Container (Smoke)', () => {
     const container = await createContainer(fakeConfig);
 
     // Act
-    const httpClient = container.get<HttpClient>(TYPES.HttpClient);
+    const httpClient = container.get<IHttpClient>(TYPES.HttpClient);
 
     // Assert
     expect(httpClient).toBeDefined();

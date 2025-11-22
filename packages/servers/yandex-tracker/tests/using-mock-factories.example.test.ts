@@ -6,7 +6,7 @@ import {
   createMockFacade,
 } from './helpers/mock-factories.js';
 import type { Logger } from '@mcp-framework/infrastructure/logging/logger.js';
-import type { HttpClient } from '@mcp-framework/infrastructure/http/client/http-client.js';
+import type { IHttpClient } from '@mcp-framework/infrastructure/http/client/i-http-client.interface.js';
 import type { YandexTrackerFacade } from '#tracker_api/facade/yandex-tracker.facade.js';
 
 /**
@@ -16,7 +16,7 @@ import type { YandexTrackerFacade } from '#tracker_api/facade/yandex-tracker.fac
 describe('EXAMPLE: Using Mock Factories', () => {
   let mockLogger: Logger;
   // @ts-expect-error - пример использования, используется только для демонстрации паттерна
-  let _mockHttpClient: HttpClient;
+  let _mockHttpClient: IHttpClient;
   let mockFacade: Partial<YandexTrackerFacade>;
 
   beforeEach(() => {

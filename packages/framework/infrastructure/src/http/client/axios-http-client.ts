@@ -1,5 +1,5 @@
 /**
- * Базовый HTTP клиент (Axios wrapper)
+ * Axios-based HTTP клиент
  *
  * Ответственность (SRP):
  * - ТОЛЬКО конфигурация Axios instance
@@ -16,13 +16,14 @@
 import axios from 'axios';
 import type { AxiosInstance, AxiosError } from 'axios';
 import type { HttpConfig } from './http-config.interface.js';
+import type { IHttpClient } from './i-http-client.interface.js';
 import type { Logger } from '../../logging/index.js';
 import type { QueryParams } from '../../types.js';
 import { ErrorMapper } from '../error/index.js';
 import { RetryHandler } from '../retry/index.js';
 import type { RetryStrategy } from '../retry/index.js';
 
-export class HttpClient {
+export class AxiosHttpClient implements IHttpClient {
   private readonly client: AxiosInstance;
   private readonly logger: Logger;
   private readonly retryHandler: RetryHandler;
