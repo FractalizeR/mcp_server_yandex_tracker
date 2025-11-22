@@ -2,22 +2,35 @@
  * Фасад для работы с API Яндекс.Трекера
  *
  * Ответственность (SRP):
- * - ТОЛЬКО делегирование вызовов операциям
- * - НЕТ бизнес-логики (всё в операциях)
+ * - ТОЛЬКО делегирование вызовов доменным сервисам
+ * - НЕТ бизнес-логики (всё в сервисах)
  * - НЕТ ручной инициализации (извлекается из DI контейнера)
  *
- * КРИТИЧЕСКИЕ ИЗМЕНЕНИЯ:
- * - Ленивая инициализация через DI контейнер (вместо new)
- * - Масштабируется до 50+ операций БЕЗ изменения Facade
- * - Удалён двойной retry (исправлена проблема 9 попыток)
+ * Архитектура:
+ * - Facade делегирует вызовы 14 доменным сервисам
+ * - Каждый сервис инжектится через DI (type-safe)
+ * - Нет зависимости от Container (прямая инъекция)
  *
- * Паттерн: Facade Pattern + Lazy Initialization
- *
- * TODO: Рефакторинг - разделить на несколько фасадов по доменам
+ * Паттерн: Facade Pattern + Dependency Injection
  */
-/* eslint-disable max-lines */
 
-import type { Container } from 'inversify';
+import { injectable, inject } from 'inversify';
+import {
+  UserService,
+  IssueLinkService,
+  ComponentService,
+  FieldService,
+  CommentService,
+  ChecklistService,
+  WorklogService,
+  SprintService,
+  ProjectService,
+  BoardService,
+  QueueService,
+  IssueAttachmentService,
+  BulkChangeService,
+  IssueService,
+} from './services/index.js';
 
 // Types
 import type { PingResult } from '#tracker_api/api_operations/user/ping.operation.js';
@@ -36,8 +49,6 @@ import type {
   QueuesListOutput,
   QueueFieldsOutput,
   QueuePermissionsOutput,
-  CreateComponentDto,
-  UpdateComponentDto,
   ComponentOutput,
   ComponentsListOutput,
   CreateLinkDto,
@@ -68,8 +79,6 @@ import type {
   UpdateBoardDto,
   BoardOutput,
   BoardsListOutput,
-  GetSprintsDto,
-  GetSprintDto,
   CreateSprintDto,
   UpdateSprintDto,
   SprintOutput,
@@ -94,16 +103,25 @@ import type {
   DeleteProjectParams,
 } from '#tracker_api/api_operations/index.js';
 
+@injectable()
 export class YandexTrackerFacade {
-  constructor(private readonly container: Container) {}
-
-  /**
-   * Helper для ленивого получения операции из DI контейнера
-   * @private
-   */
-  private getOperation<T>(operationName: string): T {
-    return this.container.get<T>(Symbol.for(operationName));
-  }
+  constructor(
+    @inject(UserService) private readonly userService: UserService,
+    @inject(IssueService) private readonly issueService: IssueService,
+    @inject(IssueLinkService) private readonly issueLinkService: IssueLinkService,
+    @inject(IssueAttachmentService)
+    private readonly issueAttachmentService: IssueAttachmentService,
+    @inject(QueueService) private readonly queueService: QueueService,
+    @inject(ComponentService) private readonly componentService: ComponentService,
+    @inject(FieldService) private readonly fieldService: FieldService,
+    @inject(CommentService) private readonly commentService: CommentService,
+    @inject(ChecklistService) private readonly checklistService: ChecklistService,
+    @inject(WorklogService) private readonly worklogService: WorklogService,
+    @inject(BulkChangeService) private readonly bulkChangeService: BulkChangeService,
+    @inject(ProjectService) private readonly projectService: ProjectService,
+    @inject(BoardService) private readonly boardService: BoardService,
+    @inject(SprintService) private readonly sprintService: SprintService
+  ) {}
 
   // === User Methods ===
 
@@ -112,8 +130,7 @@ export class YandexTrackerFacade {
    * @returns результат проверки
    */
   async ping(): Promise<PingResult> {
-    const operation = this.getOperation<{ execute: () => Promise<PingResult> }>('PingOperation');
-    return operation.execute();
+    return this.userService.ping();
   }
 
   // === Issue Methods - Batch ===
@@ -124,10 +141,7 @@ export class YandexTrackerFacade {
    * @returns массив результатов (fulfilled | rejected)
    */
   async getIssues(issueKeys: string[]): Promise<BatchIssueResult[]> {
-    const operation = this.getOperation<{
-      execute: (keys: string[]) => Promise<BatchIssueResult[]>;
-    }>('GetIssuesOperation');
-    return operation.execute(issueKeys);
+    return this.issueService.getIssues(issueKeys);
   }
 
   // === Issue Methods - Search ===
@@ -138,10 +152,7 @@ export class YandexTrackerFacade {
    * @returns массив найденных задач
    */
   async findIssues(params: FindIssuesInputDto): Promise<FindIssuesResult> {
-    const operation = this.getOperation<{
-      execute: (params: FindIssuesInputDto) => Promise<FindIssuesResult>;
-    }>('FindIssuesOperation');
-    return operation.execute(params);
+    return this.issueService.findIssues(params);
   }
 
   // === Issue Methods - Create/Update ===
@@ -152,10 +163,7 @@ export class YandexTrackerFacade {
    * @returns созданная задача
    */
   async createIssue(issueData: CreateIssueDto): Promise<IssueWithUnknownFields> {
-    const operation = this.getOperation<{
-      execute: (data: CreateIssueDto) => Promise<IssueWithUnknownFields>;
-    }>('CreateIssueOperation');
-    return operation.execute(issueData);
+    return this.issueService.createIssue(issueData);
   }
 
   /**
@@ -165,10 +173,7 @@ export class YandexTrackerFacade {
    * @returns обновлённая задача
    */
   async updateIssue(issueKey: string, updateData: UpdateIssueDto): Promise<IssueWithUnknownFields> {
-    const operation = this.getOperation<{
-      execute: (key: string, data: UpdateIssueDto) => Promise<IssueWithUnknownFields>;
-    }>('UpdateIssueOperation');
-    return operation.execute(issueKey, updateData);
+    return this.issueService.updateIssue(issueKey, updateData);
   }
 
   // === Issue Methods - Changelog ===
@@ -179,10 +184,7 @@ export class YandexTrackerFacade {
    * @returns массив записей истории
    */
   async getIssueChangelog(issueKey: string): Promise<ChangelogEntryWithUnknownFields[]> {
-    const operation = this.getOperation<{
-      execute: (key: string) => Promise<ChangelogEntryWithUnknownFields[]>;
-    }>('GetIssueChangelogOperation');
-    return operation.execute(issueKey);
+    return this.issueService.getIssueChangelog(issueKey);
   }
 
   // === Issue Methods - Transitions ===
@@ -193,10 +195,7 @@ export class YandexTrackerFacade {
    * @returns массив доступных переходов
    */
   async getIssueTransitions(issueKey: string): Promise<TransitionWithUnknownFields[]> {
-    const operation = this.getOperation<{
-      execute: (key: string) => Promise<TransitionWithUnknownFields[]>;
-    }>('GetIssueTransitionsOperation');
-    return operation.execute(issueKey);
+    return this.issueService.getIssueTransitions(issueKey);
   }
 
   /**
@@ -211,14 +210,7 @@ export class YandexTrackerFacade {
     transitionId: string,
     transitionData?: ExecuteTransitionDto
   ): Promise<IssueWithUnknownFields> {
-    const operation = this.getOperation<{
-      execute: (
-        key: string,
-        id: string,
-        data?: ExecuteTransitionDto
-      ) => Promise<IssueWithUnknownFields>;
-    }>('TransitionIssueOperation');
-    return operation.execute(issueKey, transitionId, transitionData);
+    return this.issueService.transitionIssue(issueKey, transitionId, transitionData);
   }
 
   // === Queue Methods ===
@@ -229,10 +221,7 @@ export class YandexTrackerFacade {
    * @returns массив очередей
    */
   async getQueues(params?: GetQueuesDto): Promise<QueuesListOutput> {
-    const operation = this.getOperation<{
-      execute: (params?: GetQueuesDto) => Promise<QueuesListOutput>;
-    }>('GetQueuesOperation');
-    return operation.execute(params);
+    return this.queueService.getQueues(params);
   }
 
   /**
@@ -241,10 +230,7 @@ export class YandexTrackerFacade {
    * @returns очередь с полными данными
    */
   async getQueue(params: GetQueueDto): Promise<QueueOutput> {
-    const operation = this.getOperation<{
-      execute: (params: GetQueueDto) => Promise<QueueOutput>;
-    }>('GetQueueOperation');
-    return operation.execute(params);
+    return this.queueService.getQueue(params);
   }
 
   /**
@@ -253,10 +239,7 @@ export class YandexTrackerFacade {
    * @returns созданная очередь
    */
   async createQueue(queueData: CreateQueueDto): Promise<QueueOutput> {
-    const operation = this.getOperation<{
-      execute: (data: CreateQueueDto) => Promise<QueueOutput>;
-    }>('CreateQueueOperation');
-    return operation.execute(queueData);
+    return this.queueService.createQueue(queueData);
   }
 
   /**
@@ -265,10 +248,7 @@ export class YandexTrackerFacade {
    * @returns обновлённая очередь
    */
   async updateQueue(params: UpdateQueueParams): Promise<QueueOutput> {
-    const operation = this.getOperation<{
-      execute: (params: UpdateQueueParams) => Promise<QueueOutput>;
-    }>('UpdateQueueOperation');
-    return operation.execute(params);
+    return this.queueService.updateQueue(params);
   }
 
   /**
@@ -277,10 +257,7 @@ export class YandexTrackerFacade {
    * @returns массив полей очереди
    */
   async getQueueFields(params: GetQueueFieldsDto): Promise<QueueFieldsOutput> {
-    const operation = this.getOperation<{
-      execute: (params: GetQueueFieldsDto) => Promise<QueueFieldsOutput>;
-    }>('GetQueueFieldsOperation');
-    return operation.execute(params);
+    return this.queueService.getQueueFields(params);
   }
 
   /**
@@ -289,10 +266,7 @@ export class YandexTrackerFacade {
    * @returns массив прав доступа
    */
   async manageQueueAccess(params: ManageQueueAccessParams): Promise<QueuePermissionsOutput> {
-    const operation = this.getOperation<{
-      execute: (params: ManageQueueAccessParams) => Promise<QueuePermissionsOutput>;
-    }>('ManageQueueAccessOperation');
-    return operation.execute(params);
+    return this.queueService.manageQueueAccess(params);
   }
 
   // === Project Methods ===
@@ -303,10 +277,7 @@ export class YandexTrackerFacade {
    * @returns список проектов
    */
   async getProjects(params?: GetProjectsDto): Promise<ProjectsListOutput> {
-    const operation = this.getOperation<{
-      execute: (params?: GetProjectsDto) => Promise<ProjectsListOutput>;
-    }>('GetProjectsOperation');
-    return operation.execute(params);
+    return this.projectService.getProjects(params);
   }
 
   /**
@@ -315,10 +286,7 @@ export class YandexTrackerFacade {
    * @returns проект
    */
   async getProject(params: GetProjectParams): Promise<ProjectOutput> {
-    const operation = this.getOperation<{
-      execute: (params: GetProjectParams) => Promise<ProjectOutput>;
-    }>('GetProjectOperation');
-    return operation.execute(params);
+    return this.projectService.getProject(params);
   }
 
   /**
@@ -327,10 +295,7 @@ export class YandexTrackerFacade {
    * @returns созданный проект
    */
   async createProject(data: CreateProjectDto): Promise<ProjectOutput> {
-    const operation = this.getOperation<{
-      execute: (data: CreateProjectDto) => Promise<ProjectOutput>;
-    }>('CreateProjectOperation');
-    return operation.execute(data);
+    return this.projectService.createProject(data);
   }
 
   /**
@@ -339,10 +304,7 @@ export class YandexTrackerFacade {
    * @returns обновлённый проект
    */
   async updateProject(params: UpdateProjectParams): Promise<ProjectOutput> {
-    const operation = this.getOperation<{
-      execute: (params: UpdateProjectParams) => Promise<ProjectOutput>;
-    }>('UpdateProjectOperation');
-    return operation.execute(params);
+    return this.projectService.updateProject(params);
   }
 
   /**
@@ -351,10 +313,7 @@ export class YandexTrackerFacade {
    * @returns void
    */
   async deleteProject(params: DeleteProjectParams): Promise<void> {
-    const operation = this.getOperation<{
-      execute: (params: DeleteProjectParams) => Promise<void>;
-    }>('DeleteProjectOperation');
-    return operation.execute(params);
+    return this.projectService.deleteProject(params);
   }
 
   // === Component Methods ===
@@ -365,10 +324,7 @@ export class YandexTrackerFacade {
    * @returns массив компонентов очереди
    */
   async getComponents(params: { queueId: string }): Promise<ComponentsListOutput> {
-    const operation = this.getOperation<{
-      execute: (queueId: string) => Promise<ComponentsListOutput>;
-    }>('GetComponentsOperation');
-    return operation.execute(params.queueId);
+    return this.componentService.getComponents(params);
   }
 
   /**
@@ -384,11 +340,7 @@ export class YandexTrackerFacade {
     lead?: string | undefined;
     assignAuto?: boolean | undefined;
   }): Promise<ComponentOutput> {
-    const { queueId, ...componentData } = params;
-    const operation = this.getOperation<{
-      execute: (queueId: string, data: CreateComponentDto) => Promise<ComponentOutput>;
-    }>('CreateComponentOperation');
-    return operation.execute(queueId, componentData);
+    return this.componentService.createComponent(params);
   }
 
   /**
@@ -404,11 +356,7 @@ export class YandexTrackerFacade {
     lead?: string | undefined;
     assignAuto?: boolean | undefined;
   }): Promise<ComponentOutput> {
-    const { componentId, ...componentData } = params;
-    const operation = this.getOperation<{
-      execute: (componentId: string, data: UpdateComponentDto) => Promise<ComponentOutput>;
-    }>('UpdateComponentOperation');
-    return operation.execute(componentId, componentData);
+    return this.componentService.updateComponent(params);
   }
 
   /**
@@ -416,10 +364,7 @@ export class YandexTrackerFacade {
    * @param componentId - ID компонента
    */
   async deleteComponent(params: { componentId: string }): Promise<void> {
-    const operation = this.getOperation<{
-      execute: (componentId: string) => Promise<void>;
-    }>('DeleteComponentOperation');
-    return operation.execute(params.componentId);
+    return this.componentService.deleteComponent(params);
   }
 
   // === Issue Methods - Links ===
@@ -430,10 +375,7 @@ export class YandexTrackerFacade {
    * @returns массив связей задачи
    */
   async getIssueLinks(issueId: string): Promise<LinkWithUnknownFields[]> {
-    const operation = this.getOperation<{
-      execute: (id: string) => Promise<LinkWithUnknownFields[]>;
-    }>('GetIssueLinksOperation');
-    return operation.execute(issueId);
+    return this.issueLinkService.getIssueLinks(issueId);
   }
 
   /**
@@ -443,10 +385,7 @@ export class YandexTrackerFacade {
    * @returns созданная связь
    */
   async createLink(issueId: string, linkData: CreateLinkDto): Promise<LinkWithUnknownFields> {
-    const operation = this.getOperation<{
-      execute: (id: string, data: CreateLinkDto) => Promise<LinkWithUnknownFields>;
-    }>('CreateLinkOperation');
-    return operation.execute(issueId, linkData);
+    return this.issueLinkService.createLink(issueId, linkData);
   }
 
   /**
@@ -455,10 +394,7 @@ export class YandexTrackerFacade {
    * @param linkId - ID связи для удаления
    */
   async deleteLink(issueId: string, linkId: string): Promise<void> {
-    const operation = this.getOperation<{
-      execute: (id: string, linkId: string) => Promise<void>;
-    }>('DeleteLinkOperation');
-    return operation.execute(issueId, linkId);
+    return this.issueLinkService.deleteLink(issueId, linkId);
   }
 
   // === Comment Methods ===
@@ -470,10 +406,7 @@ export class YandexTrackerFacade {
    * @returns созданный комментарий
    */
   async addComment(issueId: string, input: AddCommentInput): Promise<CommentWithUnknownFields> {
-    const operation = this.getOperation<{
-      execute: (id: string, data: AddCommentInput) => Promise<CommentWithUnknownFields>;
-    }>('AddCommentOperation');
-    return operation.execute(issueId, input);
+    return this.commentService.addComment(issueId, input);
   }
 
   /**
@@ -486,10 +419,7 @@ export class YandexTrackerFacade {
     issueId: string,
     input?: GetCommentsInput
   ): Promise<CommentWithUnknownFields[]> {
-    const operation = this.getOperation<{
-      execute: (id: string, data?: GetCommentsInput) => Promise<CommentWithUnknownFields[]>;
-    }>('GetCommentsOperation');
-    return operation.execute(issueId, input);
+    return this.commentService.getComments(issueId, input);
   }
 
   /**
@@ -504,14 +434,7 @@ export class YandexTrackerFacade {
     commentId: string,
     input: EditCommentInput
   ): Promise<CommentWithUnknownFields> {
-    const operation = this.getOperation<{
-      execute: (
-        id: string,
-        cId: string,
-        data: EditCommentInput
-      ) => Promise<CommentWithUnknownFields>;
-    }>('EditCommentOperation');
-    return operation.execute(issueId, commentId, input);
+    return this.commentService.editComment(issueId, commentId, input);
   }
 
   /**
@@ -521,10 +444,7 @@ export class YandexTrackerFacade {
    * @returns void
    */
   async deleteComment(issueId: string, commentId: string): Promise<void> {
-    const operation = this.getOperation<{
-      execute: (id: string, cId: string) => Promise<void>;
-    }>('DeleteCommentOperation');
-    return operation.execute(issueId, commentId);
+    return this.commentService.deleteComment(issueId, commentId);
   }
 
   // === Checklist Methods ===
@@ -535,10 +455,7 @@ export class YandexTrackerFacade {
    * @returns массив элементов чеклиста
    */
   async getChecklist(issueId: string): Promise<ChecklistItemWithUnknownFields[]> {
-    const operation = this.getOperation<{
-      execute: (id: string) => Promise<ChecklistItemWithUnknownFields[]>;
-    }>('GetChecklistOperation');
-    return operation.execute(issueId);
+    return this.checklistService.getChecklist(issueId);
   }
 
   /**
@@ -551,10 +468,7 @@ export class YandexTrackerFacade {
     issueId: string,
     input: AddChecklistItemInput
   ): Promise<ChecklistItemWithUnknownFields> {
-    const operation = this.getOperation<{
-      execute: (id: string, data: AddChecklistItemInput) => Promise<ChecklistItemWithUnknownFields>;
-    }>('AddChecklistItemOperation');
-    return operation.execute(issueId, input);
+    return this.checklistService.addChecklistItem(issueId, input);
   }
 
   /**
@@ -569,14 +483,7 @@ export class YandexTrackerFacade {
     checklistItemId: string,
     input: UpdateChecklistItemInput
   ): Promise<ChecklistItemWithUnknownFields> {
-    const operation = this.getOperation<{
-      execute: (
-        id: string,
-        itemId: string,
-        data: UpdateChecklistItemInput
-      ) => Promise<ChecklistItemWithUnknownFields>;
-    }>('UpdateChecklistItemOperation');
-    return operation.execute(issueId, checklistItemId, input);
+    return this.checklistService.updateChecklistItem(issueId, checklistItemId, input);
   }
 
   /**
@@ -586,10 +493,7 @@ export class YandexTrackerFacade {
    * @returns void
    */
   async deleteChecklistItem(issueId: string, checklistItemId: string): Promise<void> {
-    const operation = this.getOperation<{
-      execute: (id: string, itemId: string) => Promise<void>;
-    }>('DeleteChecklistItemOperation');
-    return operation.execute(issueId, checklistItemId);
+    return this.checklistService.deleteChecklistItem(issueId, checklistItemId);
   }
 
   // === Worklog Methods ===
@@ -600,10 +504,7 @@ export class YandexTrackerFacade {
    * @returns массив записей времени
    */
   async getWorklogs(issueId: string): Promise<WorklogWithUnknownFields[]> {
-    const operation = this.getOperation<{
-      execute: (id: string) => Promise<WorklogWithUnknownFields[]>;
-    }>('GetWorklogsOperation');
-    return operation.execute(issueId);
+    return this.worklogService.getWorklogs(issueId);
   }
 
   /**
@@ -613,10 +514,7 @@ export class YandexTrackerFacade {
    * @returns созданная запись времени
    */
   async addWorklog(issueId: string, input: AddWorklogInput): Promise<WorklogWithUnknownFields> {
-    const operation = this.getOperation<{
-      execute: (id: string, data: AddWorklogInput) => Promise<WorklogWithUnknownFields>;
-    }>('AddWorklogOperation');
-    return operation.execute(issueId, input);
+    return this.worklogService.addWorklog(issueId, input);
   }
 
   /**
@@ -631,14 +529,7 @@ export class YandexTrackerFacade {
     worklogId: string,
     input: UpdateWorklogInput
   ): Promise<WorklogWithUnknownFields> {
-    const operation = this.getOperation<{
-      execute: (
-        id: string,
-        wId: string,
-        data: UpdateWorklogInput
-      ) => Promise<WorklogWithUnknownFields>;
-    }>('UpdateWorklogOperation');
-    return operation.execute(issueId, worklogId, input);
+    return this.worklogService.updateWorklog(issueId, worklogId, input);
   }
 
   /**
@@ -648,10 +539,7 @@ export class YandexTrackerFacade {
    * @returns void
    */
   async deleteWorklog(issueId: string, worklogId: string): Promise<void> {
-    const operation = this.getOperation<{
-      execute: (id: string, wId: string) => Promise<void>;
-    }>('DeleteWorklogOperation');
-    return operation.execute(issueId, worklogId);
+    return this.worklogService.deleteWorklog(issueId, worklogId);
   }
 
   // === Issue Methods - Attachments ===
@@ -662,10 +550,7 @@ export class YandexTrackerFacade {
    * @returns массив прикрепленных файлов
    */
   async getAttachments(issueId: string): Promise<AttachmentWithUnknownFields[]> {
-    const operation = this.getOperation<{
-      execute: (id: string) => Promise<AttachmentWithUnknownFields[]>;
-    }>('GetAttachmentsOperation');
-    return operation.execute(issueId);
+    return this.issueAttachmentService.getAttachments(issueId);
   }
 
   /**
@@ -678,10 +563,7 @@ export class YandexTrackerFacade {
     issueId: string,
     input: UploadAttachmentInput
   ): Promise<AttachmentWithUnknownFields> {
-    const operation = this.getOperation<{
-      execute: (id: string, input: UploadAttachmentInput) => Promise<AttachmentWithUnknownFields>;
-    }>('UploadAttachmentOperation');
-    return operation.execute(issueId, input);
+    return this.issueAttachmentService.uploadAttachment(issueId, input);
   }
 
   /**
@@ -698,24 +580,7 @@ export class YandexTrackerFacade {
     filename: string,
     input?: DownloadAttachmentInput
   ): Promise<DownloadAttachmentOutput> {
-    const operation = this.getOperation<{
-      execute: (id: string, attId: string, fname: string) => Promise<Buffer>;
-      getMetadata: (id: string, attId: string) => Promise<AttachmentWithUnknownFields>;
-    }>('DownloadAttachmentOperation');
-
-    // Получаем метаданные файла
-    const metadata = await operation.getMetadata(issueId, attachmentId);
-
-    // Скачиваем файл
-    const buffer = await operation.execute(issueId, attachmentId, filename);
-
-    // Формируем результат
-    const content = input?.returnBase64 ? buffer.toString('base64') : buffer;
-
-    return {
-      content,
-      metadata,
-    };
+    return this.issueAttachmentService.downloadAttachment(issueId, attachmentId, filename, input);
   }
 
   /**
@@ -724,10 +589,7 @@ export class YandexTrackerFacade {
    * @param attachmentId - ID прикрепленного файла
    */
   async deleteAttachment(issueId: string, attachmentId: string): Promise<void> {
-    const operation = this.getOperation<{
-      execute: (id: string, attId: string) => Promise<void>;
-    }>('DeleteAttachmentOperation');
-    return operation.execute(issueId, attachmentId);
+    return this.issueAttachmentService.deleteAttachment(issueId, attachmentId);
   }
 
   /**
@@ -742,24 +604,7 @@ export class YandexTrackerFacade {
     attachmentId: string,
     input?: DownloadAttachmentInput
   ): Promise<DownloadAttachmentOutput> {
-    const operation = this.getOperation<{
-      execute: (id: string, attId: string) => Promise<Buffer>;
-      getMetadata: (id: string, attId: string) => Promise<AttachmentWithUnknownFields>;
-    }>('GetThumbnailOperation');
-
-    // Получаем метаданные файла
-    const metadata = await operation.getMetadata(issueId, attachmentId);
-
-    // Скачиваем миниатюру
-    const buffer = await operation.execute(issueId, attachmentId);
-
-    // Формируем результат
-    const content = input?.returnBase64 ? buffer.toString('base64') : buffer;
-
-    return {
-      content,
-      metadata,
-    };
+    return this.issueAttachmentService.getThumbnail(issueId, attachmentId, input);
   }
 
   // === Bulk Change Methods ===
@@ -790,10 +635,7 @@ export class YandexTrackerFacade {
   async bulkUpdateIssues(
     params: BulkUpdateIssuesInputDto
   ): Promise<BulkChangeOperationWithUnknownFields> {
-    const operation = this.getOperation<{
-      execute: (p: BulkUpdateIssuesInputDto) => Promise<BulkChangeOperationWithUnknownFields>;
-    }>('BulkUpdateIssuesOperation');
-    return operation.execute(params);
+    return this.bulkChangeService.bulkUpdateIssues(params);
   }
 
   /**
@@ -825,10 +667,7 @@ export class YandexTrackerFacade {
   async bulkTransitionIssues(
     params: BulkTransitionIssuesInputDto
   ): Promise<BulkChangeOperationWithUnknownFields> {
-    const operation = this.getOperation<{
-      execute: (p: BulkTransitionIssuesInputDto) => Promise<BulkChangeOperationWithUnknownFields>;
-    }>('BulkTransitionIssuesOperation');
-    return operation.execute(params);
+    return this.bulkChangeService.bulkTransitionIssues(params);
   }
 
   /**
@@ -860,10 +699,7 @@ export class YandexTrackerFacade {
   async bulkMoveIssues(
     params: BulkMoveIssuesInputDto
   ): Promise<BulkChangeOperationWithUnknownFields> {
-    const operation = this.getOperation<{
-      execute: (p: BulkMoveIssuesInputDto) => Promise<BulkChangeOperationWithUnknownFields>;
-    }>('BulkMoveIssuesOperation');
-    return operation.execute(params);
+    return this.bulkChangeService.bulkMoveIssues(params);
   }
 
   /**
@@ -894,10 +730,7 @@ export class YandexTrackerFacade {
    * ```
    */
   async getBulkChangeStatus(operationId: string): Promise<BulkChangeOperationWithUnknownFields> {
-    const operation = this.getOperation<{
-      execute: (id: string) => Promise<BulkChangeOperationWithUnknownFields>;
-    }>('GetBulkChangeStatusOperation');
-    return operation.execute(operationId);
+    return this.bulkChangeService.getBulkChangeStatus(operationId);
   }
 
   // === Field Methods ===
@@ -907,10 +740,7 @@ export class YandexTrackerFacade {
    * @returns массив всех полей (системных и кастомных)
    */
   async getFields(): Promise<FieldsListOutput> {
-    const operation = this.getOperation<{ execute: () => Promise<FieldsListOutput> }>(
-      'GetFieldsOperation'
-    );
-    return operation.execute();
+    return this.fieldService.getFields();
   }
 
   /**
@@ -919,10 +749,7 @@ export class YandexTrackerFacade {
    * @returns данные поля
    */
   async getField(fieldId: string): Promise<FieldOutput> {
-    const operation = this.getOperation<{ execute: (id: string) => Promise<FieldOutput> }>(
-      'GetFieldOperation'
-    );
-    return operation.execute(fieldId);
+    return this.fieldService.getField(fieldId);
   }
 
   /**
@@ -931,10 +758,7 @@ export class YandexTrackerFacade {
    * @returns созданное поле
    */
   async createField(input: CreateFieldDto): Promise<FieldOutput> {
-    const operation = this.getOperation<{
-      execute: (input: CreateFieldDto) => Promise<FieldOutput>;
-    }>('CreateFieldOperation');
-    return operation.execute(input);
+    return this.fieldService.createField(input);
   }
 
   /**
@@ -944,10 +768,7 @@ export class YandexTrackerFacade {
    * @returns обновленное поле
    */
   async updateField(fieldId: string, input: UpdateFieldDto): Promise<FieldOutput> {
-    const operation = this.getOperation<{
-      execute: (id: string, input: UpdateFieldDto) => Promise<FieldOutput>;
-    }>('UpdateFieldOperation');
-    return operation.execute(fieldId, input);
+    return this.fieldService.updateField(fieldId, input);
   }
 
   /**
@@ -955,10 +776,7 @@ export class YandexTrackerFacade {
    * @param fieldId - идентификатор поля
    */
   async deleteField(fieldId: string): Promise<void> {
-    const operation = this.getOperation<{ execute: (id: string) => Promise<void> }>(
-      'DeleteFieldOperation'
-    );
-    return operation.execute(fieldId);
+    return this.fieldService.deleteField(fieldId);
   }
 
   // === Board Methods ===
@@ -969,10 +787,7 @@ export class YandexTrackerFacade {
    * @returns массив досок
    */
   async getBoards(params?: GetBoardsDto): Promise<BoardsListOutput> {
-    const operation = this.getOperation<{
-      execute: (params?: GetBoardsDto) => Promise<BoardsListOutput>;
-    }>('GetBoardsOperation');
-    return operation.execute(params);
+    return this.boardService.getBoards(params);
   }
 
   /**
@@ -982,10 +797,7 @@ export class YandexTrackerFacade {
    * @returns данные доски
    */
   async getBoard(boardId: string, params?: Omit<GetBoardDto, 'boardId'>): Promise<BoardOutput> {
-    const operation = this.getOperation<{
-      execute: (params: GetBoardDto) => Promise<BoardOutput>;
-    }>('GetBoardOperation');
-    return operation.execute({ boardId, ...params });
+    return this.boardService.getBoard(boardId, params);
   }
 
   /**
@@ -994,10 +806,7 @@ export class YandexTrackerFacade {
    * @returns созданная доска
    */
   async createBoard(input: CreateBoardDto): Promise<BoardOutput> {
-    const operation = this.getOperation<{
-      execute: (input: CreateBoardDto) => Promise<BoardOutput>;
-    }>('CreateBoardOperation');
-    return operation.execute(input);
+    return this.boardService.createBoard(input);
   }
 
   /**
@@ -1007,10 +816,7 @@ export class YandexTrackerFacade {
    * @returns обновленная доска
    */
   async updateBoard(boardId: string, input: Omit<UpdateBoardDto, 'boardId'>): Promise<BoardOutput> {
-    const operation = this.getOperation<{
-      execute: (input: UpdateBoardDto) => Promise<BoardOutput>;
-    }>('UpdateBoardOperation');
-    return operation.execute({ boardId, ...input });
+    return this.boardService.updateBoard(boardId, input);
   }
 
   /**
@@ -1018,10 +824,7 @@ export class YandexTrackerFacade {
    * @param boardId - идентификатор доски
    */
   async deleteBoard(boardId: string): Promise<void> {
-    const operation = this.getOperation<{
-      execute: (params: { boardId: string }) => Promise<void>;
-    }>('DeleteBoardOperation');
-    return operation.execute({ boardId });
+    return this.boardService.deleteBoard(boardId);
   }
 
   // === Sprint Methods ===
@@ -1032,10 +835,7 @@ export class YandexTrackerFacade {
    * @returns массив спринтов
    */
   async getSprints(boardId: string): Promise<SprintsListOutput> {
-    const operation = this.getOperation<{
-      execute: (params: GetSprintsDto) => Promise<SprintsListOutput>;
-    }>('GetSprintsOperation');
-    return operation.execute({ boardId });
+    return this.sprintService.getSprints(boardId);
   }
 
   /**
@@ -1044,10 +844,7 @@ export class YandexTrackerFacade {
    * @returns данные спринта
    */
   async getSprint(sprintId: string): Promise<SprintOutput> {
-    const operation = this.getOperation<{
-      execute: (params: GetSprintDto) => Promise<SprintOutput>;
-    }>('GetSprintOperation');
-    return operation.execute({ sprintId });
+    return this.sprintService.getSprint(sprintId);
   }
 
   /**
@@ -1056,10 +853,7 @@ export class YandexTrackerFacade {
    * @returns созданный спринт
    */
   async createSprint(input: CreateSprintDto): Promise<SprintOutput> {
-    const operation = this.getOperation<{
-      execute: (input: CreateSprintDto) => Promise<SprintOutput>;
-    }>('CreateSprintOperation');
-    return operation.execute(input);
+    return this.sprintService.createSprint(input);
   }
 
   /**
@@ -1072,9 +866,6 @@ export class YandexTrackerFacade {
     sprintId: string,
     input: Omit<UpdateSprintDto, 'sprintId'>
   ): Promise<SprintOutput> {
-    const operation = this.getOperation<{
-      execute: (input: UpdateSprintDto) => Promise<SprintOutput>;
-    }>('UpdateSprintOperation');
-    return operation.execute({ sprintId, ...input });
+    return this.sprintService.updateSprint(sprintId, input);
   }
 }

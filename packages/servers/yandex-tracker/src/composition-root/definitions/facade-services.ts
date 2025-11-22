@@ -26,6 +26,10 @@ import {
   SprintService,
   ProjectService,
   BoardService,
+  QueueService,
+  IssueAttachmentService,
+  BulkChangeService,
+  IssueService,
 } from '#tracker_api/facade/services/index.js';
 
 export function bindFacadeServices(container: Container): void {
@@ -59,9 +63,15 @@ export function bindFacadeServices(container: Container): void {
   // Board Service
   container.bind(BoardService).toSelf().inSingletonScope();
 
-  // TODO: Будут добавлены остальные сервисы по мере создания:
-  // container.bind(IssueService).toSelf().inSingletonScope();
-  // container.bind(IssueAttachmentService).toSelf().inSingletonScope();
-  // container.bind(QueueService).toSelf().inSingletonScope();
-  // container.bind(BulkChangeService).toSelf().inSingletonScope();
+  // Queue Service
+  container.bind(QueueService).toSelf().inSingletonScope();
+
+  // Issue Attachment Service
+  container.bind(IssueAttachmentService).toSelf().inSingletonScope();
+
+  // Bulk Change Service
+  container.bind(BulkChangeService).toSelf().inSingletonScope();
+
+  // Issue Service
+  container.bind(IssueService).toSelf().inSingletonScope();
 }
