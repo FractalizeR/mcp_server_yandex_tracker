@@ -15,15 +15,17 @@
  */
 
 import type { Container } from 'inversify';
-import { UserService } from '#tracker_api/facade/services/index.js';
+import { UserService, IssueLinkService } from '#tracker_api/facade/services/index.js';
 
 export function bindFacadeServices(container: Container): void {
   // User Service
   container.bind(UserService).toSelf().inSingletonScope();
 
+  // Issue Link Service
+  container.bind(IssueLinkService).toSelf().inSingletonScope();
+
   // TODO: Будут добавлены остальные сервисы по мере создания:
   // container.bind(IssueService).toSelf().inSingletonScope();
-  // container.bind(IssueLinkService).toSelf().inSingletonScope();
   // container.bind(IssueAttachmentService).toSelf().inSingletonScope();
   // container.bind(CommentService).toSelf().inSingletonScope();
   // container.bind(ChecklistService).toSelf().inSingletonScope();

@@ -15,9 +15,9 @@
 
 // Доменные сервисы
 export { UserService } from './user.service.js';
+export { IssueLinkService } from './issue-link.service.js';
 // TODO: Будут добавлены экспорты остальных сервисов по мере их создания
 // export { IssueService } from './issue.service.js';
-// export { IssueLinkService } from './issue-link.service.js';
 // export { IssueAttachmentService } from './issue-attachment.service.js';
 // export { CommentService } from './comment.service.js';
 // export { ChecklistService } from './checklist.service.js';
