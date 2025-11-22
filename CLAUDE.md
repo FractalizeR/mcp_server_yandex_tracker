@@ -13,18 +13,19 @@
 **Жёсткие лимиты (MUST):**
 - `CLAUDE.md` ≤ 400 строк
 - `ARCHITECTURE.md` ≤ 700 строк
-- Module `README.md` ≤ 500 строк
+- Module `README.md` ≤ 600 строк
 - Package `README.md` ≤ 600 строк
 - `tests/README.md` ≤ 500 строк
 
 **Целевые значения (SHOULD):**
 - `CLAUDE.md` ~350 строк
 - `ARCHITECTURE.md` ~600 строк
-- Module `README.md` ~400 строк
+- Module `README.md` ~500 строк
 - Package `README.md` ~500 строк
 - `tests/README.md` ~400 строк
 
-**Проверка:** `npm run validate:docs` (в yandex-tracker пакете)
+**Исключение:** Превышение на 10% допустимо с `<!-- LIMIT_EXCEPTION: причина -->`
+**Проверка:** `npm run validate:docs`
 
 ### Правила сокращения (по приоритету)
 
