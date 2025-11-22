@@ -20,10 +20,10 @@ export { ComponentService } from './component.service.js';
 export { FieldService } from './field.service.js';
 export { CommentService } from './comment.service.js';
 export { ChecklistService } from './checklist.service.js';
+export { WorklogService } from './worklog.service.js';
 // TODO: Будут добавлены экспорты остальных сервисов по мере их создания
 // export { IssueService } from './issue.service.js';
 // export { IssueAttachmentService } from './issue-attachment.service.js';
-// export { WorklogService } from './worklog.service.js';
 // export { QueueService } from './queue.service.js';
 // export { ProjectService } from './project.service.js';
 // export { BoardService } from './board.service.js';
