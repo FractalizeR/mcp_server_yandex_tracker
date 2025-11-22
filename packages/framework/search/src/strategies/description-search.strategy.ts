@@ -14,6 +14,7 @@
 
 import type { ISearchStrategy } from './search-strategy.interface.js';
 import type { SearchResult, StaticToolIndex } from '../types.js';
+import { tokenize } from '../utils/text-utils.js';
 
 /**
  * Стратегия поиска по описанию
@@ -34,7 +35,10 @@ export class DescriptionSearchStrategy implements ISearchStrategy {
   private readonly DESCRIPTION_WEIGHT = 0.7;
 
   search(query: string, tools: StaticToolIndex[]): SearchResult[] {
-    const queryTokens = this.tokenize(query);
+    const queryTokens = tokenize(query, {
+      normalizeSeparators: false,
+      minLength: this.MIN_TOKEN_LENGTH,
+    });
 
     if (queryTokens.length === 0) {
       return [];
@@ -79,17 +83,4 @@ export class DescriptionSearchStrategy implements ISearchStrategy {
     return matches;
   }
 
-  /**
-   * Токенизация текста
-   *
-   * - Приведение к lowercase
-   * - Разбиение по non-word символам
-   * - Фильтрация коротких токенов
-   */
-  private tokenize(text: string): string[] {
-    return text
-      .toLowerCase()
-      .split(/\W+/)
-      .filter((token) => token.length > this.MIN_TOKEN_LENGTH);
-  }
 }

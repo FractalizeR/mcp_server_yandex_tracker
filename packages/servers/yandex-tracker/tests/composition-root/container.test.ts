@@ -12,6 +12,22 @@ import type { HttpClient } from '@mcp-framework/infrastructure/http/client/http-
 import type { CacheManager } from '@mcp-framework/infrastructure/cache/cache-manager.interface.js';
 import type { YandexTrackerFacade } from '#tracker_api/facade/yandex-tracker.facade.js';
 import type { ToolRegistry } from '@mcp-framework/core/tool-registry.js';
+import {
+  UserService,
+  IssueLinkService,
+  ComponentService,
+  FieldService,
+  CommentService,
+  ChecklistService,
+  WorklogService,
+  SprintService,
+  ProjectService,
+  BoardService,
+  QueueService,
+  IssueAttachmentService,
+  BulkChangeService,
+  IssueService,
+} from '#tracker_api/facade/services/index.js';
 
 describe('Container', () => {
   let container: Container;
@@ -152,6 +168,108 @@ describe('Container', () => {
     });
   });
 
+  describe('Facade Services dependencies', () => {
+    it('должен resolve UserService', () => {
+      const service = container.get(UserService);
+      expect(service).toBeDefined();
+      expect(service).toHaveProperty('ping');
+    });
+
+    it('должен resolve IssueLinkService', () => {
+      const service = container.get(IssueLinkService);
+      expect(service).toBeDefined();
+      expect(service).toHaveProperty('createLink');
+      expect(service).toHaveProperty('getIssueLinks');
+      expect(service).toHaveProperty('deleteLink');
+    });
+
+    it('должен resolve ComponentService', () => {
+      const service = container.get(ComponentService);
+      expect(service).toBeDefined();
+      expect(service).toHaveProperty('getComponents');
+      expect(service).toHaveProperty('createComponent');
+    });
+
+    it('должен resolve FieldService', () => {
+      const service = container.get(FieldService);
+      expect(service).toBeDefined();
+      expect(service).toHaveProperty('getFields');
+      expect(service).toHaveProperty('getField');
+    });
+
+    it('должен resolve CommentService', () => {
+      const service = container.get(CommentService);
+      expect(service).toBeDefined();
+      expect(service).toHaveProperty('getComments');
+      expect(service).toHaveProperty('addComment');
+    });
+
+    it('должен resolve ChecklistService', () => {
+      const service = container.get(ChecklistService);
+      expect(service).toBeDefined();
+      expect(service).toHaveProperty('getChecklist');
+      expect(service).toHaveProperty('addChecklistItem');
+    });
+
+    it('должен resolve WorklogService', () => {
+      const service = container.get(WorklogService);
+      expect(service).toBeDefined();
+      expect(service).toHaveProperty('getWorklogs');
+      expect(service).toHaveProperty('addWorklog');
+    });
+
+    it('должен resolve SprintService', () => {
+      const service = container.get(SprintService);
+      expect(service).toBeDefined();
+      expect(service).toHaveProperty('getSprints');
+      expect(service).toHaveProperty('createSprint');
+    });
+
+    it('должен resolve ProjectService', () => {
+      const service = container.get(ProjectService);
+      expect(service).toBeDefined();
+      expect(service).toHaveProperty('getProjects');
+      expect(service).toHaveProperty('getProject');
+    });
+
+    it('должен resolve BoardService', () => {
+      const service = container.get(BoardService);
+      expect(service).toBeDefined();
+      expect(service).toHaveProperty('getBoards');
+      expect(service).toHaveProperty('getBoard');
+    });
+
+    it('должен resolve QueueService', () => {
+      const service = container.get(QueueService);
+      expect(service).toBeDefined();
+      expect(service).toHaveProperty('getQueue');
+      expect(service).toHaveProperty('getQueues');
+    });
+
+    it('должен resolve IssueAttachmentService', () => {
+      const service = container.get(IssueAttachmentService);
+      expect(service).toBeDefined();
+      expect(service).toHaveProperty('getAttachments');
+      expect(service).toHaveProperty('downloadAttachment');
+    });
+
+    it('должен resolve BulkChangeService', () => {
+      const service = container.get(BulkChangeService);
+      expect(service).toBeDefined();
+      expect(service).toHaveProperty('bulkUpdateIssues');
+      expect(service).toHaveProperty('bulkMoveIssues');
+    });
+
+    it('должен resolve IssueService', () => {
+      const service = container.get(IssueService);
+      expect(service).toBeDefined();
+      expect(service).toHaveProperty('getIssues');
+      expect(service).toHaveProperty('findIssues');
+      expect(service).toHaveProperty('createIssue');
+      expect(service).toHaveProperty('updateIssue');
+    });
+  });
+
   describe('Tools dependencies', () => {
     it('должен resolve GetIssuesTool', () => {
       const tool = container.get(Symbol.for('GetIssuesTool'));
@@ -220,6 +338,36 @@ describe('Container', () => {
       const tool2 = container.get(Symbol.for('GetIssuesTool'));
       expect(tool1).toBe(tool2);
     });
+
+    it('должен возвращать один и тот же экземпляр UserService', () => {
+      const service1 = container.get(UserService);
+      const service2 = container.get(UserService);
+      expect(service1).toBe(service2);
+    });
+
+    it('должен возвращать один и тот же экземпляр IssueLinkService', () => {
+      const service1 = container.get(IssueLinkService);
+      const service2 = container.get(IssueLinkService);
+      expect(service1).toBe(service2);
+    });
+
+    it('должен возвращать один и тот же экземпляр ComponentService', () => {
+      const service1 = container.get(ComponentService);
+      const service2 = container.get(ComponentService);
+      expect(service1).toBe(service2);
+    });
+
+    it('должен возвращать один и тот же экземпляр FieldService', () => {
+      const service1 = container.get(FieldService);
+      const service2 = container.get(FieldService);
+      expect(service1).toBe(service2);
+    });
+
+    it('должен возвращать один и тот же экземпляр IssueService', () => {
+      const service1 = container.get(IssueService);
+      const service2 = container.get(IssueService);
+      expect(service1).toBe(service2);
+    });
   });
 
   describe('No circular dependencies', () => {
@@ -256,6 +404,25 @@ describe('Container', () => {
         container.get(Symbol.for('CreateIssueTool'));
         // SearchToolsTool доступен только в lazy mode (по умолчанию в beforeEach)
         container.get(Symbol.for('SearchToolsTool'));
+      }).not.toThrow();
+    });
+
+    it('должен resolve все Facade Services без ошибок', () => {
+      expect(() => {
+        container.get(UserService);
+        container.get(IssueLinkService);
+        container.get(ComponentService);
+        container.get(FieldService);
+        container.get(CommentService);
+        container.get(ChecklistService);
+        container.get(WorklogService);
+        container.get(SprintService);
+        container.get(ProjectService);
+        container.get(BoardService);
+        container.get(QueueService);
+        container.get(IssueAttachmentService);
+        container.get(BulkChangeService);
+        container.get(IssueService);
       }).not.toThrow();
     });
   });

@@ -20,6 +20,7 @@ import type {
 } from '../types.js';
 import type { ToolRegistry } from '@mcp-framework/core';
 import { DEFAULT_TOOL_SEARCH_LIMIT, DEFAULT_TOOL_SEARCH_DETAIL_LEVEL } from '../constants.js';
+import { tokenize, getShortDescription } from '../utils/text-utils.js';
 
 /**
  * Поисковый движок для tools
@@ -71,7 +72,12 @@ export class ToolSearchEngine {
       const metadata = tool.getMetadata();
       const definition = metadata.definition;
 
-      if (!definition.name || !definition.description || !metadata.category) {
+      // Skip tools without required fields
+      if (
+        definition.name.length === 0 ||
+        definition.description.length === 0 ||
+        metadata.category.length === 0
+      ) {
         continue;
       }
 
@@ -79,34 +85,16 @@ export class ToolSearchEngine {
         name: definition.name,
         category: metadata.category,
         tags: metadata.tags ? Array.from(metadata.tags) : [],
-        isHelper: metadata.isHelper ?? false,
-        nameTokens: this.tokenize(definition.name),
-        descriptionTokens: this.tokenize(definition.description),
-        descriptionShort: this.getShortDescription(definition.description),
+        isHelper: metadata.isHelper === true,
+        nameTokens: tokenize(definition.name),
+        descriptionTokens: tokenize(definition.description),
+        descriptionShort: getShortDescription(definition.description),
       });
     }
 
     return index;
   }
 
-  /**
-   * Токенизация текста
-   */
-  private tokenize(text: string): string[] {
-    return text
-      .toLowerCase()
-      .replace(/[_-]/g, ' ')
-      .split(/\W+/)
-      .filter((token) => token.length > 0);
-  }
-
-  /**
-   * Получить краткое описание
-   */
-  private getShortDescription(description: string): string {
-    const firstSentence = description.split(/[.!?]/)[0];
-    return firstSentence ? firstSentence.trim() : description;
-  }
 
   /**
    * Выполнить поиск с кешированием
