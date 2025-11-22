@@ -14,14 +14,9 @@
  */
 
 import type { Container } from 'inversify';
-import type {
-  Logger,
-  ToolCallParams,
-  ToolResult,
-  ParsedCategoryFilter,
-} from '@mcp-framework/infrastructure';
+import type { Logger, ToolCallParams, ToolResult } from '@mcp-framework/infrastructure';
 import type { BaseTool, ToolDefinition } from '../tools/base/index.js';
-import type { ToolConstructor } from './types.js';
+import type { ToolConstructor, ParsedCategoryFilter } from './types.js';
 import { ToolFilterService } from './tool-filter.service.js';
 import { ToolSorter } from './tool-sorter.js';
 

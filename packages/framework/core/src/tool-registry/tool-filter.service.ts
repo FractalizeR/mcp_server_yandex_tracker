@@ -8,8 +8,9 @@
  * - Логирование фильтрации
  */
 
-import type { Logger, ParsedCategoryFilter } from '@mcp-framework/infrastructure';
+import type { Logger } from '@mcp-framework/infrastructure';
 import type { BaseTool } from '../tools/base/index.js';
+import type { ParsedCategoryFilter } from './types.js';
 
 /**
  * Сервис для фильтрации tools

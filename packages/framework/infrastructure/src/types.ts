@@ -34,41 +34,9 @@ export enum HttpStatusCode {
 }
 
 /**
- * Распарсенная структура фильтра категорий инструментов
- * @deprecated Moved to @mcp-server/yandex-tracker/config - Will be removed in v2.0.0
- */
-export interface ParsedCategoryFilter {
-  categories: Set<string>;
-  categoriesWithSubcategories: Map<string, Set<string>>;
-  includeAll: boolean;
-}
-
-/**
- * Конфигурация сервера из переменных окружения
- * @deprecated Moved to @mcp-server/yandex-tracker/config - Will be removed in v2.0.0
- */
-export interface ServerConfig {
-  token: string;
-  orgId?: string;
-  cloudOrgId?: string;
-  apiBase: string;
-  logLevel: LogLevel;
-  requestTimeout: number;
-  maxBatchSize: number;
-  maxConcurrentRequests: number;
-  logsDir: string;
-  prettyLogs: boolean;
-  logMaxSize: number;
-  logMaxFiles: number;
-  toolDiscoveryMode: 'lazy' | 'eager';
-  essentialTools: readonly string[];
-  enabledToolCategories?: ParsedCategoryFilter;
-  disabledToolGroups?: ParsedCategoryFilter;
-}
-
-/**
  * Уровни логирования
- * @deprecated Moved to @mcp-server/yandex-tracker/config - Will be removed in v2.0.0
+ *
+ * Используется Logger из @mcp-framework/infrastructure/logging
  */
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error' | 'silent';
 

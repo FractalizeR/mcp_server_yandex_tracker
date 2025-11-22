@@ -18,7 +18,8 @@ import { BaseOperation } from '#tracker_api/api_operations/base-operation.js';
 import { EntityCacheKey, EntityType } from '@mcp-framework/infrastructure';
 import { ParallelExecutor } from '@mcp-framework/infrastructure';
 import type { IssueWithUnknownFields } from '#tracker_api/entities/index.js';
-import type { BatchResult, ServerConfig } from '@mcp-framework/infrastructure';
+import type { BatchResult } from '@mcp-framework/infrastructure';
+import type { ServerConfig } from '#config';
 
 /**
  * Результат batch-операции для задач
