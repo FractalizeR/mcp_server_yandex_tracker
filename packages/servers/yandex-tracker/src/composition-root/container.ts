@@ -20,7 +20,7 @@ import type { CacheManager } from '@mcp-framework/infrastructure';
 import { NoOpCache } from '@mcp-framework/infrastructure';
 
 // Yandex Tracker Facade
-import { YandexTrackerFacade } from '#tracker_api/facade/yandex-tracker.facade.js';
+import type { YandexTrackerFacade } from '#tracker_api/facade/yandex-tracker.facade.js';
 
 // Tool Registry
 import { ToolRegistry } from '@mcp-framework/core';
@@ -140,13 +140,11 @@ function bindOperations(container: Container): void {
  *
  * АРХИТЕКТУРНЫЕ ИЗМЕНЕНИЯ (v2.0):
  * - Facade теперь использует Service-based architecture
- * - Сервисы извлекаются лениво из контейнера (обратная совместимость с тестами)
- * - После завершения рефакторинга переключим на прямую инъекцию
+ * - Все 14 доменных сервисов инжектятся напрямую через @inject()
+ * - Facade имеет декоратор @injectable() и регистрируется через toSelf()
  */
 function bindFacade(container: Container): void {
-  container.bind<YandexTrackerFacade>(TYPES.YandexTrackerFacade).toDynamicValue(() => {
-    return new YandexTrackerFacade(container);
-  });
+  container.bind<YandexTrackerFacade>(TYPES.YandexTrackerFacade).toSelf().inSingletonScope();
 }
 
 /**
