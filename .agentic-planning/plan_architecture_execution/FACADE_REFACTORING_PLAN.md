@@ -317,6 +317,46 @@ Service  Service  Service
 - Обновить регистрацию Facade (inject сервисов вместо Container)
 - Commit: `refactor(facade): finalize service-based architecture`
 
+**Детали Шага 5.3:**
+
+1. **Создать `facade-services.ts` (20 мин):**
+   - Путь: `src/composition-root/definitions/facade-services.ts`
+   - Функция `bindFacadeServices(container: Container)`
+   - Регистрация всех 14 сервисов через `container.bind(ServiceClass).toSelf().inSingletonScope()`
+   - Использовать class-based tokens (как Operations)
+
+2. **Обновить `container.ts` (10 мин):**
+   - Импорт `bindFacadeServices`
+   - Вызвать `bindFacadeServices(container)` в `createContainer()`
+   - Проверить что Facade регистрируется с `@injectable()`
+
+3. **Обновить `definitions/index.ts` (10 мин):**
+   - Добавить `export { bindFacadeServices } from './facade-services.js';`
+
+**Пример кода (facade-services.ts):**
+```typescript
+import { Container } from 'inversify';
+import { IssueService, UserService /* ... остальные 12 */ } from '#tracker_api/facade/services/index.js';
+
+export function bindFacadeServices(container: Container): void {
+  container.bind(IssueService).toSelf().inSingletonScope();
+  container.bind(UserService).toSelf().inSingletonScope();
+  // ... остальные 12 сервисов
+}
+```
+
+**Пример кода (Facade constructor):**
+```typescript
+@injectable()
+export class YandexTrackerFacade {
+  constructor(
+    @inject(IssueService) private readonly issueService: IssueService,
+    @inject(UserService) private readonly userService: UserService,
+    // ... остальные 12 сервисов
+  ) {}
+}
+```
+
 #### Фаза 6: Тесты и документация (2-3h)
 
 **Шаг 6.1**: Обновить unit тесты Facade (1.5h)
@@ -324,16 +364,80 @@ Service  Service  Service
 - Обновить существующие тесты (mock сервисов вместо операций)
 - Commit: `test(facade): update tests for service-based architecture`
 
+**Детали Шага 6.1:**
+
+**Текущий файл:** `tests/tracker_api/facade/yandex-tracker.facade.test.ts` (1117 строк)
+**Текущий подход:** Mock Container + mock 61 операцию
+**Новый подход:** Mock 14 сервисов напрямую
+
+1. **Создать test helpers (30 мин):**
+   ```typescript
+   // tests/helpers/mock-facade-services.ts
+   export function createMockIssueService() {
+     return {
+       createIssue: vi.fn(),
+       findIssues: vi.fn(),
+       getIssues: vi.fn(),
+       updateIssue: vi.fn(),
+       getIssueChangelog: vi.fn(),
+       getIssueTransitions: vi.fn(),
+       transitionIssue: vi.fn(),
+     };
+   }
+
+   export function createMockUserService() {
+     return { ping: vi.fn() };
+   }
+   // ... остальные 12 сервисов
+   ```
+
+2. **Обновить beforeEach (20 мин):**
+   ```typescript
+   // ДО (старый подход - ~60 строк):
+   mockContainer = {
+     get: vi.fn((token: symbol) => {
+       if (token === Symbol.for('PingOperation')) return mockPingOperation;
+       // ... 60 строк для всех операций
+     })
+   };
+   facade = new YandexTrackerFacade(mockContainer);
+
+   // ПОСЛЕ (новый подход - ~20 строк):
+   const mockIssueService = createMockIssueService();
+   const mockUserService = createMockUserService();
+   // ... остальные 12 mock сервисов
+
+   facade = new YandexTrackerFacade(
+     mockIssueService,
+     mockUserService,
+     // ... остальные 12 сервисов
+   );
+   ```
+
+3. **Обновить тесты (40 мин):**
+   - Заменить `mockPingOperation.execute` → `mockUserService.ping`
+   - Заменить `mockCreateIssueOperation.execute` → `mockIssueService.createIssue`
+   - ~30-40 тестов обновить
+   - Assertions остаются теми же (поведение не изменилось)
+
+**Effort:** 1.5h (подтверждено на основе размера файла теста)
+
 **Шаг 6.2**: Обновить документацию (1h)
 - Обновить `facade/README.md`
 - Добавить документацию для каждого сервиса
 - Commit: `docs(facade): update documentation for service-based architecture`
 
-**Шаг 6.3**: Финальная валидация (30 мин)
-- `npm run validate` (full)
-- `npm run test:smoke`
-- `npm run cpd`
-- Проверить что все тесты проходят
+**Шаг 6.3**: Финальная валидация (30-60 мин)
+- `npm run build` (5 мин)
+- `npm run typecheck` (5 мин)
+- `npm run lint` (5 мин)
+- `npm run test` (10 мин)
+- `npm run test:smoke` (15 мин)
+  - ⚠️ **Если smoke tests fail:** Обновить их (+30 мин buffer)
+  - Smoke tests могут ссылаться на старую структуру Facade
+  - Проверить что MCP server lifecycle работает с новой архитектурой
+- `npm run cpd` (5 мин)
+- Проверить что все критерии выполнены (5 мин)
 
 ### Breakpoints для коммитов
 
