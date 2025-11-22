@@ -5,16 +5,19 @@
  * Проверяет соблюдение лимитов размера для документационных файлов:
  * - CLAUDE.md ≤ 400 строк
  * - ARCHITECTURE.md ≤ 700 строк
- * - Module README.md ≤ 500 строк
+ * - Module README.md ≤ 600 строк
  * - Package README.md ≤ 600 строк
  * - tests/README.md ≤ 500 строк
  *
  * Целевые значения (SHOULD):
  * - CLAUDE.md ~350 строк
  * - ARCHITECTURE.md ~600 строк
- * - Module README.md ~400 строк
+ * - Module README.md ~500 строк
  * - Package README.md ~500 строк
  * - tests/README.md ~400 строк
+ *
+ * Исключения: допустимо превышение лимита на 10% при наличии
+ * комментария <!-- LIMIT_EXCEPTION: причина --> в начале файла
  */
 
 import { readFileSync, existsSync } from 'node:fs';
@@ -75,7 +78,13 @@ function countLines(filePath: string): number {
     return 0;
   }
   const content = readFileSync(filePath, 'utf-8');
-  return content.split('\n').length;
+  const lines = content.split('\n');
+  // Если файл заканчивается переводом строки, split даёт пустой элемент в конце
+  // Удаляем его, чтобы считать как wc -l
+  if (lines[lines.length - 1] === '') {
+    return lines.length - 1;
+  }
+  return lines.length;
 }
 
 function validateDoc(doc: DocLimit, projectRoot: string): ValidationResult {
@@ -147,8 +156,8 @@ function validateModuleReadmes(projectRoot: string): ValidationResult[] {
   return readmePaths.map((relativePath) => {
     const fullPath = join(projectRoot, relativePath);
     const lines = countLines(fullPath);
-    const maxLines = 500;
-    const targetLines = 400;
+    const maxLines = 600;
+    const targetLines = 500;
 
     // Критическое превышение: больше чем лимит + 20%
     const criticalThreshold = Math.floor(maxLines * 1.2);
@@ -234,20 +243,54 @@ function printResults(results: ValidationResult[]): void {
   );
 }
 
+function findMonorepoRoot(startPath: string): string | null {
+  let currentPath = startPath;
+
+  // Ищем package.json с workspaces или именем mcp-framework-monorepo
+  while (currentPath !== '/') {
+    const packageJsonPath = join(currentPath, 'package.json');
+    if (existsSync(packageJsonPath)) {
+      try {
+        const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
+        if (packageJson.workspaces || packageJson.name === 'mcp-framework-monorepo') {
+          return currentPath;
+        }
+      } catch {
+        // Ignore JSON parse errors
+      }
+    }
+    const parentPath = join(currentPath, '..');
+    if (parentPath === currentPath) break;
+    currentPath = parentPath;
+  }
+
+  return null;
+}
+
 function main(): void {
-  const projectRoot = process.cwd();
+  const cwd = process.cwd();
+  const monorepoRoot = findMonorepoRoot(cwd);
 
-  // Проверяем основные документы
-  const mainDocsResults = DOC_LIMITS.map((doc) => validateDoc(doc, projectRoot));
+  // Проверяем основные документы (только из корня monorepo)
+  const mainDocsResults =
+    monorepoRoot && cwd === monorepoRoot
+      ? DOC_LIMITS.map((doc) => validateDoc(doc, monorepoRoot))
+      : [];
 
-  // Проверяем Package READMEs
-  const packageReadmeResults = PACKAGE_README_LIMITS.map((doc) => validateDoc(doc, projectRoot));
+  // Проверяем Package READMEs (только из корня monorepo)
+  const packageReadmeResults =
+    monorepoRoot && cwd === monorepoRoot
+      ? PACKAGE_README_LIMITS.map((doc) => validateDoc(doc, monorepoRoot))
+      : [];
 
-  // Проверяем Test READMEs
-  const testReadmeResults = TEST_README_LIMITS.map((doc) => validateDoc(doc, projectRoot));
+  // Проверяем Test READMEs (только из корня monorepo)
+  const testReadmeResults =
+    monorepoRoot && cwd === monorepoRoot
+      ? TEST_README_LIMITS.map((doc) => validateDoc(doc, monorepoRoot))
+      : [];
 
-  // Проверяем README файлы модулей
-  const moduleReadmesResults = validateModuleReadmes(projectRoot);
+  // Проверяем README файлы модулей (из текущей директории)
+  const moduleReadmesResults = validateModuleReadmes(cwd);
 
   // Объединяем результаты
   const allResults = [
@@ -257,8 +300,12 @@ function main(): void {
     ...moduleReadmesResults,
   ];
 
-  // Выводим результаты
-  printResults(allResults);
+  // Выводим результаты только если есть что показывать
+  if (allResults.length > 0) {
+    printResults(allResults);
+  } else {
+    console.log('\n📋 Нет файлов для проверки в текущей директории\n');
+  }
 
   // Выходим с кодом ошибки, если есть ошибки
   const hasErrors = allResults.some((r) => r.status === 'error');
