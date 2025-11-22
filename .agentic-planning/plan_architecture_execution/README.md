@@ -24,7 +24,7 @@
 **Этап 1B - PARALLEL (3 агента):**
 - **[1.2_test_coverage_parallel.md](./1.2_test_coverage_parallel.md)** - Test Coverage improvements (9-10.5ч)
 - **[1.3_code_quality_parallel.md](./1.3_code_quality_parallel.md)** - Code Quality improvements (8-12ч)
-- **[1.4_yandex_tracker_parallel.md](./1.4_yandex_tracker_parallel.md)** - Yandex-Tracker improvements (7-11ч)
+- **[1.4_yandex_tracker_parallel.md](./1.4_yandex_tracker_parallel.md)** - Yandex-Tracker improvements (5-7ч)
 
 ---
 
@@ -65,7 +65,7 @@
 Этап 1B: Quick Wins (ПАРАЛЛЕЛЬНО с 1A или после)
    ├─> 1.2 Test Coverage (9-10.5h, Agent 1)
    ├─> 1.3 Code Quality (8-12h, Agent 2)
-   └─> 1.4 Yandex-Tracker (7-11h, Agent 3)
+   └─> 1.4 Yandex-Tracker (5-7h, Agent 3)
 
 [Merge веток 1B]
 
@@ -85,16 +85,23 @@
 
 ## ⏱️ Timeline
 
-| Этап | Wall Time | Агенты | Зависимости |
-|------|-----------|--------|--------------|
-| Этап 0 | 2-3h | 1 | - |
-| Этап 1A | 6-8h | 1 | Этап 0 done |
-| Этап 1B | 11-12h | 3 parallel | Может быть parallel с 1A |
-| Merge 1B | 1-2h | 1 | Этап 1B done |
-| Этап 2 | 24-35h seq / 19-28h parallel | 1-4 | Этап 1A done |
-| Этап 3 | 3.5-5h | 1-2 | Этап 2 done |
-| Этап 4 | 6h | 1 | Этап 3 done |
-| **TOTAL** | **54-73h** (seq) / **49-64h** (parallel) | - | **10-14 дней** |
+**Примечание:** Для parallel tasks используется увеличенный buffer из-за git conflicts и coordination overhead.
+
+| Этап | Base Effort | Buffer | Wall Time (with buffer) | Агенты | Зависимости |
+|------|-------------|--------|-------------------------|--------|--------------|
+| Этап 0 | 2-3h | +20% | 2.4-3.6h | 1 | - |
+| Этап 1A | 6-8h | +20% | 7.2-9.6h | 1 | Этап 0 done |
+| **Этап 1B** | 22-29.5h | **+40%** | **30.8-41.3h wall** | 3 parallel | Может быть parallel с 1A |
+| Merge 1B | 1-2h | +30% | 1.3-2.6h | 1 | Этап 1B done |
+| **Этап 2** | 24-35h seq | **+35%** | **32.4-47.3h** | 1-4 | Этап 1A done |
+| Этап 3 | 3.5-5h | +30% | 4.6-6.5h | 1-2 | Этап 2 done |
+| Этап 4 | 6h | +20% | 7.2h | 1 | Этап 3 done |
+| **TOTAL** | **65-88.5h** (base) | - | **86-118h** (with buffer) | - | **11-15 дней** |
+
+**Обоснование увеличенного buffer:**
+- **Parallel tasks (+40%)**: Git conflicts, rebase overhead, coordination между агентами
+- **Architecture refactoring (+35%)**: Facade refactoring - сложная задача с высокими рисками
+- **Sequential tasks (+20-30%)**: Стандартный buffer для непредвиденных проблем
 
 ---
 
@@ -102,7 +109,7 @@
 
 | Этап | Файл | Статус | Дата |
 |------|------|--------|------|
-| 0.1 | Facade Planning | ⏸️ Pending | - |
+| 0.1 | Facade Planning | ✅ Completed | 2025-11-21 |
 | 1.1 | Infrastructure | ⏸️ Pending | - |
 | 1.2 | Test Coverage | ⏸️ Pending | - |
 | 1.3 | Code Quality | ⏸️ Pending | - |
@@ -162,6 +169,39 @@ npm run test:coverage
 - ✋ После Этапа 2 - финальная архитектура
 - ✋ После Этапа 4 - итоговый review
 
+### 5. Merge Strategy для Parallel Tasks (Этап 1B)
+
+**ВАЖНО:** Параллельные задачи требуют координации при merge!
+
+**Порядок merge веток (строго):**
+1. **Агент 1 (1.2-test-coverage)**: merge first → базовая ветка
+2. **Агент 2 (1.3-code-quality)**: rebase на 1.2, resolve conflicts, затем merge
+3. **Агент 3 (1.4-yandex-tracker)**: rebase на 1.3, resolve conflicts, затем merge
+
+**Checklist для каждого merge:**
+```bash
+# 1. Fetch latest
+git fetch origin main
+
+# 2. Rebase на предыдущую ветку (для Agent 2-3)
+git rebase origin/main  # Агент 1
+git rebase origin/claude/execution-1.2-test-coverage-*  # Агент 2
+git rebase origin/claude/execution-1.3-code-quality-*  # Агент 3
+
+# 3. Resolve conflicts (если есть)
+# Используй: git status, git diff, затем git add
+
+# 4. Validate
+npm run validate:quiet
+
+# 5. Push
+git push -u origin HEAD
+
+# 6. Notify next agent (если не последний)
+```
+
+**Estimated time for merge:** 1.3-2.6h (включая conflict resolution)
+
 ---
 
 ## 🔗 Ссылки
@@ -173,5 +213,6 @@ npm run test:coverage
 ---
 
 **Создано:** 2025-11-21
-**Статус:** 🏗️ В процессе создания детальных планов
-**Следующий шаг:** Создать детальные планы для каждого этапа
+**Обновлено:** 2025-11-22
+**Статус:** ✅ Планирование завершено, готов к выполнению
+**Следующий шаг:** Начать с Этапа 1.1 (Infrastructure Extraction)
