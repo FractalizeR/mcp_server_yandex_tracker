@@ -202,49 +202,174 @@ function bindOperations(container: Container): void {
 
 ## 🚨 Критические правила
 
-### 1. Symbol-based токены, НЕ классы
+### 1. DI Tokens: Symbol vs Class-based
 
-✅ **Правильно:**
+**Проект использует ДВА типа токенов в зависимости от паттерна:**
+
+#### **Symbol-based tokens (для Infrastructure, Operations, Tools)**
+
+**Когда использовать:**
+- ✅ Infrastructure компоненты (Logger, HttpClient, CacheManager)
+- ✅ Operations и Tools (автоматически генерируются)
+- ✅ Используется паттерн **Factory** (`toDynamicValue`)
+
+**Пример:**
 ```typescript
 // types.ts
 export const TYPES = {
   HttpClient: Symbol.for('HttpClient'),
+  Logger: Symbol.for('Logger'),
 };
 
 // container.ts
-container.bind<HttpClient>(TYPES.HttpClient).toDynamicValue(() => { ... });
-```
+container.bind<IHttpClient>(TYPES.HttpClient).toDynamicValue(() => {
+  return new AxiosHttpClient(...);
+});
 
-❌ **Неправильно:**
-```typescript
-container.bind(HttpClient).toSelf(); // Привязка по классу — ЗАПРЕЩЕНО
+// Использование
+const httpClient = container.get<IHttpClient>(TYPES.HttpClient);
 ```
 
 ---
 
-### 2. toDynamicValue(), НЕ декораторы
+#### **Class-based tokens (для Services & Facade)**
 
-✅ **Правильно:**
+**Когда использовать:**
+- ✅ Facade Services (IssueService, UserService, etc.)
+- ✅ YandexTrackerFacade
+- ✅ Используется паттерн **Decorators** (`@injectable()`)
+
+**Пример:**
 ```typescript
-container.bind<T>(TYPES.Service).toDynamicValue((context) => {
-  return new Service(/* dependencies */);
-});
+// service.ts
+@injectable()
+export class IssueService { ... }
+
+// definitions/facade-services.ts
+container.bind(IssueService).toSelf(); // ← Класс как токен
+
+// Использование (auto-wiring через @inject)
+@injectable()
+export class YandexTrackerFacade {
+  constructor(
+    @inject(IssueService) private readonly issueService: IssueService
+  ) {}
+}
 ```
 
-❌ **Неправильно:**
-```typescript
-@injectable() // НЕ используем декораторы
-class Service { ... }
+**Преимущество:** InversifyJS автоматически разрешает зависимости через TypeScript metadata
 
-container.bind(Service).toSelf();
+---
+
+#### **Правила выбора:**
+
+| Компонент | Token Type | Регистрация | Пример |
+|-----------|-----------|-------------|--------|
+| **Infrastructure** | Symbol | `toDynamicValue()` | `TYPES.HttpClient` |
+| **Operations** | Symbol (auto) | `toDynamicValue()` | `Symbol.for('PingOperation')` |
+| **Tools** | Symbol (auto) | `toDynamicValue()` | `Symbol.for('PingTool')` |
+| **Services** | Class | `.toSelf()` | `IssueService` |
+| **Facade** | Symbol + Class | `.to(Class)` | `TYPES.YandexTrackerFacade` |
+
+---
+
+### 2. Два паттерна DI: Factory vs Decorators
+
+**Проект использует HYBRID APPROACH** — два разных паттерна для разных типов классов.
+
+#### **Паттерн A: Decorators (для Services & Facade)**
+
+**Когда использовать:**
+- ✅ Класс имеет **переменные зависимости** (каждый класс уникален)
+- ✅ Класс — это Service или Facade (доменная логика)
+- ✅ Много зависимостей в конструкторе (5-14 параметров)
+
+**Пример (IssueService):**
+```typescript
+import { injectable, inject } from 'inversify';
+
+@injectable()
+export class IssueService {
+  constructor(
+    @inject(GetIssuesOperation) private readonly getIssuesOp: GetIssuesOperation,
+    @inject(FindIssuesOperation) private readonly findIssuesOp: FindIssuesOperation,
+    @inject(CreateIssueOperation) private readonly createIssueOp: CreateIssueOperation,
+    // ... 7 operations - каждый Service уникален
+  ) {}
+}
 ```
 
-**Причина:** Предпочитаем явную конфигурацию в `container.ts`.
-Легче отлаживать (все зависимости в одном месте).
-Меньше "магии" в runtime.
+**Регистрация:**
+```typescript
+// definitions/facade-services.ts
+container.bind(IssueService).toSelf(); // Class-based token, auto-wiring
+```
 
-**Примечание:** Проект использует `reflect-metadata` для других целей,
-но НЕ для InversifyJS декораторов `@injectable()`.
+**Преимущества:**
+- 🎯 Минимальный boilerplate (1 строка регистрации вместо 10+)
+- 🎯 Auto-wiring зависимостей (InversifyJS читает типы из конструктора)
+- 🎯 Type-safe (TypeScript проверяет соответствие типов)
+
+**Используется в:** 14 Facade Services + YandexTrackerFacade (15 классов)
+
+---
+
+#### **Паттерн B: Factory (для Operations, Tools, Infrastructure)**
+
+**Когда использовать:**
+- ✅ Классы имеют **одинаковый конструктор** (uniform dependencies)
+- ✅ Класс наследует BaseOperation или BaseTool
+- ✅ Можно использовать **одну универсальную factory** для всех классов
+
+**Пример (Operations — 65+ классов с одинаковым конструктором):**
+```typescript
+// Все Operations: (httpClient, cacheManager, logger, config)
+export class PingOperation extends BaseOperation {
+  constructor(
+    httpClient: IHttpClient,
+    cacheManager: CacheManager,
+    logger: Logger,
+    config: ServerConfig
+  ) {
+    super(httpClient, cacheManager, logger);
+  }
+}
+```
+
+**Регистрация (универсальная для ВСЕХ Operations):**
+```typescript
+// container.ts
+for (const OperationClass of OPERATION_CLASSES) {
+  container.bind(OperationClass).toDynamicValue(() => {
+    const httpClient = container.get<IHttpClient>(TYPES.HttpClient);
+    const cacheManager = container.get<CacheManager>(TYPES.CacheManager);
+    const logger = container.get<Logger>(TYPES.Logger);
+    const config = container.get<ServerConfig>(TYPES.ServerConfig);
+    return new OperationClass(httpClient, cacheManager, logger, config);
+  });
+}
+```
+
+**Преимущества:**
+- 🎯 Один factory на 65+ классов (максимальная переиспользуемость)
+- 🎯 Explicit dependencies (все зависимости видны в одном месте)
+- 🎯 Проще тестировать (можно создать `new Operation(mockDeps)` без контейнера)
+
+**Используется в:** 65+ Operations, 48+ Tools, Infrastructure (Logger, HttpClient, etc.)
+
+---
+
+#### **Когда использовать какой паттерн?**
+
+| Критерий | Decorators | Factory |
+|----------|-----------|---------|
+| **Конструкторы** | Разные (3-14 параметров) | Одинаковые (4 параметра) |
+| **Количество классов** | Мало (15) | Много (100+) |
+| **Boilerplate без DI** | Высокий (~10 строк/класс) | Низкий (1 функция на все) |
+| **Примеры** | Facade Services | Operations, Tools |
+| **Регистрация** | `.toSelf()` | `.toDynamicValue(factory)` |
+
+**Вывод:** Hybrid approach — это не баг, а pragmatic engineering решение!
 
 ---
 
