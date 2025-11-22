@@ -47,8 +47,6 @@ src/
 │   └── parallel-executor.ts # Throttling for batch requests
 ├── logging/                 # Production logging (Pino)
 │   └── README.md           # Detailed docs
-├── config.ts                # Configuration from env
-├── constants.ts             # @deprecated (will be removed in v3.0)
 ├── types.ts                 # Type definitions
 └── index.ts                 # Public exports
 ```
@@ -143,24 +141,30 @@ async executeParallel<TKey, TValue>(
 function createLogger(config: LoggerConfig): Logger
 ```
 
-### Configuration
+---
 
-**loadConfig()** — loads and validates environment variables
+## 🔄 Migration from v1.x
 
-**Validation:**
-- ✅ Required: `YANDEX_TRACKER_TOKEN`, `YANDEX_ORG_ID`
-- ✅ Value ranges (timeout: 5000-120000ms, batchSize: 1-1000)
-- ✅ Defaults for all optional parameters
-- ✅ Returns type-safe `ServerConfig` interface
+### BREAKING: Configuration removed (v2.0.0)
 
-**Note:** This function contains Yandex.Tracker-specific logic and is `@deprecated` for v3.0 (will move to domain package).
+`ServerConfig`, `loadConfig()`, and domain-specific constants have been removed from infrastructure.
 
-**Implementation:** [src/config.ts](src/config.ts)
+**Reason:** Infrastructure layer must be domain-agnostic.
 
-**Signature:**
+**Migration:**
 ```typescript
-function loadConfig(): ServerConfig
+// Before (v1.x):
+import { ServerConfig, loadConfig } from '@mcp-framework/infrastructure';
+
+// After (v2.0.0):
+// For Yandex Tracker server:
+import { ServerConfig, loadConfig } from '@mcp-server/yandex-tracker/config';
+
+// For custom servers:
+// Implement your own config loader based on your domain requirements
 ```
+
+**See:** [MIGRATION.md](../../../MIGRATION.md) for details
 
 ---
 
@@ -232,15 +236,8 @@ export { ParallelExecutor } from './async/parallel-executor.js';
 // Logging
 export { createLogger } from './logging/logger.js';
 
-// Config
-export { loadConfig } from './config.js';
-export type { ServerConfig } from './types.js';
-
 // Types
-export type { ApiError, BatchResult } from './types.js';
-
-// Constants (deprecated, will be removed in v3.0)
-export * from './constants.js';
+export type { ApiError, BatchResult, LogLevel } from './types.js';
 ```
 
 ---

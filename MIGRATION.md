@@ -4,6 +4,65 @@
 
 ---
 
+## v1.x → v2.0.0: Infrastructure cleanup (Breaking Changes)
+
+### BREAKING: Удалён config из `@mcp-framework/infrastructure`
+
+**Причина:** Infrastructure слой должен быть domain-agnostic. Конфигурация Yandex Tracker переехала в соответствующий пакет.
+
+#### ServerConfig, loadConfig, константы
+
+**ДО (v1.x):**
+```typescript
+import { ServerConfig, loadConfig } from '@mcp-framework/infrastructure';
+import { DEFAULT_API_BASE, ENV_VAR_NAMES } from '@mcp-framework/infrastructure';
+```
+
+**ПОСЛЕ (v2.0.0):**
+```typescript
+// Из yandex-tracker пакета:
+import { ServerConfig, loadConfig } from '@mcp-server/yandex-tracker/config';
+// или с использованием alias (внутри yandex-tracker):
+import { ServerConfig, loadConfig } from '#config';
+```
+
+#### ParsedCategoryFilter
+
+**ДО (v1.x):**
+```typescript
+import { ParsedCategoryFilter } from '@mcp-framework/infrastructure';
+```
+
+**ПОСЛЕ (v2.0.0):**
+```typescript
+// Переехал в @mcp-framework/core (универсальный тип для tool filtering):
+import { ParsedCategoryFilter } from '@mcp-framework/core';
+```
+
+#### LogLevel (НЕ изменился)
+
+```typescript
+// LogLevel остался в infrastructure (универсальный тип для logging):
+import { LogLevel } from '@mcp-framework/infrastructure';
+```
+
+### Затронутые файлы
+
+- `packages/framework/infrastructure/src/config.ts` — удалён
+- `packages/framework/infrastructure/src/constants.ts` — удалён
+- `packages/framework/infrastructure/src/types.ts` — удалены ServerConfig, ParsedCategoryFilter
+- `packages/framework/core/src/tool-registry/types.ts` — добавлен ParsedCategoryFilter
+
+### Миграция для разработчиков framework
+
+Если вы разрабатываете собственный MCP server на базе framework:
+
+1. Замените импорты config/constants на свои локальные
+2. ParsedCategoryFilter теперь в `@mcp-framework/core`
+3. LogLevel остался в `@mcp-framework/infrastructure`
+
+---
+
 ## v2.x → v2.y: Обязательный параметр `fields`
 
 ### Breaking Change
