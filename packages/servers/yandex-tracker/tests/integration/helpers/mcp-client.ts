@@ -5,7 +5,7 @@
 
 import type { Container } from 'inversify';
 import type { ToolRegistry } from '@mcp-framework/core/tool-registry.js';
-import type { HttpClient } from '@mcp-framework/infrastructure/http/client/http-client.js';
+import type { IHttpClient } from '@mcp-framework/infrastructure/http/client/i-http-client.interface.js';
 import type { AxiosInstance } from 'axios';
 import type { ServerConfig } from '#config';
 import { TYPES } from '#composition-root/types.js';
@@ -75,8 +75,8 @@ export class TestMCPClient {
   /**
    * Получить HttpClient (для интеграционных тестов с моками)
    */
-  getHttpClient(): HttpClient {
-    return this.container.get<HttpClient>(TYPES.HttpClient);
+  getHttpClient(): IHttpClient {
+    return this.container.get<IHttpClient>(TYPES.HttpClient);
   }
 
   /**

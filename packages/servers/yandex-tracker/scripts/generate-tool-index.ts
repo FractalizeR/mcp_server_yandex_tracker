@@ -22,8 +22,8 @@ import { execSync } from 'child_process';
 
 // Импортируем tool classes (без инстанцирования)
 import { TOOL_CLASSES } from '../src/composition-root/definitions/tool-definitions.js';
-import type { StaticToolMetadata, ToolCategory } from '../src/mcp/tools/base/tool-metadata.js';
-import type { StaticToolIndex } from '../src/mcp/search/types.js';
+import type { StaticToolMetadata, ToolCategory } from '@mcp-framework/core';
+import type { StaticToolIndex } from '@mcp-framework/search';
 
 /**
  * Интерфейс для tool класса со статическими метаданными
@@ -143,35 +143,8 @@ function generateTypeScriptFile(index: StaticToolIndex[]): string {
  * Regenerate: npm run generate:index
  */
 
-import { ToolCategory } from '@mcp/tools/base/tool-metadata.js';
-
-/**
- * Статический индекс tool для compile-time генерации
- *
- * Содержит pre-computed данные для быстрого поиска
- */
-export interface StaticToolIndex {
-  /** Имя инструмента */
-  name: string;
-
-  /** Категория */
-  category: ToolCategory;
-
-  /** Теги для поиска */
-  tags: string[];
-
-  /** Helper или API tool */
-  isHelper: boolean;
-
-  /** Pre-computed токены из имени */
-  nameTokens: string[];
-
-  /** Pre-computed токены из описания */
-  descriptionTokens: string[];
-
-  /** Краткое описание (без inputSchema) */
-  descriptionShort: string;
-}
+import { ToolCategory } from '@mcp-framework/core';
+import type { StaticToolIndex } from '@mcp-framework/search';
 
 /**
  * Статический индекс всех tools
@@ -222,7 +195,7 @@ async function main(): Promise<void> {
     // Определяем путь к выходному файлу
     const outputPath = path.join(
       path.dirname(fileURLToPath(import.meta.url)),
-      '../src/mcp/search/generated-index.ts'
+      '../src/tools/generated-index.ts'
     );
 
     // Записываем файл

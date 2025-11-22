@@ -11,9 +11,8 @@ import { Logger } from '@mcp-framework/infrastructure';
 import { TYPES } from '#composition-root/types.js';
 
 // HTTP Layer
-import { HttpClient } from '@mcp-framework/infrastructure';
-import type { RetryStrategy } from '@mcp-framework/infrastructure';
-import { ExponentialBackoffStrategy } from '@mcp-framework/infrastructure';
+import type { IHttpClient, RetryStrategy } from '@mcp-framework/infrastructure';
+import { AxiosHttpClient, ExponentialBackoffStrategy } from '@mcp-framework/infrastructure';
 
 // Cache Layer
 import type { CacheManager } from '@mcp-framework/infrastructure';
@@ -66,12 +65,12 @@ function bindHttpLayer(container: Container): void {
     .bind<RetryStrategy>(TYPES.RetryStrategy)
     .toConstantValue(new ExponentialBackoffStrategy(3, 1000, 10000));
 
-  container.bind<HttpClient>(TYPES.HttpClient).toDynamicValue(() => {
+  container.bind<IHttpClient>(TYPES.HttpClient).toDynamicValue(() => {
     const retryStrategy = container.get<RetryStrategy>(TYPES.RetryStrategy);
     const loggerInstance = container.get<Logger>(TYPES.Logger);
     const configInstance = container.get<ServerConfig>(TYPES.ServerConfig);
 
-    return new HttpClient(
+    return new AxiosHttpClient(
       {
         baseURL: configInstance.apiBase,
         timeout: configInstance.requestTimeout,
@@ -128,11 +127,11 @@ function bindOperations(container: Container): void {
     // Factory function для создания операции
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const factory = (): any => {
-      const httpClient = container.get<HttpClient>(TYPES.HttpClient);
+      const httpClient = container.get<IHttpClient>(TYPES.HttpClient);
       const cacheManager = container.get<CacheManager>(TYPES.CacheManager);
       const loggerInstance = container.get<Logger>(TYPES.Logger);
       const configInstance = container.get<ServerConfig>(TYPES.ServerConfig);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return new (OperationClass as any)(httpClient, cacheManager, loggerInstance, configInstance);
     };
 
@@ -275,7 +274,7 @@ function bindToolRegistry(container: Container): void {
     const loggerInstance = container.get<Logger>(TYPES.Logger);
     // Передаём контейнер, logger и только стандартные tool классы
     // SearchToolsTool будет добавлен позже через registerToolFromContainer
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return new ToolRegistry(container, loggerInstance, TOOL_CLASSES as any);
   });
 }

@@ -10,7 +10,7 @@ import { createContainer } from '#composition-root/container.js';
 import { TYPES } from '#composition-root/types.js';
 import type { ServerConfig } from '#config';
 import type { ToolRegistry } from '@mcp-framework/core/tool-registry.js';
-import type { HttpClient } from '@mcp-framework/infrastructure/http/client/http-client.js';
+import type { IHttpClient } from '@mcp-framework/infrastructure/http/client/i-http-client.interface.js';
 
 describe('E2E Tool Execution (Smoke)', () => {
   const fakeConfig: ServerConfig = {
@@ -64,7 +64,7 @@ describe('E2E Tool Execution (Smoke)', () => {
     // Arrange
     const container = await createContainer(fakeConfig);
     const toolRegistry = container.get<ToolRegistry>(TYPES.ToolRegistry);
-    const httpClient = container.get<HttpClient>(TYPES.HttpClient);
+    const httpClient = container.get<IHttpClient>(TYPES.HttpClient);
 
     // Mock HttpClient response
     vi.spyOn(httpClient, 'get').mockResolvedValue({
@@ -87,7 +87,7 @@ describe('E2E Tool Execution (Smoke)', () => {
     // Arrange
     const container = await createContainer(fakeConfig);
     const toolRegistry = container.get<ToolRegistry>(TYPES.ToolRegistry);
-    const httpClient = container.get<HttpClient>(TYPES.HttpClient);
+    const httpClient = container.get<IHttpClient>(TYPES.HttpClient);
 
     // Mock HttpClient error - PingOperation ловит ошибку и возвращает {success: false}
     vi.spyOn(httpClient, 'get').mockRejectedValue(new Error('Network error'));

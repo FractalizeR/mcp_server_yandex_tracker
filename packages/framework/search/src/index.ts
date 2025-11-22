@@ -43,8 +43,5 @@ export * from './tools/search-tools.schema.js';
 // Constants
 export * from './constants.js';
 
-// Generated index (deprecated - use buildIndexFromRegistry instead)
-export { TOOL_SEARCH_INDEX } from './generated-index.js';
-
 // Dynamic index builder
 export { buildIndexFromRegistry } from './utils/build-index-from-registry.js';

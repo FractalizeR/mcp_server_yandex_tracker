@@ -10,13 +10,11 @@
  * Определяет общую структуру, конкретные операции реализуют детали
  */
 
-import type { HttpClient } from '@mcp-framework/infrastructure';
-import type { CacheManager } from '@mcp-framework/infrastructure';
-import type { Logger } from '@mcp-framework/infrastructure';
+import type { IHttpClient, CacheManager, Logger } from '@mcp-framework/infrastructure';
 
 export abstract class BaseOperation {
   constructor(
-    protected readonly httpClient: HttpClient,
+    protected readonly httpClient: IHttpClient,
     protected readonly cacheManager: CacheManager,
     protected readonly logger: Logger
   ) {}
@@ -104,15 +102,22 @@ export abstract class BaseOperation {
     this.logger.debug(`BaseOperation: uploading file to ${endpoint}`);
 
     // Получаем axios instance для прямого доступа
-    const axiosInstance = this.httpClient.getAxiosInstance();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const axiosInstance = this.httpClient.getAxiosInstance?.() as any;
+
+    if (!axiosInstance) {
+      throw new Error('HTTP client does not support getAxiosInstance');
+    }
 
     // Выполняем POST запрос с FormData
-    const response = await axiosInstance.post<TResponse>(endpoint, formData, {
+     
+    const response = await axiosInstance.post(endpoint, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
     });
 
+     
     return response.data;
   }
 
@@ -138,14 +143,21 @@ export abstract class BaseOperation {
     this.logger.debug(`BaseOperation: downloading file from ${endpoint}`);
 
     // Получаем axios instance для прямого доступа
-    const axiosInstance = this.httpClient.getAxiosInstance();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const axiosInstance = this.httpClient.getAxiosInstance?.() as any;
+
+    if (!axiosInstance) {
+      throw new Error('HTTP client does not support getAxiosInstance');
+    }
 
     // Выполняем GET запрос с responseType: 'arraybuffer'
-    const response = await axiosInstance.get<ArrayBuffer>(endpoint, {
+     
+    const response = await axiosInstance.get(endpoint, {
       responseType: 'arraybuffer',
     });
 
     // Преобразуем ArrayBuffer в Buffer
+     
     return Buffer.from(response.data);
   }
 }

@@ -1,7 +1,7 @@
 // tests/helpers/mock-factories.ts
 import { vi } from 'vitest';
 import type { Logger } from '@mcp-framework/infrastructure/logging/logger.js';
-import type { HttpClient } from '@mcp-framework/infrastructure/http/client/http-client.js';
+import type { IHttpClient } from '@mcp-framework/infrastructure/http/client/i-http-client.interface.js';
 import type { YandexTrackerFacade } from '../../src/tracker_api/facade/yandex-tracker.facade.js';
 
 /**
@@ -25,16 +25,16 @@ export function createMockLogger(): Logger {
 }
 
 /**
- * Создать mock для HttpClient
+ * Создать mock для IHttpClient
  */
-export function createMockHttpClient(): HttpClient {
+export function createMockHttpClient(): IHttpClient {
   return {
     get: vi.fn(),
     post: vi.fn(),
     patch: vi.fn(),
     delete: vi.fn(),
     put: vi.fn(),
-  } as unknown as HttpClient;
+  } as unknown as IHttpClient;
 }
 
 /**

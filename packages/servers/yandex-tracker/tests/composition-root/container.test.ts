@@ -8,7 +8,7 @@ import type { ServerConfig } from '#config';
 import { createContainer } from '#composition-root/container.js';
 import { TYPES } from '#composition-root/types.js';
 import type { Logger } from '@mcp-framework/infrastructure/logging/index.js';
-import type { HttpClient } from '@mcp-framework/infrastructure/http/client/http-client.js';
+import type { IHttpClient } from '@mcp-framework/infrastructure/http/client/i-http-client.interface.js';
 import type { CacheManager } from '@mcp-framework/infrastructure/cache/cache-manager.interface.js';
 import type { YandexTrackerFacade } from '#tracker_api/facade/yandex-tracker.facade.js';
 import type { ToolRegistry } from '@mcp-framework/core/tool-registry.js';
@@ -56,7 +56,7 @@ describe('Container', () => {
     });
 
     it('должен resolve HttpClient', () => {
-      const httpClient = container.get<HttpClient>(TYPES.HttpClient);
+      const httpClient = container.get<IHttpClient>(TYPES.HttpClient);
       expect(httpClient).toBeDefined();
       expect(httpClient).toHaveProperty('get');
       expect(httpClient).toHaveProperty('post');
@@ -192,8 +192,8 @@ describe('Container', () => {
     });
 
     it('должен возвращать один и тот же экземпляр HttpClient', () => {
-      const client1 = container.get<HttpClient>(TYPES.HttpClient);
-      const client2 = container.get<HttpClient>(TYPES.HttpClient);
+      const client1 = container.get<IHttpClient>(TYPES.HttpClient);
+      const client2 = container.get<IHttpClient>(TYPES.HttpClient);
       expect(client1).toBe(client2);
     });
 
@@ -230,7 +230,7 @@ describe('Container', () => {
     it('должен resolve все зарегистрированные типы без ошибок', () => {
       expect(() => {
         container.get<Logger>(TYPES.Logger);
-        container.get<HttpClient>(TYPES.HttpClient);
+        container.get<IHttpClient>(TYPES.HttpClient);
         container.get<CacheManager>(TYPES.CacheManager);
         container.get<YandexTrackerFacade>(TYPES.YandexTrackerFacade);
         container.get<ToolRegistry>(TYPES.ToolRegistry);
@@ -262,7 +262,7 @@ describe('Container', () => {
 
   describe('Configuration propagation', () => {
     it('должен передать конфигурацию в HttpClient', () => {
-      const httpClient = container.get<HttpClient>(TYPES.HttpClient);
+      const httpClient = container.get<IHttpClient>(TYPES.HttpClient);
       expect(httpClient).toBeDefined();
       // HttpClient должен быть настроен с параметрами из config
     });

@@ -5,7 +5,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import type { Mock } from 'vitest';
 import { BaseOperation } from '#tracker_api/api_operations/base-operation.js';
-import type { HttpClient } from '@mcp-framework/infrastructure/http/client/http-client.js';
+import type { IHttpClient } from '@mcp-framework/infrastructure/http/client/i-http-client.interface.js';
 import type { CacheManager } from '@mcp-framework/infrastructure/cache/cache-manager.interface.js';
 import type { Logger } from '@mcp-framework/infrastructure/logging/index.js';
 
@@ -30,7 +30,7 @@ class TestOperation extends BaseOperation {
   }
 }
 
-function createMockHttpClient(): HttpClient {
+function createMockHttpClient(): IHttpClient {
   const mockAxiosInstance = {
     get: vi.fn(),
     post: vi.fn(),
@@ -67,7 +67,7 @@ function createMockLogger(): Logger {
 }
 
 describe('BaseOperation', () => {
-  let mockHttpClient: HttpClient;
+  let mockHttpClient: IHttpClient;
   let mockCache: CacheManager;
   let mockLogger: Logger;
   let operation: TestOperation;

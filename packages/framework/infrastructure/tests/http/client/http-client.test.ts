@@ -1,9 +1,9 @@
 /**
- * Unit тесты для HttpClient
+ * Unit тесты для AxiosHttpClient
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { HttpClient } from '@mcp-framework/infrastructure/http/client/http-client.js';
+import { AxiosHttpClient } from '@mcp-framework/infrastructure/http/client/axios-http-client.js';
 import type { HttpConfig } from '@mcp-framework/infrastructure/http/client/http-config.interface.js';
 import type { Logger } from '@mcp-framework/infrastructure/logging/index.js';
 import type { RetryStrategy } from '@mcp-framework/infrastructure/http/retry/retry-strategy.interface.js';
@@ -57,8 +57,8 @@ function createMockAxiosInstance() {
   return mockInstance;
 }
 
-describe('HttpClient', () => {
-  let httpClient: HttpClient;
+describe('AxiosHttpClient', () => {
+  let httpClient: AxiosHttpClient;
   let logger: Logger;
   let config: HttpConfig;
   let retryStrategy: RetryStrategy;
@@ -80,11 +80,11 @@ describe('HttpClient', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Мок axios instance для тестирования (type casting)
     mockedAxios.create.mockReturnValue(mockAxiosInstance as any);
 
-    httpClient = new HttpClient(config, logger, retryStrategy);
+    httpClient = new AxiosHttpClient(config, logger, retryStrategy);
   });
 
   describe('constructor', () => {
-    it('должен создать HttpClient с правильной конфигурацией (с orgId)', () => {
+    it('должен создать AxiosHttpClient с правильной конфигурацией (с orgId)', () => {
       // Arrange
       const configWithOrgId: HttpConfig = {
         baseURL: 'https://api.tracker.yandex.net',
@@ -94,7 +94,7 @@ describe('HttpClient', () => {
       };
 
       // Act
-      const client = new HttpClient(configWithOrgId, logger, retryStrategy);
+      const client = new AxiosHttpClient(configWithOrgId, logger, retryStrategy);
 
       // Assert
       expect(client).toBeDefined();
@@ -104,7 +104,7 @@ describe('HttpClient', () => {
       expect(client.delete).toBeDefined();
     });
 
-    it('должен создать HttpClient с правильной конфигурацией (с cloudOrgId)', () => {
+    it('должен создать AxiosHttpClient с правильной конфигурацией (с cloudOrgId)', () => {
       // Arrange
       const configWithCloudOrgId: HttpConfig = {
         baseURL: 'https://api.tracker.yandex.net',
@@ -114,7 +114,7 @@ describe('HttpClient', () => {
       };
 
       // Act
-      const client = new HttpClient(configWithCloudOrgId, logger, retryStrategy);
+      const client = new AxiosHttpClient(configWithCloudOrgId, logger, retryStrategy);
 
       // Assert
       expect(client).toBeDefined();
@@ -124,7 +124,7 @@ describe('HttpClient', () => {
       expect(client.delete).toBeDefined();
     });
 
-    it('должен создать HttpClient даже если оба ID не указаны (для тестов)', () => {
+    it('должен создать AxiosHttpClient даже если оба ID не указаны (для тестов)', () => {
       // Arrange
       const configWithoutOrgIds: HttpConfig = {
         baseURL: 'https://api.tracker.yandex.net',
@@ -133,7 +133,7 @@ describe('HttpClient', () => {
       };
 
       // Act
-      const client = new HttpClient(configWithoutOrgIds, logger, retryStrategy);
+      const client = new AxiosHttpClient(configWithoutOrgIds, logger, retryStrategy);
 
       // Assert
       expect(client).toBeDefined();
