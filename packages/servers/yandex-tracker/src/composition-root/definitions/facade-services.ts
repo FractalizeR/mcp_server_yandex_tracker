@@ -22,6 +22,7 @@ import {
   FieldService,
   CommentService,
   ChecklistService,
+  WorklogService,
   SprintService,
   ProjectService,
   BoardService,
@@ -46,6 +47,9 @@ export function bindFacadeServices(container: Container): void {
   // Checklist Service
   container.bind(ChecklistService).toSelf().inSingletonScope();
 
+  // Worklog Service
+  container.bind(WorklogService).toSelf().inSingletonScope();
+
   // Sprint Service
   container.bind(SprintService).toSelf().inSingletonScope();
 
@@ -58,7 +62,6 @@ export function bindFacadeServices(container: Container): void {
   // TODO: Будут добавлены остальные сервисы по мере создания:
   // container.bind(IssueService).toSelf().inSingletonScope();
   // container.bind(IssueAttachmentService).toSelf().inSingletonScope();
-  // container.bind(WorklogService).toSelf().inSingletonScope();
   // container.bind(QueueService).toSelf().inSingletonScope();
   // container.bind(BulkChangeService).toSelf().inSingletonScope();
 }
