@@ -59,24 +59,24 @@ src/
 
 ### HTTP Layer
 
-**HttpClient** — Axios wrapper with built-in retry and error mapping
+**AxiosHttpClient** (alias `HttpClient`) — Axios wrapper with built-in retry and error mapping
 
 **Key features:**
-- ✅ Automatic retry (ExponentialBackoffStrategy)
-- ✅ AxiosError → ApiError mapping
-- ✅ Timeout configuration
-- ✅ Type-safe (generic `<T>`)
+- ✅ Automatic retry via `RetryHandler`
+- ✅ `AxiosError` → `ApiError` mapping
+- ✅ Request/response logging via interceptors
+- ✅ Type-safe generic methods: `get<T>()`, `post<T>()`, `patch<T>()`, `delete<T>()`
 
-**Usage:**
+**Implementation:** [src/http/client/axios-http-client.ts](src/http/client/axios-http-client.ts)
+
+**Interface:**
 ```typescript
-import { HttpClient, loadConfig, createLogger } from '@mcp-framework/infrastructure';
-
-const config = loadConfig();
-const logger = createLogger(config);
-const retryHandler = new RetryHandler(logger, new ExponentialBackoffStrategy());
-const client = new HttpClient(config, logger, retryHandler);
-
-const data = await client.get<YourType>('/api/endpoint');
+interface IHttpClient {
+  get<T>(path: string, params?: QueryParams): Promise<T>;
+  post<T>(path: string, data?: unknown): Promise<T>;
+  patch<T>(path: string, data?: unknown): Promise<T>;
+  delete<T>(path: string): Promise<T>;
+}
 ```
 
 ### Caching
@@ -84,123 +84,82 @@ const data = await client.get<YourType>('/api/endpoint');
 **CacheManager** — interface (Strategy Pattern)
 
 **Implementations:**
-- `NoOpCache` — Null Object (cache disabled)
-- Extensible: add Redis, Memcached, etc.
+- `NoOpCache` — Null Object (cache disabled by default)
+- `EntityCacheKey` — generates cache keys for entities (e.g., `issue:PROJ-123`)
 
-**Usage:**
+**Details:** [src/cache/](src/cache/)
+
+**Interface:**
 ```typescript
-import { NoOpCache } from '@mcp-framework/infrastructure';
-
-const cache = new NoOpCache();
-await cache.set('key', value);
-const cached = await cache.get('key'); // null (no-op)
+interface CacheManager {
+  get<T>(key: string): Promise<T | null>;
+  set<T>(key: string, value: T, ttl?: number): Promise<void>;
+  delete(key: string): Promise<void>;
+  clear(): Promise<void>;
+}
 ```
 
 ### Parallel Execution
 
-**ParallelExecutor** — execute batch requests with throttling
+**ParallelExecutor** — executes batch operations with concurrency control (using `p-limit`)
 
-**Two independent limits:**
-1. **MAX_BATCH_SIZE** (business limit): 200 items per chunk
-2. **MAX_CONCURRENT_REQUESTS** (technical limit): 5 concurrent requests
+**Configuration:**
+- `maxBatchSize` (business limit, default: 200)
+- `maxConcurrentRequests` (technical limit, default: 5)
 
-**How it works:**
-- Splits array into chunks by `MAX_BATCH_SIZE`
-- Executes chunks in parallel with `MAX_CONCURRENT_REQUESTS` limit
-- Uses `Promise.allSettled` to preserve all results (fulfilled + rejected)
+**Features:**
+- ✅ Validates batch size before execution
+- ✅ Uses `p-limit` for concurrency control
+- ✅ Logs metrics (success/error counts, duration)
+- ✅ Returns typed `BatchResult<TKey, TValue>`
 
-**Usage:**
+**Implementation:** [src/async/parallel-executor.ts](src/async/parallel-executor.ts)
+
+**Method signature:**
 ```typescript
-import { ParallelExecutor } from '@mcp-framework/infrastructure';
-
-const executor = new ParallelExecutor(config);
-const results = await executor.execute(
-  keys,
-  async (key) => httpClient.get<Issue>(`/api/items/${key}`)
-);
-
-// results: BatchResult<string, Issue>
-results.forEach((result) => {
-  if (result.status === 'fulfilled') {
-    console.log('Success:', result.value);
-  } else {
-    console.error('Error:', result.reason);
-  }
-});
+async executeParallel<TKey, TValue>(
+  operations: Array<{ key: TKey; fn: () => Promise<TValue> }>,
+  operationName?: string
+): Promise<BatchResult<TKey, TValue>>
 ```
 
 ### Logging
 
-**Pino** — production-ready logging with automatic rotation
+**Pino logger** — production-ready structured logging with rotation
 
 **Key features:**
 - ✅ Structured JSON logs
-- ✅ Automatic rotation (daily + size-based, old logs → `.gz` with date)
-- ✅ Dual output (error/warn → stderr + file, info/debug → file only)
-- ✅ Request tracing (child loggers)
+- ✅ Automatic rotation (daily + size-based → `.gz` archives)
+- ✅ Dual output (errors → stderr + file, info/debug → file only)
+- ✅ Child loggers for request tracing
 
-**Configuration:**
-- `LOGS_DIR` — logs directory
-- `LOG_LEVEL` — level (debug, info, warn, error)
-- `PRETTY_LOGS` — pretty-printing for development
-- `LOG_MAX_SIZE` — rotation size (default: 50KB)
-- `LOG_MAX_FILES` — rotated files count (default: 20)
+**Configuration ENV vars:**
+- `LOGS_DIR`, `LOG_LEVEL`, `PRETTY_LOGS`, `LOG_MAX_SIZE`, `LOG_MAX_FILES`
 
-**Rotation:** Logs rotate daily at midnight OR when size limit is reached. Rotated files include date in filename (e.g., `20251119-combined.log.gz`)
+**Full documentation:** [src/logging/README.md](src/logging/README.md)
 
-**Usage:**
+**Function signature:**
 ```typescript
-import { createLogger, loadConfig } from '@mcp-framework/infrastructure';
-
-const config = loadConfig();
-const logger = createLogger(config);
-
-logger.info({ userId: 123 }, 'User logged in');
-logger.error({ error }, 'Failed to process request');
+function createLogger(config: LoggerConfig): Logger
 ```
-
-**Details:** [src/logging/README.md](src/logging/README.md)
 
 ### Configuration
 
-**loadConfig()** — load and validate environment variables
+**loadConfig()** — loads and validates environment variables
 
 **Validation:**
-- ✅ Required parameters (token, orgId)
+- ✅ Required: `YANDEX_TRACKER_TOKEN`, `YANDEX_ORG_ID`
 - ✅ Value ranges (timeout: 5000-120000ms, batchSize: 1-1000)
-- ✅ Default values
-- ✅ Type-safe `ServerConfig` interface
+- ✅ Defaults for all optional parameters
+- ✅ Returns type-safe `ServerConfig` interface
 
-**Environment variables:**
-```bash
-# Required
-YANDEX_TRACKER_TOKEN=y0_xxx
-YANDEX_ORG_ID=123456
+**Note:** This function contains Yandex.Tracker-specific logic and is `@deprecated` for v3.0 (will move to domain package).
 
-# Optional (with defaults)
-REQUEST_TIMEOUT=30000           # 5000-120000ms
-MAX_BATCH_SIZE=200              # 1-1000
-MAX_CONCURRENT_REQUESTS=5       # 1-20
+**Implementation:** [src/config.ts](src/config.ts)
 
-# Logging
-LOG_LEVEL=info                  # debug|info|warn|error
-LOGS_DIR=./logs
-LOG_MAX_SIZE=50K
-LOG_MAX_FILES=20
-PRETTY_LOGS=false
-
-# Tool Discovery
-TOOL_DISCOVERY_MODE=lazy        # lazy|eager
-ESSENTIAL_TOOLS=ping,search_tools
-ENABLED_TOOL_CATEGORIES=        # issues,comments or issues:read,comments:write
-```
-
-**Usage:**
+**Signature:**
 ```typescript
-import { loadConfig } from '@mcp-framework/infrastructure';
-
-const config = loadConfig();
-console.log(config.requestTimeout); // 30000
+function loadConfig(): ServerConfig
 ```
 
 ---

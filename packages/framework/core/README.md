@@ -67,153 +67,88 @@ src/
 
 **Key features:**
 - ✅ Generic `<TFacade>` — facade-agnostic design
-- ✅ Automatic parameter validation (Zod schemas)
-- ✅ Built-in logging with structured output
-- ✅ Error handling with detailed context
+- ✅ Automatic parameter validation (Zod schemas via `getParamsSchema()`)
+- ✅ Auto-generates MCP definitions from schema (DRY principle)
+- ✅ Built-in logging, error handling
 - ✅ Integration with ToolRegistry
 
-**Usage:**
+**Implementation:** [src/tools/base/base-tool.ts](src/tools/base/base-tool.ts)
+
+**Abstract interface:**
 ```typescript
-import { BaseTool } from '@mcp-framework/core';
-import { z } from 'zod';
+abstract class BaseTool<TFacade = unknown> {
+  static readonly METADATA: StaticToolMetadata; // Required!
 
-// Define your facade interface
-interface MyApiFacade {
-  getItem(id: string): Promise<Item>;
-}
+  constructor(facade: TFacade, logger: Logger);
 
-// Define parameter schema
-const ParamsSchema = z.object({
-  id: z.string(),
-});
-
-type Params = z.infer<typeof ParamsSchema>;
-
-// Create your tool
-class GetItemTool extends BaseTool<MyApiFacade> {
-  static readonly METADATA = {
-    name: 'get_item',
-    category: 'api',
-    description: 'Get item by ID',
-    requiresExplicitUserConsent: false,
-  };
-
-  async execute(params: Params): Promise<Item> {
-    // Validate params
-    const validated = this.validateParams(ParamsSchema, params);
-
-    // Use facade
-    const item = await this.facade.getItem(validated.id);
-
-    return item;
-  }
+  getDefinition(): ToolDefinition;  // Auto-generated from schema
+  getParamsSchema?(): ZodSchema;    // Optional: enables auto-generation
+  abstract execute(params: unknown): Promise<ToolResult>;
 }
 ```
+
+**Reference implementation:** See any tool in `packages/servers/yandex-tracker/src/tools/api/` (e.g., `issues/get/get-issues.tool.ts`)
 
 ### generateDefinitionFromSchema()
 
-**✅ NEW: Auto-generate MCP definitions from Zod schemas**
-
-**Purpose:** Eliminates schema-definition mismatch by generating MCP ToolDefinition directly from Zod schema.
+**✅ Auto-generates MCP definitions from Zod schemas** (eliminates schema-definition mismatch)
 
 **Key features:**
-- ✅ Single source of truth (Zod schema)
-- ✅ Physically impossible to create schema-definition mismatch
-- ✅ Uses Zod v4 native `toJSONSchema()` API
-- ✅ Extracts descriptions from `.describe()` calls
+- ✅ Single source of truth (Zod schema with `.describe()`)
+- ✅ Uses Zod v4 native `schema.toJSONSchema()` API
 - ✅ Automatic required/optional field detection
+- ✅ Physically impossible to create schema ↔ definition mismatch
 
-**Usage:**
+**Implementation:** [src/definition/schema-to-definition.ts](src/definition/schema-to-definition.ts)
+
+**Function signature:**
 ```typescript
-import { BaseTool, generateDefinitionFromSchema } from '@mcp-framework/core';
-import { z } from 'zod';
-
-// Define schema with descriptions
-const GetItemSchema = z.object({
-  id: z.string().describe('Item ID to retrieve'),
-  fields: z.array(z.string()).optional().describe('Fields to include'),
-});
-
-// Tool uses auto-generation
-class GetItemTool extends BaseTool<MyApiFacade> {
-  static readonly METADATA = {
-    name: 'get_item',
-    description: '[API] Get item by ID',
-  };
-
-  getDefinition() {
-    return generateDefinitionFromSchema(
-      GetItemTool.METADATA,
-      GetItemSchema
-    );
-  }
-}
+function generateDefinitionFromSchema(
+  schema: ZodSchema,
+  options?: { includeDescriptions?: boolean }
+): JSONSchema7
 ```
 
-**Benefits:**
-- DRY principle — no duplicate schema definitions
-- Type-safe — schema and definition always match
-- Simpler tools — no separate `*.definition.ts` files
-- Auto-sync — changes to schema instantly reflected in definition
+**Benefits:** DRY principle, type-safe, no separate `*.definition.ts` files
 
-**Migration:** See `../../ARCHITECTURE.md#schema-to-definition-generator`
+**Migration guide:** [../../ARCHITECTURE.md](../../ARCHITECTURE.md) → "Schema-to-Definition Generator"
 
 ---
 
 ### BaseDefinition (Deprecated)
 
-**⚠️ Deprecated:** Use `generateDefinitionFromSchema()` instead.
+**⚠️ Deprecated** in v2.0 — use `generateDefinitionFromSchema()` instead.
 
-**Old approach** (manual definition):
-```typescript
-class GetItemDefinition extends BaseDefinition {
-  build() {
-    return {
-      name: GetItemTool.METADATA.name,
-      description: this.buildDescription(),
-      inputSchema: { /* manual JSON schema */ },
-    };
-  }
-}
-```
-
-**Problem:** Manual sync between Zod schema and MCP definition → mismatch bugs
+**Problem with old approach:** Manual sync between Zod validation schema and MCP definition → frequent mismatch bugs.
 
 ---
 
 ### ToolRegistry
 
-**Tool registration and routing** — maps tool names to handlers.
+**Tool registration and routing** — maps tool names to handlers, provides filtering and sorting.
 
 **Key features:**
-- ✅ Lazy initialization (tools created on-demand)
+- ✅ Lazy initialization (tools created on-demand via DI container)
+- ✅ **Priority-based sorting:** critical → high → normal → low
+- ✅ **Category filtering** (via `ToolFilterService`)
 - ✅ Type-safe tool registration
-- ✅ **Priority-based sorting** (critical → high → normal → low)
-- ✅ Automatic name mapping
 - ✅ Error handling for unknown tools
 
-**Priority-based sorting:**
+**Implementation:** [src/tool-registry/tool-registry.ts](src/tool-registry/tool-registry.ts)
 
-ToolRegistry automatically sorts tools by priority when returning definitions:
-1. **critical** — shown first (frequently used operations)
-2. **high** — important operations
-3. **normal** — regular operations (default)
-4. **low** — shown last (debug, demo tools)
-
-Within same priority, tools are sorted alphabetically by name.
-
-**Usage:**
+**Class signature:**
 ```typescript
-import { ToolRegistry } from '@mcp-framework/core';
+class ToolRegistry {
+  constructor(
+    container: Container,
+    logger: Logger,
+    toolClasses: ReadonlyArray<ToolClass>,
+    filterService?: ToolFilterService
+  );
 
-const registry = new ToolRegistry(container, logger, toolClasses);
-
-// Get sorted tool definitions (by priority)
-const definitions = registry.getDefinitions();
-// Returns: [critical tools...] → [high tools...] → [normal tools...] → [low tools...]
-
-// Execute tool
-const result = await registry.executeTool('get_item', { id: '123' });
+  getDefinitions(): ToolDefinition[];  // Filtered & sorted
+  executeToolByName(name: string, params: ToolCallParams): Promise<ToolResult>;
+}
 ```
 
 ---
