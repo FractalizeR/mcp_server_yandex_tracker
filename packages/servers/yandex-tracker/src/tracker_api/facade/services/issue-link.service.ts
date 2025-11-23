@@ -73,4 +73,15 @@ export class IssueLinkService {
   async deleteLink(issueId: string, linkId: string): Promise<void> {
     return this.deleteOp.execute(issueId, linkId);
   }
+
+  /**
+   * Удаляет связи из нескольких задач параллельно
+   * @param links - массив связей для удаления с индивидуальными параметрами
+   * @returns массив результатов в формате BatchResult
+   */
+  async deleteLinksMany(
+    links: Array<{ issueId: string; linkId: string }>
+  ): Promise<BatchResult<string, void>> {
+    return this.deleteOp.executeMany(links);
+  }
 }
