@@ -96,7 +96,10 @@ export class GetIssueLinksTool extends BaseTool<YandexTrackerFacade> {
           links: item.data,
           count: item.data.length,
         })),
-        failed: processedResults.failed,
+        failed: processedResults.failed.map((item) => ({
+          issueId: item.key,
+          error: item.error,
+        })),
         fieldsReturned: fields,
       });
     } catch (error: unknown) {

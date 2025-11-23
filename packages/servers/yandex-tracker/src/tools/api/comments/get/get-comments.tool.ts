@@ -98,7 +98,10 @@ export class GetCommentsTool extends BaseTool<YandexTrackerFacade> {
           comments: item.data,
           count: item.data.length,
         })),
-        errors: processedResults.failed,
+        errors: processedResults.failed.map((item) => ({
+          issueId: item.key,
+          error: item.error,
+        })),
         fieldsReturned: fields,
       });
     } catch (error: unknown) {
