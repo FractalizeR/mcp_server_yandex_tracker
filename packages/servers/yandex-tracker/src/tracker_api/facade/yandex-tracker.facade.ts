@@ -35,6 +35,7 @@ import {
 // Types
 import type { PingResult } from '#tracker_api/api_operations/user/ping.operation.js';
 import type { BatchIssueResult } from '#tracker_api/api_operations/issue/get-issues.operation.js';
+import type { BatchIssueLinksResult } from '#tracker_api/api_operations/link/get-issue-links.operation.js';
 import type { FindIssuesResult } from '#tracker_api/api_operations/issue/find/index.js';
 import type {
   FindIssuesInputDto,
@@ -370,12 +371,12 @@ export class YandexTrackerFacade {
   // === Issue Methods - Links ===
 
   /**
-   * Получает все связи для указанной задачи
-   * @param issueId - ключ или ID задачи
-   * @returns массив связей задачи
+   * Получает связи для нескольких задач параллельно
+   * @param issueIds - массив ключей или ID задач
+   * @returns массив результатов (fulfilled | rejected)
    */
-  async getIssueLinks(issueId: string): Promise<LinkWithUnknownFields[]> {
-    return this.issueLinkService.getIssueLinks(issueId);
+  async getIssueLinks(issueIds: string[]): Promise<BatchIssueLinksResult[]> {
+    return this.issueLinkService.getIssueLinks(issueIds);
   }
 
   /**

@@ -3,6 +3,9 @@ import type { IHttpClient } from '@mcp-framework/infrastructure/http/client/i-ht
 import type { CacheManager } from '@mcp-framework/infrastructure/cache/cache-manager.interface.js';
 import type { Logger } from '@mcp-framework/infrastructure/logging/logger.js';
 import type { LinkWithUnknownFields } from '#tracker_api/entities/index.js';
+import type { BatchResult } from '@mcp-framework/infrastructure/types.js';
+import type { ServerConfig } from '#config';
+import type { ParallelExecutor } from '@mcp-framework/infrastructure/async/parallel-executor.js';
 import { GetIssueLinksOperation } from '#tracker_api/api_operations/link/get-issue-links.operation.js';
 import {
   createLinkListFixture,
@@ -16,6 +19,8 @@ describe('GetIssueLinksOperation', () => {
   let mockHttpClient: IHttpClient;
   let mockCacheManager: CacheManager;
   let mockLogger: Logger;
+  let mockConfig: ServerConfig;
+  let mockParallelExecutor: ParallelExecutor;
 
   beforeEach(() => {
     mockHttpClient = {
@@ -42,104 +47,134 @@ describe('GetIssueLinksOperation', () => {
       debug: vi.fn(),
     } as unknown as Logger;
 
-    operation = new GetIssueLinksOperation(mockHttpClient, mockCacheManager, mockLogger);
+    mockConfig = {
+      maxBatchSize: 50,
+      maxConcurrentRequests: 10,
+      token: 'test-token',
+      orgId: 'test-org',
+    } as ServerConfig;
+
+    operation = new GetIssueLinksOperation(
+      mockHttpClient,
+      mockCacheManager,
+      mockLogger,
+      mockConfig
+    );
+
+    // Мокируем parallelExecutor через приватное поле
+    mockParallelExecutor = {
+      executeParallel: vi.fn(),
+    } as unknown as ParallelExecutor;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Замена приватного поля для unit тестирования
+    (operation as any).parallelExecutor = mockParallelExecutor;
   });
 
   describe('execute', () => {
-    it('should call httpClient.get with correct endpoint', async () => {
-      const mockLinks: LinkWithUnknownFields[] = createLinkListFixture(3);
-
-      vi.mocked(mockHttpClient.get).mockResolvedValue(mockLinks);
-
-      const result = await operation.execute('TEST-123');
-
-      expect(mockHttpClient.get).toHaveBeenCalledWith('/v3/issues/TEST-123/links');
-      expect(result).toEqual(mockLinks);
-      expect(result).toHaveLength(3);
-    });
-
-    it('should return empty array when no links exist', async () => {
-      vi.mocked(mockHttpClient.get).mockResolvedValue([]);
-
-      const result = await operation.execute('TEST-456');
+    it('возвращает пустой массив для пустого массива ключей', async () => {
+      const result = await operation.execute([]);
 
       expect(result).toEqual([]);
-      expect(result).toHaveLength(0);
+      expect(mockLogger.warn).toHaveBeenCalledWith('GetIssueLinksOperation: пустой массив ключей');
+      expect(mockParallelExecutor.executeParallel).not.toHaveBeenCalled();
     });
 
-    it('should return links with different types', async () => {
+    it('успешно получает связи для нескольких задач', async () => {
+      const issueIds = ['TEST-1', 'TEST-2', 'TEST-3'];
+      const mockLinksSet1 = createLinkListFixture(2);
+      const mockLinksSet2 = createLinkListFixture(3);
+      const mockLinksSet3: LinkWithUnknownFields[] = [];
+
+      const mockBatchResults: BatchResult<string, LinkWithUnknownFields[]> = [
+        { status: 'fulfilled', value: mockLinksSet1, key: 'TEST-1', index: 0 },
+        { status: 'fulfilled', value: mockLinksSet2, key: 'TEST-2', index: 1 },
+        { status: 'fulfilled', value: mockLinksSet3, key: 'TEST-3', index: 2 },
+      ];
+
+      vi.mocked(mockParallelExecutor.executeParallel).mockResolvedValue(mockBatchResults);
+
+      const result = await operation.execute(issueIds);
+
+      expect(result).toEqual(mockBatchResults);
+      expect(mockParallelExecutor.executeParallel).toHaveBeenCalledWith(
+        expect.any(Array),
+        'get issue links'
+      );
+      expect(mockParallelExecutor.executeParallel).toHaveBeenCalledTimes(1);
+
+      // Проверяем, что operations массив содержит правильные функции
+      const callArgs = vi.mocked(mockParallelExecutor.executeParallel).mock.calls[0];
+      if (callArgs) {
+        const operations = callArgs[0] as Array<{
+          key: string;
+          fn: () => Promise<LinkWithUnknownFields[]>;
+        }>;
+        expect(operations).toHaveLength(3);
+        expect(operations[0]?.key).toBe('TEST-1');
+        expect(operations[1]?.key).toBe('TEST-2');
+        expect(operations[2]?.key).toBe('TEST-3');
+      }
+    });
+
+    it('обрабатывает частичные ошибки', async () => {
+      const issueIds = ['TEST-1', 'TEST-2', 'TEST-3'];
+      const mockLinks = createLinkListFixture(2);
+      const mockError = new Error('Issue not found');
+
+      const mockBatchResults: BatchResult<string, LinkWithUnknownFields[]> = [
+        { status: 'fulfilled', value: mockLinks, key: 'TEST-1', index: 0 },
+        { status: 'rejected', reason: mockError, key: 'TEST-2', index: 1 },
+        { status: 'fulfilled', value: [], key: 'TEST-3', index: 2 },
+      ];
+
+      vi.mocked(mockParallelExecutor.executeParallel).mockResolvedValue(mockBatchResults);
+
+      const result = await operation.execute(issueIds);
+
+      expect(result).toEqual(mockBatchResults);
+      expect(result[0]?.status).toBe('fulfilled');
+      expect(result[1]?.status).toBe('rejected');
+      expect(result[2]?.status).toBe('fulfilled');
+    });
+
+    it('возвращает связи разных типов', async () => {
+      const issueIds = ['TEST-789'];
       const mockLinks: LinkWithUnknownFields[] = [
         createSubtaskLinkFixture({ id: 'link1' }),
         createRelatesLinkFixture({ id: 'link2' }),
         createDependsLinkFixture({ id: 'link3' }),
       ];
 
-      vi.mocked(mockHttpClient.get).mockResolvedValue(mockLinks);
-
-      const result = await operation.execute('TEST-789');
-
-      expect(result).toHaveLength(3);
-      expect(result[0]!.type.id).toBe('subtask');
-      expect(result[1]!.type.id).toBe('relates');
-      expect(result[2]!.type.id).toBe('depends');
-    });
-
-    it('should return links with inward and outward directions', async () => {
-      const mockLinks: LinkWithUnknownFields[] = [
-        createSubtaskLinkFixture({ id: 'link1', direction: 'outward' }),
-        createDependsLinkFixture({ id: 'link2', direction: 'inward' }),
+      const mockBatchResults: BatchResult<string, LinkWithUnknownFields[]> = [
+        { status: 'fulfilled', value: mockLinks, key: 'TEST-789', index: 0 },
       ];
 
-      vi.mocked(mockHttpClient.get).mockResolvedValue(mockLinks);
+      vi.mocked(mockParallelExecutor.executeParallel).mockResolvedValue(mockBatchResults);
 
-      const result = await operation.execute('TEST-100');
+      const result = await operation.execute(issueIds);
 
-      expect(result).toHaveLength(2);
-      expect(result[0]!.direction).toBe('outward');
-      expect(result[1]!.direction).toBe('inward');
+      expect(result[0]?.status).toBe('fulfilled');
+      if (result[0]?.status === 'fulfilled') {
+        expect(result[0].value).toHaveLength(3);
+        expect(result[0].value[0]!.type.id).toBe('subtask');
+        expect(result[0].value[1]!.type.id).toBe('relates');
+        expect(result[0].value[2]!.type.id).toBe('depends');
+      }
     });
 
-    // NOTE: Кеширование тестируется на уровне BaseOperation,
-    // здесь не тестируем повторно для упрощения
+    it('логирует начало операции', async () => {
+      const issueIds = ['TEST-1', 'TEST-2'];
+      const mockBatchResults: BatchResult<string, LinkWithUnknownFields[]> = [
+        { status: 'fulfilled', value: [], key: 'TEST-1', index: 0 },
+        { status: 'fulfilled', value: [], key: 'TEST-2', index: 1 },
+      ];
 
-    it('should log info and debug messages', async () => {
-      const mockLinks: LinkWithUnknownFields[] = createLinkListFixture(5);
+      vi.mocked(mockParallelExecutor.executeParallel).mockResolvedValue(mockBatchResults);
 
-      vi.mocked(mockHttpClient.get).mockResolvedValue(mockLinks);
+      await operation.execute(issueIds);
 
-      await operation.execute('TEST-999');
-
-      expect(mockLogger.info).toHaveBeenCalledWith('Получение связей для задачи: TEST-999');
-      expect(mockLogger.debug).toHaveBeenCalledWith('Получено 5 связей для задачи TEST-999');
-    });
-
-    it('should handle API errors', async () => {
-      const error = new Error('API Error: Issue not found');
-      vi.mocked(mockHttpClient.get).mockRejectedValue(error);
-
-      await expect(operation.execute('INVALID-KEY')).rejects.toThrow('API Error: Issue not found');
-    });
-
-    it('should work with issue ID instead of key', async () => {
-      const mockLinks: LinkWithUnknownFields[] = createLinkListFixture(1);
-
-      vi.mocked(mockHttpClient.get).mockResolvedValue(mockLinks);
-
-      const result = await operation.execute('abc123def456');
-
-      expect(mockHttpClient.get).toHaveBeenCalledWith('/v3/issues/abc123def456/links');
-      expect(result).toHaveLength(1);
-    });
-
-    it('should handle large number of links', async () => {
-      const mockLinks: LinkWithUnknownFields[] = createLinkListFixture(50);
-
-      vi.mocked(mockHttpClient.get).mockResolvedValue(mockLinks);
-
-      const result = await operation.execute('TEST-EPIC');
-
-      expect(result).toHaveLength(50);
-      expect(mockLogger.debug).toHaveBeenCalledWith('Получено 50 связей для задачи TEST-EPIC');
+      expect(mockLogger.info).toHaveBeenCalledWith(
+        'Получение связей для 2 задач параллельно: TEST-1, TEST-2'
+      );
     });
   });
 });

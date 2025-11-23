@@ -17,10 +17,10 @@ import { MCP_TOOL_PREFIX } from '#constants';
  */
 export const GET_ISSUE_LINKS_TOOL_METADATA: StaticToolMetadata = {
   name: buildToolName('get_issue_links', MCP_TOOL_PREFIX),
-  description: '[Issues/Links] Получить связи задачи',
+  description: '[Issues/Links] Получить связи задач (batch)',
   category: ToolCategory.ISSUES,
   subcategory: 'links',
   priority: ToolPriority.HIGH,
-  tags: ['links', 'read', 'relationships', 'subtasks'],
+  tags: ['links', 'read', 'relationships', 'subtasks', 'batch'],
   isHelper: false,
 } as const;

@@ -23,7 +23,7 @@ describe('get-issue-links integration tests', () => {
     mockServer.cleanup();
   });
 
-  it('должен получить список связей задачи', async () => {
+  it('должен получить список связей задачи (batch)', async () => {
     // Arrange
     const issueKey = 'TEST-100';
     const mockLinks = createLinkListFixture(3);
@@ -31,7 +31,7 @@ describe('get-issue-links integration tests', () => {
 
     // Act
     const result = await client.callTool('fr_yandex_tracker_get_issue_links', {
-      issueId: issueKey,
+      issueIds: [issueKey],
       fields: ['id', 'type', 'object'],
     });
 
@@ -39,9 +39,11 @@ describe('get-issue-links integration tests', () => {
     expect(result.isError).toBeUndefined();
     const response = JSON.parse(result.content[0]!.text);
     expect(response.success).toBe(true);
-    expect(response.data.issueId).toBe(issueKey);
-    expect(response.data.linksCount).toBe(3);
-    expect(response.data.links).toHaveLength(3);
+    expect(response.data.total).toBe(1);
+    expect(response.data.successful).toHaveLength(1);
+    expect(response.data.successful[0].issueId).toBe(issueKey);
+    expect(response.data.successful[0].links).toHaveLength(3);
+    expect(response.data.successful[0].count).toBe(3);
     mockServer.assertAllRequestsDone();
   });
 
@@ -52,7 +54,7 @@ describe('get-issue-links integration tests', () => {
 
     // Act
     const result = await client.callTool('fr_yandex_tracker_get_issue_links', {
-      issueId: issueKey,
+      issueIds: [issueKey],
       fields: ['id', 'type', 'object'],
     });
 
@@ -60,8 +62,8 @@ describe('get-issue-links integration tests', () => {
     expect(result.isError).toBeUndefined();
     const response = JSON.parse(result.content[0]!.text);
     expect(response.success).toBe(true);
-    expect(response.data.linksCount).toBe(0);
-    expect(response.data.links).toEqual([]);
+    expect(response.data.successful[0].count).toBe(0);
+    expect(response.data.successful[0].links).toEqual([]);
     mockServer.assertAllRequestsDone();
   });
 
@@ -76,7 +78,7 @@ describe('get-issue-links integration tests', () => {
 
     // Act
     const result = await client.callTool('fr_yandex_tracker_get_issue_links', {
-      issueId: issueKey,
+      issueIds: [issueKey],
       fields: ['id', 'type', 'object'],
     });
 
@@ -84,9 +86,9 @@ describe('get-issue-links integration tests', () => {
     expect(result.isError).toBeUndefined();
     const response = JSON.parse(result.content[0]!.text);
     expect(response.success).toBe(true);
-    expect(response.data.links).toHaveLength(2);
-    expect(response.data.links[0].type.id).toBe('subtask');
-    expect(response.data.links[1].type.id).toBe('relates');
+    expect(response.data.successful[0].links).toHaveLength(2);
+    expect(response.data.successful[0].links[0].type.id).toBe('subtask');
+    expect(response.data.successful[0].links[1].type.id).toBe('relates');
     mockServer.assertAllRequestsDone();
   });
 
@@ -97,12 +99,16 @@ describe('get-issue-links integration tests', () => {
 
     // Act
     const result = await client.callTool('fr_yandex_tracker_get_issue_links', {
-      issueId: issueKey,
+      issueIds: [issueKey],
       fields: ['id', 'type', 'object'],
     });
 
     // Assert
-    expect(result.isError).toBe(true);
+    expect(result.isError).toBeUndefined();
+    const response = JSON.parse(result.content[0]!.text);
+    expect(response.success).toBe(true);
+    expect(response.data.failed).toHaveLength(1);
+    expect(response.data.failed[0].issueId).toBe(issueKey);
     mockServer.assertAllRequestsDone();
   });
 
@@ -114,7 +120,7 @@ describe('get-issue-links integration tests', () => {
 
     // Act
     const result = await client.callTool('fr_yandex_tracker_get_issue_links', {
-      issueId: issueKey,
+      issueIds: [issueKey],
       fields: ['id', 'type', 'object'],
     });
 
@@ -122,7 +128,7 @@ describe('get-issue-links integration tests', () => {
     expect(result.isError).toBeUndefined();
     const response = JSON.parse(result.content[0]!.text);
     expect(response.success).toBe(true);
-    const link = response.data.links[0];
+    const link = response.data.successful[0].links[0];
     expect(link).toHaveProperty('id');
     expect(link).toHaveProperty('type');
     expect(link).toHaveProperty('object');
@@ -137,7 +143,7 @@ describe('get-issue-links integration tests', () => {
 
     // Act
     const result = await client.callTool('fr_yandex_tracker_get_issue_links', {
-      issueId: issueKey,
+      issueIds: [issueKey],
       fields: ['id', 'type', 'object'],
     });
 
@@ -145,8 +151,8 @@ describe('get-issue-links integration tests', () => {
     expect(result.isError).toBeUndefined();
     const response = JSON.parse(result.content[0]!.text);
     expect(response.success).toBe(true);
-    expect(response.data.linksCount).toBe(50);
-    expect(response.data.links).toHaveLength(50);
+    expect(response.data.successful[0].count).toBe(50);
+    expect(response.data.successful[0].links).toHaveLength(50);
     mockServer.assertAllRequestsDone();
   });
 
@@ -167,7 +173,7 @@ describe('get-issue-links integration tests', () => {
 
     // Act
     const result = await client.callTool('fr_yandex_tracker_get_issue_links', {
-      issueId: issueKey,
+      issueIds: [issueKey],
       fields: ['id', 'updatedBy', 'updatedAt'],
     });
 
@@ -175,7 +181,7 @@ describe('get-issue-links integration tests', () => {
     expect(result.isError).toBeUndefined();
     const response = JSON.parse(result.content[0]!.text);
     expect(response.success).toBe(true);
-    const link = response.data.links[0];
+    const link = response.data.successful[0].links[0];
     expect(link).toHaveProperty('updatedBy');
     expect(link).toHaveProperty('updatedAt');
     expect(link.updatedBy.id).toBe('123');
