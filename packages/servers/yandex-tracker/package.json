@@ -73,6 +73,7 @@
   },
   "dependencies": {
     "@iarna/toml": "^2.2.5",
+    "@mcp-framework/cli": "*",
     "@mcp-framework/core": "*",
     "@mcp-framework/infrastructure": "*",
     "@mcp-framework/search": "*",

@@ -14,5 +14,5 @@ export * from './connectors/index.js';
 // Export utils
 export * from './utils/index.js';
 
-// Export commands (will be implemented in stage 4)
-// export * from './commands/index.js';
+// Export commands
+export * from './commands/index.js';
