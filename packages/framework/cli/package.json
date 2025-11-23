@@ -1,13 +1,13 @@
 {
   "name": "@mcp-framework/cli",
-  "version": "0.1.0",
-  "description": "Generic CLI framework for MCP server connection management",
+  "version": "0.2.0",
+  "description": "Generic CLI for MCP server connection management",
   "keywords": [
     "mcp",
     "cli",
     "claude",
     "connector",
-    "configuration"
+    "command-line"
   ],
   "license": "MIT",
   "author": "Fractalizer",
@@ -28,6 +28,10 @@
     "./utils": {
       "types": "./dist/utils/index.d.ts",
       "default": "./dist/utils/index.js"
+    },
+    "./types": {
+      "types": "./dist/types.d.ts",
+      "default": "./dist/types.js"
     },
     "./*": "./dist/*"
   },
@@ -66,8 +70,7 @@
     "chalk": "^5.4.1",
     "commander": "^14.0.2",
     "inquirer": "^13.0.1",
-    "ora": "^9.0.0",
-    "pino": "^10.1.0"
+    "ora": "^9.0.0"
   },
   "devDependencies": {
     "@types/inquirer": "^9.0.7",
