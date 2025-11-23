@@ -28,16 +28,21 @@ describe('add-comment integration tests', () => {
 
     // Act
     const result = await client.callTool('fr_yandex_tracker_add_comment', {
-      issueId: issueKey,
-      text: commentText,
+      comments: [
+        {
+          issueId: issueKey,
+          text: commentText,
+        },
+      ],
       fields: ['id', 'text'],
     });
 
     // Assert
     expect(result.isError).toBeUndefined();
     const response = JSON.parse(result.content[0]!.text);
-    expect(response.data.comment).toBeDefined();
-    expect(response.data.comment.text).toBe(commentText);
+    expect(response.data.comments).toBeDefined();
+    expect(response.data.comments).toHaveLength(1);
+    expect(response.data.comments[0].comment.text).toBe(commentText);
     mockServer.assertAllRequestsDone();
   });
 
@@ -52,17 +57,22 @@ describe('add-comment integration tests', () => {
 
     // Act
     const result = await client.callTool('fr_yandex_tracker_add_comment', {
-      issueId: issueKey,
-      text: commentText,
-      attachmentIds,
+      comments: [
+        {
+          issueId: issueKey,
+          text: commentText,
+          attachmentIds,
+        },
+      ],
       fields: ['id', 'text'],
     });
 
     // Assert
     expect(result.isError).toBeUndefined();
     const response = JSON.parse(result.content[0]!.text);
-    expect(response.data.comment).toBeDefined();
-    expect(response.data.comment.text).toBe(commentText);
+    expect(response.data.comments).toBeDefined();
+    expect(response.data.comments).toHaveLength(1);
+    expect(response.data.comments[0].comment.text).toBe(commentText);
     mockServer.assertAllRequestsDone();
   });
 
@@ -73,13 +83,22 @@ describe('add-comment integration tests', () => {
 
     // Act
     const result = await client.callTool('fr_yandex_tracker_add_comment', {
-      issueId: issueKey,
-      text: 'Test comment',
+      comments: [
+        {
+          issueId: issueKey,
+          text: 'Test comment',
+        },
+      ],
       fields: ['id', 'text'],
     });
 
     // Assert
-    expect(result.isError).toBe(true);
+    expect(result.isError).toBeUndefined();
+    const response = JSON.parse(result.content[0]!.text);
+    expect(response.data.failed).toBe(1);
+    expect(response.data.successful).toBe(0);
+    expect(response.data.errors).toHaveLength(1);
+    expect(response.data.errors[0].issueId).toBe(issueKey);
     mockServer.assertAllRequestsDone();
   });
 
@@ -93,15 +112,21 @@ describe('add-comment integration tests', () => {
 
     // Act
     const result = await client.callTool('fr_yandex_tracker_add_comment', {
-      issueId: issueKey,
-      text: markdownText,
+      comments: [
+        {
+          issueId: issueKey,
+          text: markdownText,
+        },
+      ],
       fields: ['id', 'text'],
     });
 
     // Assert
     expect(result.isError).toBeUndefined();
     const response = JSON.parse(result.content[0]!.text);
-    expect(response.data.comment.text).toBe(markdownText);
+    expect(response.data.comments).toBeDefined();
+    expect(response.data.comments).toHaveLength(1);
+    expect(response.data.comments[0].comment.text).toBe(markdownText);
     mockServer.assertAllRequestsDone();
   });
 });
