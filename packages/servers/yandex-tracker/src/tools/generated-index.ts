@@ -181,11 +181,11 @@ export const TOOL_SEARCH_INDEX: readonly StaticToolIndex[] = [
   {
     name: 'fr_yandex_tracker_get_issue_links',
     category: ToolCategory.ISSUES,
-    tags: ['links', 'read', 'relationships', 'subtasks'],
+    tags: ['links', 'read', 'relationships', 'subtasks', 'batch'],
     isHelper: false,
     nameTokens: ['fr', 'yandex', 'tracker', 'get', 'issue', 'links'],
-    descriptionTokens: ['issues', 'links'],
-    descriptionShort: '[Issues/Links] Получить связи задачи',
+    descriptionTokens: ['issues', 'links', 'batch'],
+    descriptionShort: '[Issues/Links] Получить связи задач (batch)',
   },
   {
     name: 'fr_yandex_tracker_create_link',

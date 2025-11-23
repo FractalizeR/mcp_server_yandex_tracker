@@ -17,7 +17,10 @@
  */
 
 import { injectable, inject } from 'inversify';
-import { GetIssueLinksOperation } from '#tracker_api/api_operations/link/get-issue-links.operation.js';
+import {
+  GetIssueLinksOperation,
+  type BatchIssueLinksResult,
+} from '#tracker_api/api_operations/link/get-issue-links.operation.js';
 import { CreateLinkOperation } from '#tracker_api/api_operations/link/create-link.operation.js';
 import { DeleteLinkOperation } from '#tracker_api/api_operations/link/delete-link.operation.js';
 import type { LinkWithUnknownFields } from '#tracker_api/entities/link.entity.js';
@@ -32,12 +35,12 @@ export class IssueLinkService {
   ) {}
 
   /**
-   * Получает все связи для указанной задачи
-   * @param issueId - ключ или ID задачи
-   * @returns массив связей задачи
+   * Получает связи для нескольких задач параллельно
+   * @param issueIds - массив ключей или ID задач
+   * @returns массив результатов (fulfilled | rejected)
    */
-  async getIssueLinks(issueId: string): Promise<LinkWithUnknownFields[]> {
-    return this.getLinksOp.execute(issueId);
+  async getIssueLinks(issueIds: string[]): Promise<BatchIssueLinksResult[]> {
+    return this.getLinksOp.execute(issueIds);
   }
 
   /**

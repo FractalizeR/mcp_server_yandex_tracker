@@ -3,16 +3,16 @@
  */
 
 import { z } from 'zod';
-import { IssueKeySchema, FieldsSchema } from '#common/schemas/index.js';
+import { IssueKeysSchema, FieldsSchema } from '#common/schemas/index.js';
 
 /**
- * Схема параметров для получения связей задачи
+ * Схема параметров для получения связей задач
  */
 export const GetIssueLinksParamsSchema = z.object({
   /**
-   * Ключ или ID задачи для получения связей
+   * Массив ключей или ID задач для получения связей
    */
-  issueId: IssueKeySchema,
+  issueIds: IssueKeysSchema.describe('Array of issue IDs or keys'),
 
   /**
    * Массив полей для возврата в результате (обязательный)
