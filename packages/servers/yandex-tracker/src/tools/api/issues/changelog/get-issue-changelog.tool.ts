@@ -96,7 +96,10 @@ export class GetIssueChangelogTool extends BaseTool<YandexTrackerFacade> {
           changelog: item.data,
           totalEntries: Array.isArray(item.data) ? item.data.length : 0,
         })),
-        failed: processedResults.failed,
+        failed: processedResults.failed.map((item) => ({
+          key: item.key,
+          error: item.error,
+        })),
         fieldsReturned: fields,
       });
     } catch (error: unknown) {

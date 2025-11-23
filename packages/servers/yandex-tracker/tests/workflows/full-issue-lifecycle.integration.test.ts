@@ -181,14 +181,15 @@ describe('Full Issue Lifecycle (Integration)', () => {
     const changelogResult = await client.callTool(
       buildToolName('get_issue_changelog', MCP_TOOL_PREFIX),
       {
-        issueKey: issueKey,
+        issueKeys: [issueKey],
         fields: ['id', 'updatedAt', 'updatedBy'],
       }
     );
     expect(changelogResult.isError).toBeFalsy();
     const changelogData = JSON.parse(changelogResult.content[0]!.text);
-    expect(changelogData.data.changelog).toBeInstanceOf(Array);
-    expect(changelogData.data.changelog.length).toBeGreaterThan(0);
+    expect(changelogData.data.successful).toHaveLength(1);
+    expect(changelogData.data.successful[0].changelog).toBeInstanceOf(Array);
+    expect(changelogData.data.successful[0].changelog.length).toBeGreaterThan(0);
 
     // Verify all mocked requests were called
     mockServer.assertAllRequestsDone();

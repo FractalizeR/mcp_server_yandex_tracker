@@ -41,8 +41,8 @@ describe('GetIssueLinksTool', () => {
       expect(definition.name).toBe(buildToolName('get_issue_links', MCP_TOOL_PREFIX));
       expect(definition.description).toContain('Получить связи');
       expect(definition.inputSchema.type).toBe('object');
-      expect(definition.inputSchema.required).toEqual(['issueId', 'fields']);
-      expect(definition.inputSchema.properties?.['issueId']).toBeDefined();
+      expect(definition.inputSchema.required).toEqual(['issueIds', 'fields']);
+      expect(definition.inputSchema.properties?.['issueIds']).toBeDefined();
       expect(definition.inputSchema.properties?.['fields']).toBeDefined();
     });
   });

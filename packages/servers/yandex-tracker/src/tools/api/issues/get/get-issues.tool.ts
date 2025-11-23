@@ -87,7 +87,10 @@ export class GetIssuesTool extends BaseTool<YandexTrackerFacade> {
           issueKey: item.key, // ← ОБНОВЛЕНО: unified формат (key вместо issueKey)
           issue: item.data,
         })),
-        errors: processedResults.failed,
+        errors: processedResults.failed.map((item) => ({
+          key: item.key,
+          error: item.error,
+        })),
         fieldsReturned: fields,
       });
     } catch (error: unknown) {
