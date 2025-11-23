@@ -64,14 +64,30 @@ module.exports = {
     },
 
     {
-      name: 'cli-is-independent',
+      name: 'cli-only-depends-on-infrastructure',
       severity: 'error',
-      comment: 'CLI не зависит от других framework пакетов',
+      comment: 'CLI может зависеть только от infrastructure пакета',
       from: {
-        path: '^packages/cli/',
+        path: '^packages/framework/cli/',
       },
       to: {
-        path: '^packages/(infrastructure|core|search|yandex-tracker)/',
+        path: '^packages/framework/',
+        pathNot: [
+          '^packages/framework/infrastructure/',
+          '^packages/framework/cli/',
+        ],
+      },
+    },
+
+    {
+      name: 'no-circular-cli',
+      severity: 'error',
+      comment: 'Framework пакеты не должны зависеть от CLI',
+      from: {
+        path: '^packages/framework/(infrastructure|core|search)/',
+      },
+      to: {
+        path: '^packages/framework/cli/',
       },
     },
 
