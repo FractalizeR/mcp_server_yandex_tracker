@@ -72,7 +72,9 @@ export async function connectCommand<TConfig extends BaseMCPServerConfig>(
 
     Logger.info(`Выбран клиент: ${connector.getClientInfo().displayName}`);
   } else {
-    const clientInfos = installedClients.map((c) => c.getClientInfo());
+    const clientInfos = installedClients.map((c: (typeof installedClients)[number]) =>
+      c.getClientInfo()
+    );
     const selectedName = await InteractivePrompter.promptClientSelection(clientInfos);
     connector = registry.get(selectedName);
   }
@@ -107,7 +109,7 @@ export async function connectCommand<TConfig extends BaseMCPServerConfig>(
   const errors = await connector.validateConfig(config);
   if (errors.length > 0) {
     Logger.error('Ошибки конфигурации:');
-    errors.forEach((err) => Logger.error(`  - ${err}`));
+    errors.forEach((err: string) => Logger.error(`  - ${err}`));
     return;
   }
 

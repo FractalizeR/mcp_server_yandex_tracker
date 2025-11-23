@@ -1,129 +1,91 @@
 #!/usr/bin/env node
 
-/**
- * CLI инструмент для управления подключениями MCP сервера
- */
+import { program } from 'commander';
+import {
+  ConnectorRegistry,
+  ConfigManager,
+  connectCommand,
+  disconnectCommand,
+  statusCommand,
+  listCommand,
+  validateCommand,
+  // Импортируем коннекторы
+  ClaudeDesktopConnector,
+  ClaudeCodeConnector,
+  CodexConnector,
+  GeminiConnector,
+  QwenConnector,
+} from '@mcp-framework/cli';
+import { ytConfigPrompts } from '../prompts.js';
+import type { YandexTrackerMCPConfig } from '../types.js';
+import { PROJECT_BASE_NAME, SERVER_ENTRY_POINT } from '../../constants.js';
 
-import { Command } from 'commander';
-import { readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
-import { dirname, join } from 'node:path';
-import { connectCommand } from '../commands/connect.command.js';
-import { disconnectCommand } from '../commands/disconnect.command.js';
-import { statusCommand } from '../commands/status.command.js';
-import { listCommand } from '../commands/list.command.js';
-import { validateCommand } from '../commands/validate.command.js';
-import { Logger } from '../utils/logger.js';
-import { MCP_SERVER_DISPLAY_NAME, MCP_SERVER_NAME } from '../../constants.js';
-import { isError } from '#common/type-guards.js';
-import type { ConnectCommandOptions } from '../commands/connect.command.js';
-import type { DisconnectCommandOptions } from '../commands/disconnect.command.js';
+// Создать реестр и зарегистрировать коннекторы
+const registry = new ConnectorRegistry<YandexTrackerMCPConfig>();
+registry.register(
+  new ClaudeDesktopConnector<YandexTrackerMCPConfig>(PROJECT_BASE_NAME, SERVER_ENTRY_POINT)
+);
+registry.register(
+  new ClaudeCodeConnector<YandexTrackerMCPConfig>(PROJECT_BASE_NAME, SERVER_ENTRY_POINT)
+);
+registry.register(
+  new CodexConnector<YandexTrackerMCPConfig>(PROJECT_BASE_NAME, SERVER_ENTRY_POINT)
+);
+registry.register(
+  new GeminiConnector<YandexTrackerMCPConfig>(PROJECT_BASE_NAME, SERVER_ENTRY_POINT)
+);
+registry.register(new QwenConnector<YandexTrackerMCPConfig>(PROJECT_BASE_NAME, SERVER_ENTRY_POINT));
 
-/**
- * Получение версии из package.json
- */
-function getPackageVersion(): string {
-  try {
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = dirname(__filename);
-    const packageJsonPath = join(__dirname, '..', '..', 'package.json');
-    const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8')) as { version: string };
-    return packageJson.version;
-  } catch {
-    return '0.0.0'; // fallback если не удалось прочитать
-  }
-}
+// Создать менеджер конфигурации
+const configManager = new ConfigManager<YandexTrackerMCPConfig>({
+  projectName: PROJECT_BASE_NAME,
+  safeFields: ['orgId', 'apiBase', 'requestTimeout', 'logLevel', 'projectPath'],
+});
 
-const program = new Command();
-
-program
-  .name(MCP_SERVER_NAME as string)
-  .description(`${MCP_SERVER_DISPLAY_NAME as string} - Управление подключениями MCP сервера`)
-  .version(getPackageVersion());
-
-// Команда connect
+// Команды
 program
   .command('connect')
-  .description('Подключить MCP сервер к клиенту (интерактивно)')
-  .option('-c, --client <name>', 'Имя клиента (claude-desktop, claude-code, codex)')
-  .action(async (options: ConnectCommandOptions) => {
-    try {
-      await connectCommand(options);
-    } catch (error) {
-      Logger.error(`Ошибка: ${isError(error) ? error.message : String(error)}`);
-      process.exit(1);
-    }
+  .description('Подключить MCP сервер к клиенту')
+  .option('--client <name>', 'Название клиента')
+  .action(async (opts: { client?: string }) => {
+    await connectCommand({
+      registry,
+      configManager,
+      configPrompts: ytConfigPrompts,
+      cliOptions: opts,
+    });
   });
 
-// Команда disconnect
 program
   .command('disconnect')
   .description('Отключить MCP сервер от клиента')
-  .option('-c, --client <name>', 'Имя клиента (claude-desktop, claude-code, codex)')
-  .action(async (options: DisconnectCommandOptions) => {
-    try {
-      await disconnectCommand(options);
-    } catch (error) {
-      Logger.error(`Ошибка: ${isError(error) ? error.message : String(error)}`);
-      process.exit(1);
-    }
+  .option('--client <name>', 'Название клиента')
+  .action(async (opts: { client?: string }) => {
+    await disconnectCommand({
+      registry,
+      cliOptions: opts,
+    });
   });
 
-// Команда status
 program
   .command('status')
-  .description('Показать статус подключений MCP сервера')
+  .description('Проверить статус подключений')
   .action(async () => {
-    try {
-      await statusCommand();
-    } catch (error) {
-      Logger.error(`Ошибка: ${isError(error) ? error.message : String(error)}`);
-      process.exit(1);
-    }
+    await statusCommand({ registry });
   });
 
-// Команда list
 program
   .command('list')
-  .description('Показать список поддерживаемых MCP клиентов')
+  .description('Показать список поддерживаемых клиентов')
   .action(async () => {
-    try {
-      await listCommand();
-    } catch (error) {
-      Logger.error(`Ошибка: ${isError(error) ? error.message : String(error)}`);
-      process.exit(1);
-    }
+    await listCommand({ registry });
   });
 
-// Команда validate
 program
   .command('validate')
   .description('Проверить валидность конфигураций MCP клиентов')
   .action(async () => {
-    try {
-      await validateCommand();
-    } catch (error) {
-      Logger.error(`Ошибка: ${isError(error) ? error.message : String(error)}`);
-      process.exit(1);
-    }
+    await validateCommand({ registry });
   });
 
-// Обработка глобальных ошибок
-process.on('unhandledRejection', (error: Error) => {
-  Logger.error(`Необработанная ошибка: ${error.message}`);
-  process.exit(1);
-});
-
-process.on('SIGINT', () => {
-  Logger.newLine();
-  Logger.info('Прервано пользователем');
-  process.exit(0);
-});
-
-// Запуск CLI
-program.parse(process.argv);
-
-// Показать help если команды не указаны
-if (!process.argv.slice(2).length) {
-  program.outputHelp();
-}
+program.parse();

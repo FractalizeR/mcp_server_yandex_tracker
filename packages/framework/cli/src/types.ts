@@ -172,28 +172,6 @@ export interface ConnectCommandOptions<TConfig extends BaseMCPServerConfig> {
 }
 
 /**
- * Опции для команды disconnect
- */
-export interface DisconnectCommandOptions<TConfig extends BaseMCPServerConfig> {
-  registry: IConnectorRegistry<TConfig>;
-  cliOptions?: {
-    client?: string;
-    all?: boolean;
-  };
-}
-
-/**
- * Опции для команды validate
- */
-export interface ValidateCommandOptions<TConfig extends BaseMCPServerConfig> {
-  registry: IConnectorRegistry<TConfig>;
-  configManager: ConfigManager<TConfig>;
-  cliOptions?: {
-    client?: string;
-  };
-}
-
-/**
  * Интерфейс для реестра MCP коннекторов
  * @internal - используется только для типизации command options
  */
