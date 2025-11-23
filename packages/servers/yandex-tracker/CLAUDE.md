@@ -102,14 +102,117 @@ this.httpClient.get('/v1/issues'); // Неверная версия
 
 ### 2.1. Batch Operations Pattern
 
-**GET batch (одинаковые параметры):** `issueKeys: IssueKeysSchema`, ответ: `{ total, successful, failed, fieldsReturned }`
-**POST/DELETE batch (индивидуальные параметры):** массив `[{ issueId, ...params }]`, ответ: `{ total, successful, failed }`
+Все read и write операции поддерживают batch режим для работы с множественными задачами.
+
+#### Когда использовать batch
+
+**GET операции:**
+- Используй batch, когда нужны данные от >1 задачи
+- Параметры (perPage, page, expand) применяются ко ВСЕМ задачам одинаково
+- Schema pattern: всегда массив `issueIds: IssueKeysSchema` (минимум 1)
+
+**POST/DELETE операции:**
+- Используй batch для массовых модификаций
+- Каждая задача может иметь индивидуальные параметры
+- Input pattern: массив объектов `[{ issueId, ...params }]`
+
+#### Schema conventions
+
+**GET operations (shared parameters):**
+```typescript
+// Параметры применяются ко всем задачам
+const schema = z.object({
+  issueIds: IssueKeysSchema,  // всегда массив, минимум 1
+  fields: FieldsSchema,
+  perPage: z.number().optional(),  // применяется ко всем
+  // ... другие общие параметры
+});
+```
+
+**POST/DELETE operations (individual parameters):**
+```typescript
+// Каждая задача имеет свои параметры
+const schema = z.object({
+  comments: z.array(
+    z.object({
+      issueId: IssueKeySchema,
+      text: z.string(),
+      attachmentIds: z.array(z.string()).optional(),
+      // ... параметры для конкретной задачи
+    })
+  ).min(1),
+  fields: FieldsSchema
+});
+```
+
+#### Unified batch result format
+
+**Все batch операции ОБЯЗАНЫ возвращать:**
+```typescript
+{
+  total: number,              // общее количество операций
+  successful: Array<{
+    issueId: string,          // ВСЕГДА присутствует
+    ...specificData           // специфичные для операции поля
+  }>,
+  failed: Array<{
+    issueId: string,          // ВСЕГДА присутствует
+    error: string             // ВСЕГДА присутствует
+  }>,
+  fieldsReturned?: string[]   // только для GET операций
+}
+```
+
+#### ParallelExecutor usage
+
+**ОБЯЗАТЕЛЬНО использовать ParallelExecutor для соблюдения concurrency limits:**
+```typescript
+// GET операции (одинаковые параметры)
+const operations = issueIds.map(id => ({
+  key: id,
+  fn: async () => this.httpClient.get(`/v3/issues/${id}/comments`)
+}));
+
+return this.parallelExecutor.executeParallel(operations, 'get comments');
+```
+
+```typescript
+// POST/DELETE операции (индивидуальные параметры)
+const operations = items.map(item => ({
+  key: item.issueId,
+  fn: async () => this.httpClient.post(
+    `/v3/issues/${item.issueId}/comments`,
+    { text: item.text, attachmentIds: item.attachmentIds }
+  )
+}));
+
+return this.parallelExecutor.executeParallel(operations, 'add comments');
+```
+
+#### Обработка частичных ошибок
+
+**Batch операции ДОЛЖНЫ обрабатывать частичные ошибки:**
+- Если некоторые задачи успешны, а некоторые с ошибками → вернуть обе группы
+- НЕ выбрасывать исключение, если хотя бы одна задача успешна
+- Использовать `BatchResultProcessor.process()` для унифицированной обработки
+
+```typescript
+// Пример в tool:
+const batchResult = await operation.executeMany(params);
+const processed = BatchResultProcessor.process(
+  batchResult,
+  'issueId',        // ключ для группировки
+  params.fields     // поля для возврата
+);
+return processed;   // { total, successful, failed, fieldsReturned }
+```
 
 **Компоненты:**
-- `ParallelExecutor` - throttling, `BatchResultProcessor` - unified результаты
+- `ParallelExecutor` — throttling, соблюдение maxConcurrentRequests
+- `BatchResultProcessor` — унификация результатов
 - Типы: `BatchResult<TKey, TValue>` → `ProcessedBatchResult<TKey, TValue>`
 
-**Пример:** get-issues.tool.ts (GET batch с ParallelExecutor + BatchResultProcessor)
+**Примеры:** get-comments.tool.ts, add-comment.tool.ts, get-issues.tool.ts
 
 ### 3. 🔍 Фильтрация полей (обязательно)
 

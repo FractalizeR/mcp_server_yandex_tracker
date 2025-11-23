@@ -203,6 +203,152 @@ await client.callTool('get_projects', {
 
 ---
 
+## v2.y → v2.z: Migration to Batch Operations
+
+### Breaking Changes
+
+All read and write operations now use batch mode with unified response format.
+
+#### Parameter Changes
+
+**All operations now require arrays:**
+
+**GET operations (before):**
+```typescript
+get_comments({
+  issueId: 'PROJ-1',
+  fields: ['id', 'text', 'createdAt']
+})
+```
+
+**GET operations (after):**
+```typescript
+get_comments({
+  issueIds: ['PROJ-1'],  // ← array, minimum 1 element
+  fields: ['id', 'text', 'createdAt']
+})
+```
+
+**POST/DELETE operations (before):**
+```typescript
+add_comment({
+  issueId: 'PROJ-1',
+  text: 'My comment'
+})
+```
+
+**POST/DELETE operations (after):**
+```typescript
+add_comment({
+  comments: [{  // ← array of objects with individual params
+    issueId: 'PROJ-1',
+    text: 'My comment'
+  }],
+  fields: ['id', 'text', 'createdAt']
+})
+```
+
+#### Response Format Changes
+
+**Before (single item):**
+```json
+{
+  "issueId": "PROJ-1",
+  "comments": [...],
+  "count": 5
+}
+```
+
+**After (unified batch format):**
+```json
+{
+  "total": 1,
+  "successful": [
+    {
+      "issueId": "PROJ-1",
+      "comments": [...],
+      "count": 5
+    }
+  ],
+  "failed": []
+}
+```
+
+### Affected Operations (15)
+
+**GET operations:**
+- `get_comments` — Comments from multiple issues
+- `get_issue_links` — Links from multiple issues
+- `get_issue_changelog` — Changelog from multiple issues
+- `get_worklogs` — Worklogs from multiple issues
+- `get_checklist` — Checklists from multiple issues
+- `get_attachments` — Attachments from multiple issues
+
+**POST/DELETE operations:**
+- `add_comment` — Add comments to multiple issues
+- `create_link` — Create multiple links
+- `delete_link` — Delete multiple links
+- `add_worklog` — Add worklogs to multiple issues
+- `delete_comment` — Delete comments from multiple issues
+- `add_checklist_item` — Add checklist items to multiple issues
+- `delete_attachment` — Delete attachments from multiple issues
+- `edit_comment` — Edit comments in multiple issues
+- `delete_worklog` — Delete worklogs from multiple issues
+
+### Migration Checklist
+
+1. **Update all tool calls:**
+   - [ ] Change `issueId` → `issueIds` (array) for GET operations
+   - [ ] Change single params to array of objects for POST/DELETE operations
+   - [ ] Ensure `issueIds` has minimum 1 element
+
+2. **Update response parsing:**
+   - [ ] Expect `{ total, successful, failed }` format
+   - [ ] Handle `successful` array (iterate over results)
+   - [ ] Handle `failed` array (partial errors)
+
+3. **Error handling:**
+   - [ ] Check both `successful` and `failed` arrays
+   - [ ] Don't assume all operations succeeded
+   - [ ] Display errors from `failed` array to user
+
+### Benefits
+
+- ✅ Execute N operations in a single MCP tool call
+- ✅ Automatic parallelization (respects rate limits)
+- ✅ Partial error handling (some may succeed, others fail)
+- ✅ Consistent unified response format
+
+### Example Migration
+
+**Before:**
+```typescript
+// Get comments from 3 issues (3 separate calls)
+const comments1 = await getTool('get_comments', { issueId: 'PROJ-1', fields: ['id', 'text'] });
+const comments2 = await getTool('get_comments', { issueId: 'PROJ-2', fields: ['id', 'text'] });
+const comments3 = await getTool('get_comments', { issueId: 'PROJ-3', fields: ['id', 'text'] });
+```
+
+**After:**
+```typescript
+// Get comments from 3 issues (1 batch call)
+const result = await getTool('get_comments', {
+  issueIds: ['PROJ-1', 'PROJ-2', 'PROJ-3'],
+  fields: ['id', 'text']
+});
+
+// Handle results
+result.successful.forEach(item => {
+  console.log(`Issue ${item.issueId}: ${item.count} comments`);
+});
+
+result.failed.forEach(item => {
+  console.error(`Issue ${item.issueId}: ${item.error}`);
+});
+```
+
+---
+
 ## См. также
 
 - **Корневой CLAUDE.md:** [CLAUDE.md](./CLAUDE.md)

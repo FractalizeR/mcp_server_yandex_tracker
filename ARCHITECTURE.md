@@ -285,6 +285,43 @@ import { createFixture } from '#helpers/queue.fixture.js';
 - **Operations** — business logic
 - **Infrastructure** — HTTP, retry, cache, logging
 
+### Batch Operations Flow
+
+All read and write operations support batch mode for working with multiple issues efficiently.
+
+**GET operations (parallel data fetching):**
+```
+Tool (issueIds[]) → Operation.executeMany()
+  → ParallelExecutor (respects maxConcurrentRequests from ServerConfig)
+    → N × API calls (parallel, with throttling)
+  → BatchResult<string, Data>
+  → BatchResultProcessor.process()
+    → Unified format: { total, successful, failed, fieldsReturned }
+```
+
+**POST/DELETE operations (parallel modification):**
+```
+Tool (items[]) → Operation.executeMany()
+  → ParallelExecutor (throttles to maxConcurrentRequests)
+    → N × API calls (each with individual params)
+  → BatchResult<string, Response>
+  → BatchResultProcessor.process()
+    → Unified format: { total, successful, failed }
+```
+
+**Key components:**
+- **ParallelExecutor** — enforces maxConcurrentRequests from ServerConfig
+- **BatchResultProcessor** — unifies result processing for all batch operations
+- **Unified Batch Format** — consistent response structure across all operations
+
+**Two patterns:**
+1. **GET batch (shared parameters):** Single set of parameters (perPage, expand) applied to all issues
+   - Schema: `issueIds: IssueKeysSchema` (array, min 1)
+2. **POST/DELETE batch (individual parameters):** Each issue has its own parameters
+   - Schema: array of objects `[{ issueId, ...params }]`
+
+**Examples:** get-comments.tool.ts, add-comment.tool.ts, delete-link.tool.ts
+
 ---
 
 ## 🔄 Schema-to-Definition Generator

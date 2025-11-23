@@ -109,6 +109,75 @@ npm run build
 
 ---
 
+## 🔄 Batch Operations
+
+All read and write operations support batch mode for improved performance when working with multiple issues.
+
+### Batch GET Operations
+
+Get data from multiple issues with shared parameters (perPage, expand, etc.) in a single tool call:
+
+- `get_comments` — Get comments from multiple issues
+- `get_issue_links` — Get links from multiple issues
+- `get_issue_changelog` — Get changelog from multiple issues
+- `get_worklogs` — Get worklogs from multiple issues
+- `get_checklist` — Get checklists from multiple issues
+- `get_attachments` — Get attachments from multiple issues
+
+**Example:**
+```json
+{
+  "issueIds": ["PROJ-1", "PROJ-2", "PROJ-3"],
+  "fields": ["id", "text", "createdAt"]
+}
+```
+
+**Response format (unified):**
+```json
+{
+  "total": 3,
+  "successful": [
+    { "issueId": "PROJ-1", "comments": [...], "count": 5 },
+    { "issueId": "PROJ-2", "comments": [...], "count": 3 }
+  ],
+  "failed": [
+    { "issueId": "PROJ-3", "error": "Issue not found" }
+  ]
+}
+```
+
+### Batch POST/DELETE Operations
+
+Modify multiple issues with individual parameters for each:
+
+- `add_comment` — Add comments to multiple issues (each with own text)
+- `create_link` — Create multiple links
+- `delete_link` — Delete multiple links
+- `add_worklog` — Add worklogs to multiple issues
+- `delete_comment` — Delete comments from multiple issues
+- `add_checklist_item` — Add checklist items to multiple issues
+- `delete_attachment` — Delete attachments from multiple issues
+- `edit_comment` — Edit comments in multiple issues
+
+**Example (individual parameters per issue):**
+```json
+{
+  "comments": [
+    { "issueId": "PROJ-1", "text": "Comment for task 1" },
+    { "issueId": "PROJ-2", "text": "Comment for task 2", "attachmentIds": ["att1"] }
+  ],
+  "fields": ["id", "text", "createdAt"]
+}
+```
+
+**Why batch operations?**
+- Execute N operations in a single MCP tool call
+- Automatic parallelization (respects rate limits)
+- Partial error handling (some may succeed, others fail)
+- Consistent unified response format
+
+---
+
 ## 📚 Покрытие Yandex Tracker API
 
 Этот MCP сервер поддерживает **9 из 17 категорий** официального API Яндекс.Трекера (покрытие ~53%).
