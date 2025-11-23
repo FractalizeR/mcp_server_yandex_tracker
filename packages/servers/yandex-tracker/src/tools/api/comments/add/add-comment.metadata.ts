@@ -17,8 +17,7 @@ import { MCP_TOOL_PREFIX } from '#constants';
  */
 export const ADD_COMMENT_TOOL_METADATA: StaticToolMetadata = {
   name: buildToolName('add_comment', MCP_TOOL_PREFIX),
-  description:
-    '[Comments/Write] Добавить комментарии к одной или нескольким задачам. Каждая задача может иметь индивидуальный текст и вложения.',
+  description: '[Comments/Write] Добавить комментарии к задачам (batch).',
   category: ToolCategory.COMMENTS,
   subcategory: 'write',
   priority: ToolPriority.CRITICAL,

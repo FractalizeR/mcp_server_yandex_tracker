@@ -70,13 +70,18 @@ describe('Full Issue Lifecycle (Integration)', () => {
     });
 
     const addCommentResult = await client.callTool(buildToolName('add_comment', MCP_TOOL_PREFIX), {
-      issueId: issueKey,
-      text: 'First comment on this issue',
+      comments: [
+        {
+          issueId: issueKey,
+          text: 'First comment on this issue',
+        },
+      ],
       fields: ['id', 'text'],
     });
     expect(addCommentResult.isError).toBeFalsy();
     const commentData = JSON.parse(addCommentResult.content[0]!.text);
-    expect(commentData.data.comment).toBeDefined();
+    expect(commentData.data.comments).toBeDefined();
+    expect(commentData.data.comments[0].comment).toBeDefined();
 
     // 3. Прикрепить файл
     mockServer.mockUploadAttachmentSuccess(issueKey, {
@@ -219,8 +224,12 @@ describe('Full Issue Lifecycle (Integration)', () => {
       });
 
       const result = await client.callTool(buildToolName('add_comment', MCP_TOOL_PREFIX), {
-        issueId: issueKey,
-        text: `Comment ${i}`,
+        comments: [
+          {
+            issueId: issueKey,
+            text: `Comment ${i}`,
+          },
+        ],
         fields: ['id', 'text'],
       });
       expect(result.isError).toBeFalsy();
