@@ -181,28 +181,41 @@ const all = ResponseFieldFilter.filter(data);
 
 ### BatchResultProcessor
 
-**Process batch operation results** (fulfilled + rejected).
+**Process batch operation results** from parallel operations (fulfilled + rejected).
+
+**Purpose:** Separates successful and failed results from `ParallelExecutor.executeParallel()` and optionally filters response fields.
+
+**API:**
+```typescript
+BatchResultProcessor.process<TKey, TInputValue, TOutputValue>(
+  results: BatchResult<TKey, TInputValue>,
+  filterFn?: (item: TInputValue) => TOutputValue
+): ProcessedBatchResult<TKey, TOutputValue>
+```
 
 **Usage:**
 ```typescript
-import { BatchResultProcessor } from '@mcp-framework/core';
+import { BatchResultProcessor, ResponseFieldFilter } from '@mcp-framework/core';
 
-const results: BatchResult<string, Item> = [
-  { status: 'fulfilled', value: { id: '1', name: 'Item 1' } },
-  { status: 'rejected', reason: new Error('Not found') },
-];
+// Get results from parallel operation
+const results: BatchResult<string, Issue> = await operation.execute(issueKeys);
 
-// Separate successful and failed
-const { successful, failed } = BatchResultProcessor.separateResults(results);
-
-// Format for response
-const formatted = BatchResultProcessor.formatBatchResponse(
-  successful,
-  failed,
-  'items'
+// Process results with optional field filtering
+const { successful, failed } = BatchResultProcessor.process(
+  results,
+  (issue) => ResponseFieldFilter.filter(issue, ['key', 'summary', 'status'])
 );
-// Result: { items: [...], errors: [...] }
+
+// Result format:
+// successful: [{ key: 'QUEUE-1', data: { key: 'QUEUE-1', summary: '...' } }, ...]
+// failed: [{ key: 'QUEUE-2', error: { statusCode: 404, message: 'Not found' } }, ...]
 ```
+
+**Key features:**
+- Separates fulfilled from rejected results
+- Preserves operation keys for error identification
+- Applies optional filter function to successful results
+- Extracts full `ApiErrorDetails` (statusCode, message, errors, retryAfter) from failures
 
 ### ResultLogger
 
