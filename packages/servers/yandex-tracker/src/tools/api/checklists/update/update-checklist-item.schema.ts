@@ -1,5 +1,5 @@
 /**
- * Zod схема для валидации параметров UpdateChecklistItemTool
+ * Zod схема для валидации параметров UpdateChecklistItemTool (batch-режим)
  */
 
 import { z } from 'zod';
@@ -7,13 +7,13 @@ import { IssueKeySchema, FieldsSchema } from '#common/schemas/index.js';
 import { BaseChecklistItemFieldsSchema } from '../base-checklist-item.schema.js';
 
 /**
- * Схема параметров для обновления элемента чеклиста
+ * Схема элемента для обновления с индивидуальными параметрами
  *
  * Использует базовую схему с:
- * - checklistItemId: обязательно
- * - все поля базовой схемы: опционально (через .partial())
+ * - issueId, checklistItemId: обязательно
+ * - text, checked, assignee, deadline: опционально (через .partial())
  */
-export const UpdateChecklistItemParamsSchema = z
+const UpdateChecklistItemElementSchema = z
   .object({
     /**
      * Идентификатор или ключ задачи (обязательно)
@@ -24,14 +24,31 @@ export const UpdateChecklistItemParamsSchema = z
      * Идентификатор элемента чеклиста (обязательно)
      */
     checklistItemId: z.string().min(1, 'ID элемента не может быть пустым'),
-
-    /**
-     * Массив полей для возврата в результате (обязательный)
-     * Примеры: ['id', 'text', 'checked'], ['id', 'text', 'assignee.login']
-     */
-    fields: FieldsSchema,
   })
   .merge(BaseChecklistItemFieldsSchema.partial());
+
+/**
+ * Схема параметров для обновления элементов чеклистов (batch-режим)
+ *
+ * Паттерн PATCH операций: Input Pattern - индивидуальные параметры
+ * Каждый элемент имеет свои параметры (text?, checked?, assignee?, deadline?)
+ */
+export const UpdateChecklistItemParamsSchema = z.object({
+  /**
+   * Массив элементов чеклиста с индивидуальными параметрами для обновления
+   */
+  items: z
+    .array(UpdateChecklistItemElementSchema)
+    .min(1, 'Массив items должен содержать минимум 1 элемент')
+    .describe('Array of checklist items to update'),
+
+  /**
+   * Массив полей для возврата в результате (обязательный)
+   * Примеры: ['id', 'text', 'checked'], ['id', 'text', 'assignee.login']
+   * Применяется ко всем обновлённым элементам
+   */
+  fields: FieldsSchema,
+});
 
 /**
  * Вывод типа из схемы

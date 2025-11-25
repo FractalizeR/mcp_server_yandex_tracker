@@ -1,13 +1,18 @@
 /**
- * MCP Tool для обновления элемента чеклиста задачи
+ * MCP Tool для обновления элементов чеклистов задач
  *
  * API Tool (прямой доступ к API):
- * - 1 tool = 1 API вызов (update checklist item)
+ * - Batch-режим: обновление элементов в нескольких задачах
  * - Минимальная бизнес-логика
  * - Валидация через Zod
  */
 
-import { BaseTool, ResponseFieldFilter } from '@mcp-framework/core';
+import {
+  BaseTool,
+  ResponseFieldFilter,
+  BatchResultProcessor,
+  ResultLogger,
+} from '@mcp-framework/core';
 import type { YandexTrackerFacade } from '#tracker_api/facade/index.js';
 import type { ToolCallParams, ToolResult } from '@mcp-framework/infrastructure';
 import type { ChecklistItemWithUnknownFields } from '#tracker_api/entities/index.js';
@@ -16,11 +21,13 @@ import { UpdateChecklistItemParamsSchema } from '#tools/api/checklists/update/up
 import { UPDATE_CHECKLIST_ITEM_TOOL_METADATA } from './update-checklist-item.metadata.js';
 
 /**
- * Инструмент для обновления элемента чеклиста задачи
+ * Инструмент для обновления элементов чеклистов задач (batch-режим)
  *
  * Ответственность (SRP):
- * - Координация процесса обновления элемента
+ * - Координация процесса обновления элементов в нескольких задачах
  * - Делегирование валидации в BaseTool
+ * - Делегирование обработки результатов в BatchResultProcessor
+ * - Делегирование логирования в ResultLogger
  * - Форматирование итогового результата
  */
 export class UpdateChecklistItemTool extends BaseTool<YandexTrackerFacade> {
@@ -43,52 +50,59 @@ export class UpdateChecklistItemTool extends BaseTool<YandexTrackerFacade> {
       return validation.error;
     }
 
-    const { fields, issueId, checklistItemId, text, checked, assignee, deadline } = validation.data;
+    const { items, fields } = validation.data;
 
     try {
       // 2. Логирование начала операции
-      this.logger.info('Обновление элемента чеклиста задачи', {
-        issueId,
-        itemId: checklistItemId,
-        hasText: Boolean(text),
-        hasChecked: checked !== undefined,
-        hasAssignee: Boolean(assignee),
-        hasDeadline: Boolean(deadline),
-        fieldsCount: fields.length,
-      });
-
-      // 3. API v2: обновление элемента
-      const item: ChecklistItemWithUnknownFields = await this.facade.updateChecklistItem(
-        issueId,
-        checklistItemId,
-        {
-          text,
-          checked,
-          assignee,
-          deadline,
-        }
+      ResultLogger.logOperationStart(
+        this.logger,
+        'Обновление элементов чеклистов',
+        items.length,
+        fields
       );
 
-      // 4. Фильтрация полей ответа
-      const filtered = ResponseFieldFilter.filter<ChecklistItemWithUnknownFields>(item, fields);
+      // 3. API v2: обновление элементов через batch-метод
+      const results = await this.facade.updateChecklistItemMany(items);
 
-      // 5. Логирование результата
-      this.logger.info('Элемент чеклиста успешно обновлён', {
-        issueId,
-        itemId: item.id,
-        checked: item.checked,
-        fieldsReturned: fields.length,
-      });
+      // 4. Обработка результатов через BatchResultProcessor
+      const processedResults = BatchResultProcessor.process(
+        results,
+        (item: ChecklistItemWithUnknownFields): Partial<ChecklistItemWithUnknownFields> =>
+          ResponseFieldFilter.filter<ChecklistItemWithUnknownFields>(item, fields)
+      );
+
+      // 5. Логирование результатов
+      ResultLogger.logBatchResults(
+        this.logger,
+        'Элементы чеклистов обновлены',
+        {
+          totalRequested: items.length,
+          successCount: processedResults.successful.length,
+          failedCount: processedResults.failed.length,
+          fieldsCount: fields.length,
+        },
+        processedResults
+      );
 
       return this.formatSuccess({
-        itemId: item.id,
-        item: filtered,
-        issueId,
+        total: items.length,
+        successful: processedResults.successful.length,
+        failed: processedResults.failed.length,
+        items: processedResults.successful.map((result) => ({
+          issueId: result.key.split('/')[0],
+          checklistItemId: result.key.split('/')[1],
+          item: result.data,
+        })),
+        errors: processedResults.failed.map((result) => ({
+          issueId: result.key.split('/')[0],
+          checklistItemId: result.key.split('/')[1],
+          error: result.error,
+        })),
         fieldsReturned: fields,
       });
     } catch (error: unknown) {
       return this.formatError(
-        `Ошибка при обновлении элемента ${checklistItemId} чеклиста задачи ${issueId}`,
+        `Ошибка при обновлении элементов чеклистов (${items.length} элементов)`,
         error
       );
     }

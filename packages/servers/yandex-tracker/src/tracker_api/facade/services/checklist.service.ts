@@ -105,6 +105,24 @@ export class ChecklistService {
   }
 
   /**
+   * Обновляет элементы чеклистов нескольких задач параллельно
+   * @param items - массив элементов с индивидуальными параметрами
+   * @returns результаты batch-операции
+   */
+  async updateChecklistItemMany(
+    items: Array<{
+      issueId: string;
+      checklistItemId: string;
+      text?: string | undefined;
+      checked?: boolean | undefined;
+      assignee?: string | undefined;
+      deadline?: string | undefined;
+    }>
+  ): Promise<BatchResult<string, ChecklistItemWithUnknownFields>> {
+    return this.updateChecklistItemOp.executeMany(items);
+  }
+
+  /**
    * Удаляет элемент из чеклиста
    * @param issueId - идентификатор или ключ задачи
    * @param checklistItemId - идентификатор элемента чеклиста

@@ -307,11 +307,11 @@ export const TOOL_SEARCH_INDEX: readonly StaticToolIndex[] = [
   {
     name: 'fr_yandex_tracker_update_checklist_item',
     category: ToolCategory.CHECKLISTS,
-    tags: ['checklist', 'update', 'edit', 'write'],
+    tags: ['checklist', 'update', 'edit', 'write', 'batch'],
     isHelper: false,
     nameTokens: ['fr', 'yandex', 'tracker', 'update', 'checklist', 'item'],
-    descriptionTokens: ['checklist', 'write'],
-    descriptionShort: '[Checklist/Write] Обновить элемент чеклиста',
+    descriptionTokens: ['checklist', 'write', 'batch'],
+    descriptionShort: '[Checklist/Write] Обновить элементы чеклистов (batch)',
   },
   {
     name: 'fr_yandex_tracker_delete_checklist_item',
