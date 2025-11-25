@@ -17,11 +17,11 @@ import { MCP_TOOL_PREFIX } from '#constants';
  */
 export const UPDATE_CHECKLIST_ITEM_TOOL_METADATA: StaticToolMetadata = {
   name: buildToolName('update_checklist_item', MCP_TOOL_PREFIX),
-  description: '[Checklist/Write] Обновить элемент чеклиста',
+  description: '[Checklist/Write] Обновить элементы чеклистов (batch)',
   category: ToolCategory.CHECKLISTS,
   subcategory: 'write',
   priority: ToolPriority.HIGH,
-  tags: ['checklist', 'update', 'edit', 'write'],
+  tags: ['checklist', 'update', 'edit', 'write', 'batch'],
   isHelper: false,
   requiresExplicitUserConsent: true,
 } as const;

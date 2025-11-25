@@ -4,6 +4,7 @@ import type { CacheManager } from '@mcp-framework/infrastructure/cache/cache-man
 import type { Logger } from '@mcp-framework/infrastructure/logging/logger.js';
 import type { ChecklistItemWithUnknownFields } from '#tracker_api/entities/index.js';
 import type { UpdateChecklistItemInput } from '#tracker_api/dto/index.js';
+import type { ServerConfig } from '#config';
 import { UpdateChecklistItemOperation } from '#tracker_api/api_operations/checklist/update-checklist-item.operation.js';
 
 describe('UpdateChecklistItemOperation', () => {
@@ -11,6 +12,7 @@ describe('UpdateChecklistItemOperation', () => {
   let mockHttpClient: IHttpClient;
   let mockCacheManager: CacheManager;
   let mockLogger: Logger;
+  let mockConfig: ServerConfig;
 
   beforeEach(() => {
     mockHttpClient = {
@@ -37,7 +39,17 @@ describe('UpdateChecklistItemOperation', () => {
       debug: vi.fn(),
     } as unknown as Logger;
 
-    operation = new UpdateChecklistItemOperation(mockHttpClient, mockCacheManager, mockLogger);
+    mockConfig = {
+      maxBatchSize: 100,
+      maxConcurrentRequests: 5,
+    } as ServerConfig;
+
+    operation = new UpdateChecklistItemOperation(
+      mockHttpClient,
+      mockCacheManager,
+      mockLogger,
+      mockConfig
+    );
   });
 
   describe('execute', () => {
@@ -143,6 +155,127 @@ describe('UpdateChecklistItemOperation', () => {
       );
       expect(mockLogger.info).toHaveBeenCalledWith(
         'Элемент 999 чеклиста задачи TEST-3 успешно обновлён'
+      );
+    });
+  });
+
+  describe('executeMany', () => {
+    it('should return empty array for empty input', async () => {
+      const result = await operation.executeMany([]);
+
+      expect(result).toEqual([]);
+      expect(mockLogger.warn).toHaveBeenCalledWith(
+        'UpdateChecklistItemOperation: пустой массив элементов'
+      );
+    });
+
+    it('should update items in multiple issues in parallel', async () => {
+      const mockItem1: ChecklistItemWithUnknownFields = {
+        id: 'item-1',
+        text: 'Updated Item 1',
+        checked: false,
+      };
+      const mockItem2: ChecklistItemWithUnknownFields = {
+        id: 'item-2',
+        text: 'Item 2',
+        checked: true,
+      };
+
+      vi.mocked(mockHttpClient.patch)
+        .mockResolvedValueOnce(mockItem1)
+        .mockResolvedValueOnce(mockItem2);
+
+      const result = await operation.executeMany([
+        { issueId: 'TEST-1', checklistItemId: 'item-1', text: 'Updated Item 1' },
+        { issueId: 'TEST-2', checklistItemId: 'item-2', checked: true },
+      ]);
+
+      expect(result).toHaveLength(2);
+      expect(result[0]).toMatchObject({
+        status: 'fulfilled',
+        key: 'TEST-1/item-1',
+        value: mockItem1,
+      });
+      expect(result[1]).toMatchObject({
+        status: 'fulfilled',
+        key: 'TEST-2/item-2',
+        value: mockItem2,
+      });
+    });
+
+    it('should handle partial failures', async () => {
+      const mockItem: ChecklistItemWithUnknownFields = {
+        id: 'item-1',
+        text: 'Item 1',
+        checked: false,
+      };
+
+      vi.mocked(mockHttpClient.patch)
+        .mockResolvedValueOnce(mockItem)
+        .mockRejectedValueOnce(new Error('Item not found'));
+
+      const result = await operation.executeMany([
+        { issueId: 'TEST-1', checklistItemId: 'item-1', text: 'Item 1' },
+        { issueId: 'NONEXISTENT-1', checklistItemId: 'item-2', text: 'Item 2' },
+      ]);
+
+      expect(result).toHaveLength(2);
+      expect(result[0]).toMatchObject({
+        status: 'fulfilled',
+        key: 'TEST-1/item-1',
+      });
+      expect(result[1]).toMatchObject({
+        status: 'rejected',
+        key: 'NONEXISTENT-1/item-2',
+      });
+    });
+
+    it('should pass all optional parameters', async () => {
+      const mockItem: ChecklistItemWithUnknownFields = {
+        id: 'item-1',
+        text: 'Item 1',
+        checked: true,
+        assignee: { id: 'user1', display: 'User 1' },
+        deadline: '2025-12-31',
+      };
+
+      vi.mocked(mockHttpClient.patch).mockResolvedValue(mockItem);
+
+      await operation.executeMany([
+        {
+          issueId: 'TEST-1',
+          checklistItemId: 'item-1',
+          text: 'Item 1',
+          checked: true,
+          assignee: 'user1',
+          deadline: '2025-12-31',
+        },
+      ]);
+
+      expect(mockHttpClient.patch).toHaveBeenCalledWith('/v2/issues/TEST-1/checklistItems/item-1', {
+        text: 'Item 1',
+        checked: true,
+        assignee: 'user1',
+        deadline: '2025-12-31',
+      });
+    });
+
+    it('should log batch operation start', async () => {
+      const mockItem: ChecklistItemWithUnknownFields = {
+        id: 'item-1',
+        text: 'Item 1',
+        checked: false,
+      };
+
+      vi.mocked(mockHttpClient.patch).mockResolvedValue(mockItem);
+
+      await operation.executeMany([
+        { issueId: 'TEST-1', checklistItemId: 'item-1', text: 'Item 1' },
+        { issueId: 'TEST-2', checklistItemId: 'item-2', text: 'Item 2' },
+      ]);
+
+      expect(mockLogger.info).toHaveBeenCalledWith(
+        'Обновление элементов чеклистов 2 задач параллельно: TEST-1/item-1, TEST-2/item-2'
       );
     });
   });
