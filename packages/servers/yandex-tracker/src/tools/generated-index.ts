@@ -244,11 +244,11 @@ export const TOOL_SEARCH_INDEX: readonly StaticToolIndex[] = [
   {
     name: 'fr_yandex_tracker_get_attachments',
     category: ToolCategory.ISSUES,
-    tags: ['attachments', 'read', 'files', 'documents'],
+    tags: ['attachments', 'read', 'files', 'documents', 'batch'],
     isHelper: false,
     nameTokens: ['fr', 'yandex', 'tracker', 'get', 'attachments'],
-    descriptionTokens: ['issues', 'attachments'],
-    descriptionShort: '[Issues/Attachments] Получить список файлов задачи',
+    descriptionTokens: ['issues', 'attachments', 'batch'],
+    descriptionShort: '[Issues/Attachments] Получить список файлов задач (batch)',
   },
   {
     name: 'fr_yandex_tracker_upload_attachment',

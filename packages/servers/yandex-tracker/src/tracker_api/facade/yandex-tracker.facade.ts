@@ -652,6 +652,17 @@ export class YandexTrackerFacade {
   }
 
   /**
+   * Получает списки прикрепленных файлов для нескольких задач параллельно
+   * @param issueIds - массив ключей или ID задач
+   * @returns результаты в формате BatchResult
+   */
+  async getAttachmentsMany(
+    issueIds: string[]
+  ): Promise<BatchResult<string, AttachmentWithUnknownFields[]>> {
+    return this.issueAttachmentService.getAttachmentsMany(issueIds);
+  }
+
+  /**
    * Загружает файл в задачу
    * @param issueId - ключ или ID задачи
    * @param input - параметры загрузки файла (filename, file, mimetype)
