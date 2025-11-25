@@ -578,6 +578,22 @@ export class YandexTrackerFacade {
   }
 
   /**
+   * Добавляет записи времени к нескольким задачам параллельно
+   * @param worklogs - массив записей времени с индивидуальными параметрами
+   * @returns результаты в формате BatchResult
+   */
+  async addWorklogsMany(
+    worklogs: Array<{
+      issueId: string;
+      start: string;
+      duration: string;
+      comment?: string | undefined;
+    }>
+  ): Promise<BatchResult<string, WorklogWithUnknownFields>> {
+    return this.worklogService.addWorklogsMany(worklogs);
+  }
+
+  /**
    * Обновляет запись времени
    * @param issueId - идентификатор или ключ задачи
    * @param worklogId - идентификатор записи времени
