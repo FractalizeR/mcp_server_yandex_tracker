@@ -87,7 +87,7 @@
     "commander": "^14.0.2",
     "inquirer": "^13.0.1",
     "inversify": "^7.10.4",
-    "mime-types": "^3.0.1",
+    "mime-types": "^3.0.2",
     "ora": "^9.0.0",
     "pino": "^10.1.0",
     "zod": "^4.1.12"
