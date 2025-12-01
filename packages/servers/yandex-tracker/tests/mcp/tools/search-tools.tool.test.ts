@@ -359,7 +359,7 @@ describe('SearchToolsTool (E2E)', () => {
       expect(result.isError).toBe(true);
       const content = result.content[0]!;
       if (content.type === 'text') {
-        expect(content.text).toContain('Invalid option');
+        expect(content.text).toContain('Invalid enum value');
       }
     });
 
@@ -370,7 +370,7 @@ describe('SearchToolsTool (E2E)', () => {
       expect(result.isError).toBe(true);
       const content = result.content[0]!;
       if (content.type === 'text') {
-        expect(content.text).toContain('Invalid option');
+        expect(content.text).toContain('Invalid enum value');
       }
     });
 
@@ -380,7 +380,7 @@ describe('SearchToolsTool (E2E)', () => {
       expect(result.isError).toBe(true);
       const content = result.content[0]!;
       if (content.type === 'text') {
-        expect(content.text).toContain('Too small');
+        expect(content.text).toContain('Number must be greater than 0');
       }
     });
 
@@ -390,7 +390,7 @@ describe('SearchToolsTool (E2E)', () => {
       expect(result.isError).toBe(true);
       const content = result.content[0]!;
       if (content.type === 'text') {
-        expect(content.text).toContain('Invalid input');
+        expect(content.text).toContain('Expected integer, received float');
       }
     });
 
